@@ -151,8 +151,8 @@ Este documento contém o plano completo para migrar o projeto **Nossa Maternidad
 
 \`\`\`bash
 # 1. Clonar o repositório
-git clone https://github.com/seu-usuario/v0-nossa-maternidade-app.git
-cd v0-nossa-maternidade-app
+git clone https://github.com/LionGab/v1-nossamaternidade.git
+cd v1-nossamaternidade
 
 # 2. Instalar Node.js 18+ (se não tiver)
 # Verificar versão

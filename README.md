@@ -1,30 +1,63 @@
 # Nossa Maternidade app
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+*Migrated from v0 to v1 - Production-ready maternal care application*
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/liams-projects-a37cc75c/v0-nossa-maternidade-app)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/u9sD9IFBoLf)
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/liams-projects-a37cc75c/v1-nossamaternidade)
+[![Built with Next.js](https://img.shields.io/badge/Built%20with-Next.js-black?style=for-the-badge)](https://nextjs.org)
 
 ## Overview
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+This is the v1 repository for Nossa Maternidade application - a comprehensive maternal care platform with authentication, gamification, AI chat, diary features, and more.
 
 ## Deployment
 
 Your project is live at:
 
-**[https://vercel.com/liams-projects-a37cc75c/v0-nossa-maternidade-app](https://vercel.com/liams-projects-a37cc75c/v0-nossa-maternidade-app)**
+**[https://vercel.com/liams-projects-a37cc75c/v1-nossamaternidade](https://vercel.com/liams-projects-a37cc75c/v1-nossamaternidade)**
 
-## Build your app
+## Getting Started
 
-Continue building your app on:
+### Prerequisites
+- Node.js 18+ 
+- pnpm (recommended package manager)
+- Supabase account
 
-**[https://v0.app/chat/u9sD9IFBoLf](https://v0.app/chat/u9sD9IFBoLf)**
+### Installation
 
-## How It Works
+1. Clone the repository:
+```bash
+git clone https://github.com/LionGab/v1-nossamaternidade.git
+cd v1-nossamaternidade
+```
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+2. Install dependencies:
+```bash
+pnpm install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
+
+4. Run the development server:
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to see the application.
+
+## Features
+
+- 🔐 Secure authentication with Supabase
+- 👶 Maternal journey tracking
+- 💬 AI-powered chat assistant
+- 📔 Personal diary
+- 🎮 Gamification system
+- 🏆 Achievements and rewards
+- 👥 Community features
+- 📊 Analytics and insights
+
+## Documentation
+
+See [CURSOR_MIGRATION_PLAN.md](./CURSOR_MIGRATION_PLAN.md) for detailed migration and architecture information.
