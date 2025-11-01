@@ -51,11 +51,19 @@ export async function middleware(request: NextRequest) {
       // PGRST116 = "no rows returned" - perfil não existe ainda (comportamento esperado para novos usuários)
       // Outros erros indicam problemas de conexão/DB e devem ser tratados como erro crítico
       if (profileError.code === "PGRST116") {
-        // Perfil não existe ainda, redirecionar para onboarding (comportamento esperado)
+        // Perfil não existe ainda - redirecionar páginas para onboarding, APIs recebem JSON
+        if (pathname.startsWith("/api")) {
+          return NextResponse.json(
+            { error: "Perfil não encontrado. Complete o onboarding primeiro." },
+            { status: 403 },
+          )
+        }
+
         if (pathname !== "/onboarding") {
           const onboardingUrl = new URL("/onboarding", request.url)
           return NextResponse.redirect(onboardingUrl)
         }
+
         // Já está em onboarding, permitir acesso
         return NextResponse.next()
       }
@@ -72,7 +80,15 @@ export async function middleware(request: NextRequest) {
 
     // Se perfil existe mas não completou onboarding e não está na página de onboarding
     if (profile && !profile.onboarding_completed && pathname !== "/onboarding") {
-      // Redirecionar para onboarding
+      // Para APIs, retornar JSON em vez de redirecionar
+      if (pathname.startsWith("/api")) {
+        return NextResponse.json(
+          { error: "Onboarding não completo. Complete o onboarding para acessar esta funcionalidade." },
+          { status: 403 },
+        )
+      }
+
+      // Para páginas, redirecionar para onboarding
       const onboardingUrl = new URL("/onboarding", request.url)
       return NextResponse.redirect(onboardingUrl)
     }
