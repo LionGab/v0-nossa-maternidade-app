@@ -77,11 +77,7 @@ Retorne em formato JSON array com a estrutura:
 
     return NextResponse.json({ recipes })
   } catch (error) {
-<<<<<<< Current (Your changes)
     console.error("Generate Recipes API: Error", error)
-=======
-    console.error("Recipes API: Error generating recipes", error)
->>>>>>> Incoming (Background Agent changes)
     return NextResponse.json({ error: "Failed to generate recipes" }, { status: 500 })
   }
 }

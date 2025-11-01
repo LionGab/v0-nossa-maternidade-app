@@ -34,11 +34,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result)
   } catch (error) {
-<<<<<<< Current (Your changes)
     console.error("Gamification Activity: Error", error)
-=======
-    console.error("Gamification Activity: Error recording activity", error)
->>>>>>> Incoming (Background Agent changes)
     return NextResponse.json({ error: "Erro ao registrar atividade" }, { status: 500 })
   }
 }

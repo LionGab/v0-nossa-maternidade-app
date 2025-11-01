@@ -72,11 +72,7 @@ Os artigos devem ser relevantes, baseados em evidências e úteis para mães mod
 
     return NextResponse.json({ articles })
   } catch (error) {
-<<<<<<< Current (Your changes)
     console.error("Maternal News API: Error", error)
-=======
-    console.error("News API: Error fetching maternal news", error)
->>>>>>> Incoming (Background Agent changes)
     return NextResponse.json({ error: "Failed to fetch news" }, { status: 500 })
   }
 }
