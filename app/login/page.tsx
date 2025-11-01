@@ -24,8 +24,6 @@ export default function LoginPage() {
     setIsLoading(true)
     setError(null)
 
-    console.log("[v0] Attempting login with email:", email)
-
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -33,15 +31,12 @@ export default function LoginPage() {
       })
 
       if (error) {
-        console.log("[v0] Login error:", error.message)
         throw error
       }
 
-      console.log("[v0] Login successful, user:", data.user?.id)
       router.push("/dashboard")
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "Erro ao fazer login"
-      console.log("[v0] Login catch error:", errorMessage)
       setError(errorMessage)
     } finally {
       setIsLoading(false)

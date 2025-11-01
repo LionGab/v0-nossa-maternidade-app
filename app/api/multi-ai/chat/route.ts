@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import Anthropic from "@anthropic-ai/sdk"
 import OpenAI from "openai"
+import { chatRequestSchema } from "@/lib/validations/schemas"
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -12,8 +13,6 @@ const openai = new OpenAI({
 })
 
 export async function POST(req: NextRequest) {
-  console.log("[v0] Multi-AI Chat: Request received")
-
   try {
     const supabase = await createClient()
     const {
@@ -22,20 +21,21 @@ export async function POST(req: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      console.error("[v0] Multi-AI Chat: Unauthorized", authError)
       return new Response("Não autorizado", { status: 401 })
     }
 
-    console.log("[v0] Multi-AI Chat: User authenticated", user.id)
+    const body = await req.json()
 
-    const { messages, useEmpatheticMode } = await req.json()
-
-    if (!messages || !Array.isArray(messages)) {
-      console.error("[v0] Multi-AI Chat: Invalid messages format")
-      return new Response("Formato de mensagens inválido", { status: 400 })
+    // Validar dados de entrada
+    const validationResult = chatRequestSchema.safeParse(body)
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ error: "Formato de mensagens inválido", details: validationResult.error.errors }),
+        { status: 400 },
+      )
     }
 
-    console.log("[v0] Multi-AI Chat: Fetching user context")
+    const { messages, useEmpatheticMode } = validationResult.data
 
     let profile = null
     let latestAnalysis = null
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       const { data: profileData } = await supabase.from("profiles").select("*").eq("id", user.id).single()
       profile = profileData
     } catch (error) {
-      console.warn("[v0] Multi-AI Chat: Could not fetch profile", error)
+      // Silently handle profile fetch errors
     }
 
     try {
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
         .single()
       latestAnalysis = analysisData
     } catch (error) {
-      console.warn("[v0] Multi-AI Chat: Could not fetch sentiment analysis", error)
+      // Silently handle sentiment analysis fetch errors
     }
 
     const context = `
@@ -66,8 +66,6 @@ Contexto da usuária:
 - Última análise emocional: ${latestAnalysis?.analysis?.emotion || "não disponível"}
 - Nível de risco: ${latestAnalysis?.risk_level || "não avaliado"}
 `
-
-    console.log("[v0] Multi-AI Chat: Using empathetic mode:", useEmpatheticMode)
 
     // Usar Claude para modo empático (melhor para suporte emocional)
     if (useEmpatheticMode) {
@@ -98,7 +96,7 @@ Responda de forma calorosa, empática e prática. Ofereça suporte emocional gen
             }
             controller.close()
           } catch (error) {
-            console.error("[v0] Multi-AI Chat: Stream error", error)
+            console.error("Multi-AI Chat: Stream error", error)
             controller.error(error)
           }
         },
@@ -139,7 +137,7 @@ Forneça respostas práticas, baseadas em evidências e personalizadas para a si
           }
           controller.close()
         } catch (error) {
-          console.error("[v0] Multi-AI Chat: Stream error", error)
+          console.error("Multi-AI Chat: Stream error", error)
           controller.error(error)
         }
       },
@@ -152,7 +150,7 @@ Forneça respostas práticas, baseadas em evidências e personalizadas para a si
       },
     })
   } catch (error) {
-    console.error("[v0] Multi-AI Chat: Unexpected error", error)
+    console.error("Multi-AI Chat: Unexpected error", error)
     const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
     return new Response(`Erro ao processar mensagem: ${errorMessage}`, { status: 500 })
   }

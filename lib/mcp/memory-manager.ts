@@ -51,7 +51,7 @@ export class MemoryManager {
       if (error) throw error
       return data
     } catch (error) {
-      console.error("[v0] Error storing memory:", error)
+      console.error("MemoryManager: Error storing memory", error)
       throw error
     }
   }
@@ -76,7 +76,7 @@ export class MemoryManager {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error("[v0] Error searching memories:", error)
+      console.error("MemoryManager: Error searching memories", error)
       return []
     }
   }
@@ -98,7 +98,7 @@ export class MemoryManager {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error("[v0] Error getting period memories:", error)
+      console.error("MemoryManager: Error getting period memories", error)
       return []
     }
   }
@@ -149,7 +149,7 @@ export class MemoryManager {
 
       return context
     } catch (error) {
-      console.error("[v0] Error getting comprehensive context:", error)
+      console.error("MemoryManager: Error getting comprehensive context", error)
       return ""
     }
   }
@@ -190,7 +190,7 @@ export class MemoryManager {
       if (error) throw error
       return data
     } catch (error) {
-      console.error("[v0] Error generating period summary:", error)
+      console.error("MemoryManager: Error generating period summary", error)
       throw error
     }
   }

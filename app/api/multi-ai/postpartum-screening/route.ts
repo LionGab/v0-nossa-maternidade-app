@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import Anthropic from "@anthropic-ai/sdk"
 import { GoogleGenerativeAI } from "@google/generative-ai"
@@ -119,7 +119,7 @@ Responda em JSON com: { trend, triggers, criticalTimes, sleepEnergyPattern, self
       screening,
     })
   } catch (error) {
-    console.error("[v0] Erro na triagem de DPP:", error)
+    console.error("Postpartum screening: Error", error)
     return NextResponse.json({ error: "Erro ao realizar triagem" }, { status: 500 })
   }
 }

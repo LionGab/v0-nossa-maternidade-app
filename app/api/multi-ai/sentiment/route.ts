@@ -22,6 +22,10 @@ export async function POST(req: NextRequest) {
 
     const { responses } = await req.json()
 
+    if (!responses) {
+      return NextResponse.json({ error: "Responses are required" }, { status: 400 })
+    }
+
     // Usar Claude para análise empática profunda
     const claudeAnalysis = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
@@ -90,7 +94,7 @@ Responda em JSON com: { sleepPattern, supportNetwork, stressFactors, strengths, 
       analysis: combinedAnalysis,
     })
   } catch (error) {
-    console.error("[v0] Erro na análise multi-modelo:", error)
+    console.error("Sentiment Analysis API: Error", error)
     return NextResponse.json({ error: "Erro ao processar análise" }, { status: 500 })
   }
 }

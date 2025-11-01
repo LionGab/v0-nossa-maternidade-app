@@ -46,7 +46,11 @@ ${text}`,
       summaryLength: summary.length,
     })
   } catch (error) {
-    console.error("[v0] Error in summarize MCP:", error)
+<<<<<<< Current (Your changes)
+    console.error("Summarize MCP API: Error", error)
+=======
+    console.error("Summarize API: Error", error)
+>>>>>>> Incoming (Background Agent changes)
     return NextResponse.json({ error: "Failed to generate summary" }, { status: 500 })
   }
 }

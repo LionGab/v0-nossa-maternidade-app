@@ -14,6 +14,10 @@ export async function POST(req: NextRequest) {
 
     const { query } = await req.json()
 
+    if (!query || typeof query !== "string" || query.trim().length === 0) {
+      return NextResponse.json({ error: "Query is required" }, { status: 400 })
+    }
+
     // Usar Perplexity para pesquisa de informações médicas atualizadas
     const response = await fetch("https://api.perplexity.ai/chat/completions", {
       method: "POST",
@@ -46,7 +50,7 @@ export async function POST(req: NextRequest) {
       model: "perplexity-sonar",
     })
   } catch (error) {
-    console.error("[v0] Erro na pesquisa:", error)
+    console.error("Research API: Error", error)
     return NextResponse.json({ error: "Erro ao pesquisar" }, { status: 500 })
   }
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { GamificationManager } from "@/lib/gamification/gamification-manager"
+import { gamificationActivitySchema } from "@/lib/validations/schemas"
 
 export async function POST(request: Request) {
   try {
@@ -15,18 +16,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
     }
 
-    const { activityType, metadata } = await request.json()
+    const body = await request.json()
 
-    if (!activityType) {
-      return NextResponse.json({ error: "Tipo de atividade é obrigatório" }, { status: 400 })
+    // Validar dados de entrada
+    const validationResult = gamificationActivitySchema.safeParse(body)
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: "Invalid input data", details: validationResult.error.errors },
+        { status: 400 },
+      )
     }
+
+    const { activityType, metadata } = validationResult.data
 
     const manager = new GamificationManager(supabase, user.id)
     const result = await manager.recordActivity(activityType, metadata)
 
     return NextResponse.json(result)
   } catch (error) {
-    console.error("[v0] Error recording activity:", error)
+<<<<<<< Current (Your changes)
+    console.error("Gamification Activity: Error", error)
+=======
+    console.error("Gamification Activity: Error recording activity", error)
+>>>>>>> Incoming (Background Agent changes)
     return NextResponse.json({ error: "Erro ao registrar atividade" }, { status: 500 })
   }
 }

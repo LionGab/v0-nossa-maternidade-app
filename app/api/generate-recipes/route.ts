@@ -1,11 +1,34 @@
 import { NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
 import { generateText } from "ai"
+import { recipeRequestSchema } from "@/lib/validations/schemas"
 
 export async function POST(request: Request) {
   try {
-    const { mood, preferences, ingredients } = await request.json()
+    const supabase = await createClient()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
-    const prompt = `Você é uma chef especializada em receitas para mães ocupadas. 
+    if (authError || !user) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    }
+
+    const body = await request.json()
+
+    // Validar dados de entrada
+    const validationResult = recipeRequestSchema.safeParse(body)
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: "Invalid input data", details: validationResult.error.errors },
+        { status: 400 },
+      )
+    }
+
+    const { mood, preferences, ingredients } = validationResult.data
+
+    const prompt = `Você é uma chef especializada em receitas para mães ocupadas.
 
 Estado emocional da mãe: ${mood}
 Preferências alimentares: ${preferences}
@@ -54,7 +77,11 @@ Retorne em formato JSON array com a estrutura:
 
     return NextResponse.json({ recipes })
   } catch (error) {
-    console.error("[v0] Error generating recipes:", error)
+<<<<<<< Current (Your changes)
+    console.error("Generate Recipes API: Error", error)
+=======
+    console.error("Recipes API: Error generating recipes", error)
+>>>>>>> Incoming (Background Agent changes)
     return NextResponse.json({ error: "Failed to generate recipes" }, { status: 500 })
   }
 }

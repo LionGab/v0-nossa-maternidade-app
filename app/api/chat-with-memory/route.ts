@@ -1,3 +1,4 @@
+
 import { streamText } from "ai"
 import { anthropic } from "@ai-sdk/anthropic"
 import { createServerClient } from "@/lib/supabase/server"
@@ -66,7 +67,7 @@ Seja calorosa, empática e demonstre que você realmente conhece e acompanha a h
 
     return result.toUIMessageStreamResponse()
   } catch (error) {
-    console.error("[v0] Error in chat with memory:", error)
+    console.error("Chat with Memory API: Error", error)
     return new Response("Internal Server Error", { status: 500 })
   }
 }

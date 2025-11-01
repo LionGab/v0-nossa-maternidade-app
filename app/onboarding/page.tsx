@@ -94,7 +94,6 @@ export default function OnboardingPage() {
     if (isLastStep) {
       setIsLoading(true)
       setError(null)
-      console.log("[v0] Onboarding: Submitting responses", responses)
 
       try {
         const onboardingResponse = await fetch("/api/onboarding", {
@@ -103,16 +102,10 @@ export default function OnboardingPage() {
           body: JSON.stringify(responses),
         })
 
-        console.log("[v0] Onboarding: API response status", onboardingResponse.status)
-
         if (!onboardingResponse.ok) {
           const errorData = await onboardingResponse.json()
-          console.error("[v0] Onboarding: API error", errorData)
           throw new Error(errorData.error || "Erro ao salvar respostas")
         }
-
-        const onboardingData = await onboardingResponse.json()
-        console.log("[v0] Onboarding: Saved successfully", onboardingData)
 
         const sentimentResponse = await fetch("/api/sentiment-analysis", {
           method: "POST",
@@ -121,7 +114,7 @@ export default function OnboardingPage() {
         })
 
         if (!sentimentResponse.ok) {
-          console.warn("[v0] Onboarding: Sentiment analysis failed, but continuing")
+          // Silently handle sentiment analysis errors
         }
 
         toast({
@@ -129,10 +122,9 @@ export default function OnboardingPage() {
           description: "Seu perfil foi configurado com sucesso.",
         })
 
-        console.log("[v0] Onboarding: Redirecting to dashboard")
         router.push("/dashboard")
       } catch (error) {
-        console.error("[v0] Onboarding: Error", error)
+        console.error("Onboarding: Error", error)
         const errorMessage = error instanceof Error ? error.message : "Erro ao processar onboarding"
         setError(errorMessage)
         toast({

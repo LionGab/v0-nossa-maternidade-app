@@ -1,31 +1,30 @@
 import { createClient } from "@/lib/supabase/server"
+import { onboardingSchema } from "@/lib/validations/schemas"
 
 export async function POST(req: Request) {
-  console.log("[v0] Onboarding API: Request received")
-
   try {
-    const responses = await req.json()
-    console.log("[v0] Onboarding API: Parsed request body", responses)
-
     const supabase = await createClient()
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser()
 
-    console.log("[v0] Onboarding API: Auth check", { hasUser: !!user, authError: authError?.message })
-
     if (authError || !user) {
-      console.error("[v0] Onboarding API: Unauthorized", authError)
       return Response.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    if (!responses.emotionalState || !responses.babyAge) {
-      console.error("[v0] Onboarding API: Missing required fields")
-      return Response.json({ error: "Missing required fields" }, { status: 400 })
+    const body = await req.json()
+
+    // Validar dados de entrada
+    const validationResult = onboardingSchema.safeParse(body)
+    if (!validationResult.success) {
+      return Response.json(
+        { error: "Invalid input data", details: validationResult.error.errors },
+        { status: 400 },
+      )
     }
 
-    console.log("[v0] Onboarding API: Inserting onboarding responses for user", user.id)
+    const responses = validationResult.data
 
     // Store onboarding responses
     const { data, error } = await supabase
@@ -43,14 +42,13 @@ export async function POST(req: Request) {
       .single()
 
     if (error) {
-      console.error("[v0] Onboarding API: Database error", error)
+      console.error("Onboarding API: Database error", error)
       return Response.json({ error: "Failed to store responses", details: error.message }, { status: 500 })
     }
 
-    console.log("[v0] Onboarding API: Successfully stored responses", data)
     return Response.json({ success: true, data })
   } catch (error) {
-    console.error("[v0] Onboarding API: Unexpected error", error)
+    console.error("Onboarding API: Unexpected error", error)
     const errorMessage = error instanceof Error ? error.message : "Unknown error"
     return Response.json({ error: "Failed to process onboarding", details: errorMessage }, { status: 500 })
   }

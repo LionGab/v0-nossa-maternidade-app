@@ -1,9 +1,32 @@
 import { NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
 import { generateText } from "ai"
+import { newsRequestSchema } from "@/lib/validations/schemas"
 
 export async function POST(request: Request) {
   try {
-    const { category } = await request.json()
+    const supabase = await createClient()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    }
+
+    const body = await request.json()
+
+    // Validar dados de entrada
+    const validationResult = newsRequestSchema.safeParse(body)
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: "Invalid input data", details: validationResult.error.errors },
+        { status: 400 },
+      )
+    }
+
+    const { category } = validationResult.data
 
     const categoryMap: Record<string, string> = {
       all: "maternidade, gestação, criação de filhos, saúde materna",
@@ -49,7 +72,11 @@ Os artigos devem ser relevantes, baseados em evidências e úteis para mães mod
 
     return NextResponse.json({ articles })
   } catch (error) {
-    console.error("[v0] Error fetching maternal news:", error)
+<<<<<<< Current (Your changes)
+    console.error("Maternal News API: Error", error)
+=======
+    console.error("News API: Error fetching maternal news", error)
+>>>>>>> Incoming (Background Agent changes)
     return NextResponse.json({ error: "Failed to fetch news" }, { status: 500 })
   }
 }

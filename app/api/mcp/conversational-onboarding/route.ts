@@ -76,7 +76,7 @@ Diretrizes:
 
     return result.toUIMessageStreamResponse()
   } catch (error) {
-    console.error("[v0] Error in conversational onboarding:", error)
+    console.error("Conversational Onboarding API: Error", error)
     return new Response("Internal Server Error", { status: 500 })
   }
 }

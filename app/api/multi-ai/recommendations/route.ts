@@ -20,7 +20,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const { category } = await req.json() // 'selfcare', 'activities', 'recipes', 'sleep'
+    const { category } = await req.json()
+
+    if (!category) {
+      return NextResponse.json({ error: "Category is required" }, { status: 400 })
+    }
 
     // Buscar histórico do usuário
     const { data: profile } = await supabase.from("user_profiles").select("*").eq("user_id", user.id).single()
@@ -71,7 +75,7 @@ Responda em JSON mantendo a estrutura original e adicionando os novos campos.`
       generated_by: ["gpt-4", "gemini-2.0-flash"],
     })
   } catch (error) {
-    console.error("[v0] Erro ao gerar recomendações:", error)
+    console.error("Recommendations API: Error", error)
     return NextResponse.json({ error: "Erro ao gerar recomendações" }, { status: 500 })
   }
 }

@@ -33,7 +33,6 @@ export default function ReceitasPage() {
 
     setIsLoading(true)
     setError(null)
-    console.log("[v0] Receitas: Generating recipes", { mood, preferences, ingredients })
 
     try {
       const response = await fetch("/api/generate-recipes", {
@@ -42,17 +41,14 @@ export default function ReceitasPage() {
         body: JSON.stringify({ mood, preferences, ingredients }),
       })
 
-      console.log("[v0] Receitas: API response status", response.status)
-
       if (!response.ok) {
         throw new Error("Erro ao gerar receitas")
       }
 
       const data = await response.json()
-      console.log("[v0] Receitas: Recipes generated", data)
       setRecipes(data.recipes || [])
     } catch (error) {
-      console.error("[v0] Receitas: Error", error)
+      console.error("Recipes: Error", error)
       setError("Erro ao gerar receitas. Tente novamente.")
     } finally {
       setIsLoading(false)

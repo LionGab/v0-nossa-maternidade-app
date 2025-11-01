@@ -28,20 +28,17 @@ export function GamificationWidget() {
   }, [])
 
   const fetchStats = async () => {
-    console.log("[v0] Gamification Widget: Fetching stats")
     try {
       const response = await fetch("/api/gamification/stats")
-      console.log("[v0] Gamification Widget: Response status", response.status)
 
       if (response.ok) {
         const data = await response.json()
-        console.log("[v0] Gamification Widget: Stats fetched", data)
         setStats(data)
       } else {
         throw new Error("Failed to fetch stats")
       }
     } catch (error) {
-      console.error("[v0] Gamification Widget: Error", error)
+      console.error("Gamification Widget: Error", error)
       setError("Erro ao carregar estatísticas")
       setStats({
         totalPoints: 0,

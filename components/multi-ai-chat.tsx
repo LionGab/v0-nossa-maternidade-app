@@ -63,7 +63,7 @@ export function MultiAIChat() {
         }
       }
     } catch (error) {
-      console.error("[v0] Erro ao enviar mensagem:", error)
+      console.error("MultiAIChat: Error sending message", error)
     } finally {
       setIsLoading(false)
     }
