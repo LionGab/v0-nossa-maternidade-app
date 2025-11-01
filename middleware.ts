@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { type NextRequest, NextResponse } from "next/server"
 
 /**
  * Middleware para proteção de rotas e autenticação
@@ -41,10 +41,37 @@ export async function middleware(request: NextRequest) {
     }
 
     // Verificar se usuário completou onboarding
-    const { data: profile } = await supabase.from("profiles").select("onboarding_completed").eq("id", user.id).single()
+    const {
+      data: profile,
+      error: profileError,
+    } = await supabase.from("profiles").select("onboarding_completed").eq("id", user.id).single()
 
-    // Se não completou onboarding e não está na página de onboarding
-    if (!profile?.onboarding_completed && pathname !== "/onboarding") {
+    // Tratamento de erros na consulta do perfil
+    if (profileError) {
+      // PGRST116 = "no rows returned" - perfil não existe ainda (comportamento esperado para novos usuários)
+      // Outros erros indicam problemas de conexão/DB e devem ser tratados como erro crítico
+      if (profileError.code === "PGRST116") {
+        // Perfil não existe ainda, redirecionar para onboarding (comportamento esperado)
+        if (pathname !== "/onboarding") {
+          const onboardingUrl = new URL("/onboarding", request.url)
+          return NextResponse.redirect(onboardingUrl)
+        }
+        // Já está em onboarding, permitir acesso
+        return NextResponse.next()
+      }
+
+      // Outro tipo de erro (conexão DB, permissões, etc.) - tratar como erro crítico
+      console.error("Middleware: Error fetching profile", profileError)
+
+      if (!pathname.startsWith("/api")) {
+        return NextResponse.redirect(new URL("/login", request.url))
+      }
+
+      return NextResponse.json({ error: "Erro ao verificar perfil" }, { status: 500 })
+    }
+
+    // Se perfil existe mas não completou onboarding e não está na página de onboarding
+    if (profile && !profile.onboarding_completed && pathname !== "/onboarding") {
       // Redirecionar para onboarding
       const onboardingUrl = new URL("/onboarding", request.url)
       return NextResponse.redirect(onboardingUrl)
@@ -79,4 +106,3 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 }
-
