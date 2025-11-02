@@ -101,7 +101,7 @@ Responda de forma calorosa, empática e prática. Ofereça suporte emocional gen
             }
             controller.close()
           } catch (error) {
-            console.error("[v0] Multi-AI Chat: Stream error", error)
+            console.error(", error)
             controller.error(error)
           }
         },
@@ -142,7 +142,7 @@ Forneça respostas práticas, baseadas em evidências e personalizadas para a si
           }
           controller.close()
         } catch (error) {
-          console.error("[v0] Multi-AI Chat: Stream error", error)
+          console.error(", error)
           controller.error(error)
         }
       },
@@ -155,7 +155,7 @@ Forneça respostas práticas, baseadas em evidências e personalizadas para a si
       },
     })
   } catch (error) {
-    console.error("[v0] Multi-AI Chat: Unexpected error", error)
+    console.error(", error)
     const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
     return new Response(`Erro ao processar mensagem: ${errorMessage}`, { status: 500 })
   }

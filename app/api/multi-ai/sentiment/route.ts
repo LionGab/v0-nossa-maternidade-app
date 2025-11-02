@@ -90,7 +90,7 @@ Responda em JSON com: { sleepPattern, supportNetwork, stressFactors, strengths, 
       analysis: combinedAnalysis,
     })
   } catch (error) {
-    console.error("[v0] Erro na análise multi-modelo:", error)
+    console.error(", error)
     return NextResponse.json({ error: "Erro ao processar análise" }, { status: 500 })
   }
 }

@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       query,
     })
   } catch (error) {
-    console.error("[v0] Error in semantic search MCP:", error)
+    console.error(", error)
     return NextResponse.json({ error: "Failed to perform semantic search" }, { status: 500 })
   }
 }

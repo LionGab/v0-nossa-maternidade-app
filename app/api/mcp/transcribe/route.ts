@@ -75,7 +75,7 @@ Forneça a análise em formato JSON com as chaves: emotion, tone, concerns, urge
       duration: audioFile.size, // approximate
     })
   } catch (error) {
-    console.error("[v0] Error in transcribe MCP:", error)
+    console.error(", error)
     return NextResponse.json({ error: "Failed to transcribe audio" }, { status: 500 })
   }
 }

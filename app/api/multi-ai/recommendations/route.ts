@@ -71,7 +71,7 @@ Responda em JSON mantendo a estrutura original e adicionando os novos campos.`
       generated_by: ["gpt-4", "gemini-2.0-flash"],
     })
   } catch (error) {
-    console.error("[v0] Erro ao gerar recomendações:", error)
+    console.error(", error)
     return NextResponse.json({ error: "Erro ao gerar recomendações" }, { status: 500 })
   }
 }

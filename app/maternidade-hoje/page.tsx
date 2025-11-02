@@ -53,7 +53,7 @@ export default function MaternidadeHojePage() {
       const data = await response.json()
       setArticles(data.articles || [])
     } catch (error) {
-      console.error("[v0] Maternidade Hoje: Error", error)
+      console.error(", error)
       setError("Erro ao buscar notícias. Tente novamente.")
     } finally {
       setIsLoading(false)

@@ -105,7 +105,7 @@ export default function OnboardingPage() {
 
         if (!onboardingResponse.ok) {
           const errorData = await onboardingResponse.json()
-          console.error("[v0] Onboarding: API error", errorData)
+          console.error(", errorData)
           throw new Error(errorData.error || "Erro ao salvar respostas")
         }
 
@@ -118,7 +118,7 @@ export default function OnboardingPage() {
         })
 
         if (!sentimentResponse.ok) {
-          console.warn("[v0] Onboarding: Sentiment analysis failed, but continuing")
+          console.warn(")
         }
 
         toast({
@@ -128,7 +128,7 @@ export default function OnboardingPage() {
 
         router.push("/dashboard")
       } catch (error) {
-        console.error("[v0] Onboarding: Error", error)
+        console.error(", error)
         const errorMessage = error instanceof Error ? error.message : "Erro ao processar onboarding"
         setError(errorMessage)
         toast({

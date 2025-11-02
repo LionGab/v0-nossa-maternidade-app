@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       model: "perplexity-sonar",
     })
   } catch (error) {
-    console.error("[v0] Erro na pesquisa:", error)
+    console.error(", error)
     return NextResponse.json({ error: "Erro ao pesquisar" }, { status: 500 })
   }
 }

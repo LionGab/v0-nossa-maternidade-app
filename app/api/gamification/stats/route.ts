@@ -13,7 +13,7 @@ export async function GET() {
     } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      console.error("[v0] Gamification Stats: Unauthorized", authError)
+      console.error(", authError)
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
     }
 
@@ -23,7 +23,7 @@ export async function GET() {
       const stats = await manager.getStats()
       return NextResponse.json(stats)
     } catch (managerError) {
-      console.error("[v0] Gamification Stats: Manager error", managerError)
+      console.error(", managerError)
       // Return default stats if manager fails
       return NextResponse.json({
         level: 1,
@@ -34,7 +34,7 @@ export async function GET() {
       })
     }
   } catch (error) {
-    console.error("[v0] Gamification Stats: Unexpected error", error)
+    console.error(", error)
     const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
     return NextResponse.json({ error: "Erro ao buscar estatísticas", details: errorMessage }, { status: 500 })
   }

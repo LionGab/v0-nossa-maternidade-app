@@ -119,7 +119,7 @@ Responda em JSON com: { trend, triggers, criticalTimes, sleepEnergyPattern, self
       screening,
     })
   } catch (error) {
-    console.error("[v0] Erro na triagem de DPP:", error)
+    console.error(", error)
     return NextResponse.json({ error: "Erro ao realizar triagem" }, { status: 500 })
   }
 }

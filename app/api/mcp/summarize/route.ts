@@ -46,7 +46,7 @@ ${text}`,
       summaryLength: summary.length,
     })
   } catch (error) {
-    console.error("[v0] Error in summarize MCP:", error)
+    console.error(", error)
     return NextResponse.json({ error: "Failed to generate summary" }, { status: 500 })
   }
 }

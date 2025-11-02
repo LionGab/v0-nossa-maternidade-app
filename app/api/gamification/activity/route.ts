@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result)
   } catch (error) {
-    console.error("[v0] Error recording activity:", error)
+    console.error(", error)
     return NextResponse.json({ error: "Erro ao registrar atividade" }, { status: 500 })
   }
 }

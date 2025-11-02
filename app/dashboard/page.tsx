@@ -40,10 +40,10 @@ export default function DashboardPage() {
           setUserName(profile.full_name)
         }
       } catch (error) {
-        console.warn("[v0] Dashboard: Could not fetch profile", error)
+        console.warn(", error)
       }
     } catch (error) {
-      console.error("[v0] Dashboard: Unexpected error", error)
+      console.error(", error)
       router.push("/login")
     } finally {
       setIsLoading(false)

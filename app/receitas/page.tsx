@@ -49,7 +49,7 @@ export default function ReceitasPage() {
       const data = await response.json()
       setRecipes(data.recipes || [])
     } catch (error) {
-      console.error("[v0] Receitas: Error", error)
+      console.error(", error)
       setError("Erro ao gerar receitas. Tente novamente.")
     } finally {
       setIsLoading(false)

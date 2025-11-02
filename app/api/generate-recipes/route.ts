@@ -54,7 +54,7 @@ Retorne em formato JSON array com a estrutura:
 
     return NextResponse.json({ recipes })
   } catch (error) {
-    console.error("[v0] Error generating recipes:", error)
+    console.error(", error)
     return NextResponse.json({ error: "Failed to generate recipes" }, { status: 500 })
   }
 }
