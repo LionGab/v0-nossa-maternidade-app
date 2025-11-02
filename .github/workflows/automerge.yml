@@ -1,0 +1,133 @@
+name: Auto-approve and Merge Pull Requests
+
+# ⚠️ SECURITY WARNING: This workflow automatically approves and merges ALL pull requests.
+# This poses significant security risks as it bypasses human review.
+#
+# RECOMMENDED: Restrict this workflow to specific labeled PRs by uncommenting the following:
+# jobs:
+#   automerge:
+#     if: contains(github.event.pull_request.labels.*.name, 'automerge')
+#
+# Or use label-based conditions in individual steps.
+#
+# REQUIRED REPOSITORY SETTINGS:
+# 1. Go to Settings > Actions > General > Workflow permissions
+# 2. Select "Read and write permissions"
+# 3. Check "Allow GitHub Actions to create and approve pull requests"
+# 4. (Optional) In Settings > Branches, disable "Require approval from code owners" for first-time contributors if needed
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  checks: read
+
+jobs:
+  automerge:
+    name: Auto-approve and Merge PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Approve Pull Request
+        uses: peter-evans/approve-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+
+      - name: Wait for status checks
+        id: wait-for-checks
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Checking status of checks for SHA: ${{ github.event.pull_request.head.sha }}"
+
+          # Function to get check runs status
+          get_check_runs_status() {
+            local sha=$1
+            local response=$(gh api "/repos/${{ github.repository }}/commits/${sha}/check-runs" 2>/dev/null || echo '{"total_count":0}')
+            echo "$response"
+          }
+
+          # Function to get combined status
+          get_combined_status() {
+            local sha=$1
+            local response=$(gh api "/repos/${{ github.repository }}/commits/${sha}/status" 2>/dev/null || echo '{"state":"none","statuses":[]}')
+            echo "$response"
+          }
+
+          max_attempts=60
+          attempt=0
+          sleep_time=10
+
+          while [ $attempt -lt $max_attempts ]; do
+            echo "Attempt $((attempt + 1)) of $max_attempts..."
+
+            # Get check runs
+            check_runs_response=$(get_check_runs_status "${{ github.event.pull_request.head.sha }}")
+            total_count=$(echo "$check_runs_response" | jq -r '.total_count // 0')
+
+            # Get combined status
+            combined_status_response=$(get_combined_status "${{ github.event.pull_request.head.sha }}")
+            combined_state=$(echo "$combined_status_response" | jq -r '.state // "none"')
+            statuses_count=$(echo "$combined_status_response" | jq -r '.statuses | length')
+
+            echo "Check runs count: $total_count"
+            echo "Combined status state: $combined_state"
+            echo "Statuses count: $statuses_count"
+
+            # If there are no checks or statuses at all, proceed
+            if [ "$total_count" -eq 0 ] && [ "$statuses_count" -eq 0 ]; then
+              echo "No checks or statuses found. Proceeding with merge."
+              exit 0
+            fi
+
+            # Check if any check run failed
+            if [ "$total_count" -gt 0 ]; then
+              failed_checks=$(echo "$check_runs_response" | jq -r '[.check_runs[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out")] | length')
+
+              if [ "$failed_checks" -gt 0 ]; then
+                echo "❌ Some checks have failed. Aborting merge."
+                exit 1
+              fi
+
+              # Check if all checks are completed
+              pending_checks=$(echo "$check_runs_response" | jq -r '[.check_runs[] | select(.status != "completed")] | length')
+
+              if [ "$pending_checks" -eq 0 ]; then
+                echo "✅ All check runs completed successfully."
+                exit 0
+              fi
+
+              echo "⏳ Waiting for $pending_checks check(s) to complete..."
+            fi
+
+            # Check combined status
+            if [ "$combined_state" == "failure" ]; then
+              echo "❌ Combined status is failure. Aborting merge."
+              exit 1
+            elif [ "$combined_state" == "success" ]; then
+              echo "✅ Combined status is success."
+              exit 0
+            fi
+
+            attempt=$((attempt + 1))
+            sleep $sleep_time
+          done
+
+          echo "⏰ Timeout waiting for checks to complete. Aborting merge."
+          exit 1
+
+      - name: Merge Pull Request
+        if: success()
+        uses: peter-evans/merge-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
