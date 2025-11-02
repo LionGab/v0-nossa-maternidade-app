@@ -59,10 +59,13 @@ O **Nossa Maternidade** é uma plataforma digital que oferece suporte emocional 
 - ✅ Desafios semanais
 
 ### Performance e Segurança
-- ✅ Caching com SWR
+- ✅ Caching com TanStack Query (migrado de SWR)
+- ✅ State management com Zustand
 - ✅ Rate limiting
 - ✅ Validação com Zod
 - ✅ Indexes otimizados no banco
+- ✅ Error tracking com Sentry
+- ✅ Health data schemas baseados em FHIR
 
 ---
 
@@ -70,29 +73,46 @@ O **Nossa Maternidade** é uma plataforma digital que oferece suporte emocional 
 
 ### Frontend
 - **Next.js 16** - React framework com App Router
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Shadcn/ui** - Component library
-- **SWR** - Data fetching e caching
+- **React 19** - Library UI
+- **TypeScript 5** - Type safety
+- **Tailwind CSS v4** - Styling e design system
+- **Shadcn/ui** - Component library (Radix UI)
+- **TanStack Query** - Data fetching, caching e sincronização
+- **Zustand** - State management global
+- **SWR** - Data fetching (being migrated to TanStack Query)
 
-### Backend
-- **Supabase** - Authentication, Database, Storage
+### Backend & Database
+- **Supabase** - Authentication, Database, Storage, Realtime
 - **PostgreSQL** - Relational database
-- **Row Level Security** - Segurança no banco
+- **Row Level Security (RLS)** - Segurança a nível de banco de dados
+- **Supabase Edge Functions** - Serverless functions
 
 ### IA e Processamento
-- **Anthropic Claude** - Chat empático
-- **OpenAI GPT-4** - Geração de conteúdo
-- **Vercel AI SDK** - Integração com modelos
+- **Anthropic Claude** - Chat empático e assistência personalizada
+- **OpenAI GPT-4** - Geração de conteúdo e análises
+- **Google Generative AI** - Recursos complementares de IA
+- **Vercel AI SDK** - Integração unificada com modelos de IA
+
+### Validação e Forms
+- **Zod** - Schema validation
+- **React Hook Form** - Form handling e validação
 
 ### Testes
-- **Vitest** - Testes unitários
+- **Vitest** - Testes unitários e de integração
 - **Playwright** - Testes E2E
-- **Testing Library** - Testes de componentes
+- **Testing Library** - Testes de componentes React
+- **jsdom** - DOM simulation para testes
 
-### DevOps
-- **Vercel** - Hosting e CI/CD
+### DevOps & Monitoramento
+- **Vercel** - Hosting, CI/CD e Analytics
 - **GitHub Actions** - CI/CD pipelines
+- **Sentry** - Error tracking e performance monitoring
+- **Vercel Analytics** - Web analytics e performance
+
+### Ferramentas de Desenvolvimento
+- **ESLint** - Code linting
+- **Prettier** - Code formatting
+- **TypeScript** - Static type checking
 
 ---
 
@@ -192,20 +212,106 @@ Abra [http://localhost:3000](http://localhost:3000) no navegador.
 │   ├── dashboard/         # Dashboard principal
 │   ├── login/             # Página de login
 │   ├── signup/            # Página de cadastro
+│   ├── onboarding/        # Fluxo de onboarding
 │   └── ...
 ├── components/            # Componentes React
 │   ├── ui/               # Componentes shadcn/ui
+│   ├── providers.tsx     # Context providers
 │   └── ...
 ├── lib/                   # Bibliotecas e utilities
 │   ├── gamification/     # Sistema de gamificação
 │   ├── mcp/              # Memory management
 │   ├── supabase/         # Clientes Supabase
 │   ├── validations/      # Schemas Zod
+│   ├── schemas/          # Health data schemas (FHIR)
+│   ├── query-client.ts   # TanStack Query config
 │   └── ...
+├── stores/                # Zustand global stores
+│   ├── user-store.ts     # User state
+│   ├── ui-store.ts       # UI state
+│   └── health-data-store.ts  # Health data state
 ├── hooks/                 # Custom React hooks
-├── scripts/               # Scripts SQL
-├── e2e/                   # Testes E2E
-└── __tests__/             # Testes unitários
+├── scripts/               # Scripts SQL e utilitários
+├── e2e/                   # Testes E2E (Playwright)
+├── __tests__/             # Testes unitários (Vitest)
+├── public/                # Assets estáticos
+├── .github/               # GitHub Actions workflows
+│   └── workflows/        # CI/CD pipelines
+├── sentry.*.config.ts     # Sentry configuration
+└── ...
+```
+
+### Padrões de Código
+
+#### Estrutura de Componentes
+```typescript
+// components/my-component.tsx
+'use client'; // Se necessário
+
+import { useState } from 'react';
+import { useMyHook } from '@/hooks/use-my-hook';
+
+interface MyComponentProps {
+  title: string;
+  // Props tipadas
+}
+
+export function MyComponent({ title }: MyComponentProps) {
+  // Hooks
+  const [state, setState] = useState();
+  
+  // Lógica
+  
+  // Render
+  return <div>{title}</div>;
+}
+```
+
+#### API Routes
+```typescript
+// app/api/my-route/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(request: NextRequest) {
+  try {
+    // Lógica
+    return NextResponse.json({ data: 'success' });
+  } catch (error) {
+    return NextResponse.json({ error: 'Message' }, { status: 500 });
+  }
+}
+```
+
+#### Data Fetching com TanStack Query
+```typescript
+// hooks/use-my-data.ts
+import { useQuery } from '@tanstack/react-query';
+
+export function useMyData(id: string) {
+  return useQuery({
+    queryKey: ['my-data', id],
+    queryFn: async () => {
+      const response = await fetch(`/api/data/${id}`);
+      return response.json();
+    },
+  });
+}
+```
+
+#### Global State com Zustand
+```typescript
+// stores/my-store.ts
+import { create } from 'zustand';
+
+interface MyState {
+  count: number;
+  increment: () => void;
+}
+
+export const useMyStore = create<MyState>((set) => ({
+  count: 0,
+  increment: () => set((state) => ({ count: state.count + 1 })),
+}));
 ```
 
 ---
@@ -282,7 +388,7 @@ pnpm start
 
 ```
 Frontend (Next.js)
-    ↓ SWR
+    ↓ TanStack Query
 API Routes
     ↓
 Supabase Client
@@ -292,16 +398,19 @@ PostgreSQL + RLS
 
 ### Cache Strategy
 
-- **SWR**: Frontend caching com revalidação
-- **Deduplicação**: Requisições duplicadas deduplicadas
-- **Revalidação**: Automática em foco e reconexão
+- **TanStack Query**: Frontend caching com revalidação inteligente
+- **Zustand**: State management global persistente
+- **Deduplicação**: Requisições duplicadas deduplicadas automaticamente
+- **Revalidação**: Automática em foco, reconexão e por intervalo
 
 ---
 
 ## 📚 Documentação Adicional
 
+- [Repositórios de Referência](REFERENCES.md) - Recursos e exemplos organizados
 - [Arquitetura Detalhada](ARCHITECTURE.md) - Documentação de arquitetura
 - [API Docs](API_DOCS.md) - Documentação das APIs
+- [Guia de Contribuição](CONTRIBUTING.md) - Como contribuir para o projeto
 - [Guia de Troubleshooting](TROUBLESHOOTING.md) - Solução de problemas
 - [Status da Migração](MIGRATION_STATUS.md) - Progresso atual
 
@@ -309,11 +418,23 @@ PostgreSQL + RLS
 
 ## 🤝 Contribuindo
 
+Contribuições são bem-vindas! Por favor, leia o [Guia de Contribuição](CONTRIBUTING.md) para detalhes sobre o processo de desenvolvimento e como submeter pull requests.
+
+### Passos Rápidos
+
 1. Fork o projeto
 2. Crie uma branch (`git checkout -b feature/AmazingFeature`)
 3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
+
+### Padrões de Código
+
+- Use TypeScript para todo código novo
+- Siga as configurações do ESLint e Prettier
+- Escreva testes para novas funcionalidades
+- Documente APIs e funções públicas
+- Use commits semânticos (Conventional Commits)
 
 ---
 
