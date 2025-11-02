@@ -94,7 +94,6 @@ export default function OnboardingPage() {
     if (isLastStep) {
       setIsLoading(true)
       setError(null)
-      console.log("[v0] Onboarding: Submitting responses", responses)
 
       try {
         const onboardingResponse = await fetch("/api/onboarding", {
@@ -103,7 +102,6 @@ export default function OnboardingPage() {
           body: JSON.stringify(responses),
         })
 
-        console.log("[v0] Onboarding: API response status", onboardingResponse.status)
 
         if (!onboardingResponse.ok) {
           const errorData = await onboardingResponse.json()
@@ -112,7 +110,6 @@ export default function OnboardingPage() {
         }
 
         const onboardingData = await onboardingResponse.json()
-        console.log("[v0] Onboarding: Saved successfully", onboardingData)
 
         const sentimentResponse = await fetch("/api/sentiment-analysis", {
           method: "POST",
@@ -129,7 +126,6 @@ export default function OnboardingPage() {
           description: "Seu perfil foi configurado com sucesso.",
         })
 
-        console.log("[v0] Onboarding: Redirecting to dashboard")
         router.push("/dashboard")
       } catch (error) {
         console.error("[v0] Onboarding: Error", error)

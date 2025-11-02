@@ -26,8 +26,6 @@ export default function SignUpPage() {
     setIsLoading(true)
     setError(null)
 
-    console.log("[v0] Attempting signup with email:", email)
-
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -41,15 +39,13 @@ export default function SignUpPage() {
       })
 
       if (error) {
-        console.log("[v0] Signup error:", error.message)
         throw error
       }
 
-      console.log("[v0] Signup successful, user:", data.user?.id)
       router.push("/signup-success")
+      router.refresh()
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "Erro ao criar conta"
-      console.log("[v0] Signup catch error:", errorMessage)
       setError(errorMessage)
     } finally {
       setIsLoading(false)

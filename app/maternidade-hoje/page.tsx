@@ -37,7 +37,6 @@ export default function MaternidadeHojePage() {
   const fetchNews = async () => {
     setIsLoading(true)
     setError(null)
-    console.log("[v0] Maternidade Hoje: Fetching news for category", selectedCategory)
 
     try {
       const response = await fetch("/api/maternal-news", {
@@ -46,14 +45,12 @@ export default function MaternidadeHojePage() {
         body: JSON.stringify({ category: selectedCategory }),
       })
 
-      console.log("[v0] Maternidade Hoje: API response status", response.status)
 
       if (!response.ok) {
         throw new Error("Erro ao buscar notícias")
       }
 
       const data = await response.json()
-      console.log("[v0] Maternidade Hoje: Articles fetched", data)
       setArticles(data.articles || [])
     } catch (error) {
       console.error("[v0] Maternidade Hoje: Error", error)

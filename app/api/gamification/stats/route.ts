@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server"
 import { GamificationManager } from "@/lib/gamification/gamification-manager"
 
 export async function GET() {
-  console.log("[v0] Gamification Stats: Request received")
 
   try {
     const supabase = await createClient()
@@ -18,12 +17,10 @@ export async function GET() {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
     }
 
-    console.log("[v0] Gamification Stats: Fetching stats for user", user.id)
 
     try {
       const manager = new GamificationManager(supabase, user.id)
       const stats = await manager.getStats()
-      console.log("[v0] Gamification Stats: Successfully fetched stats")
       return NextResponse.json(stats)
     } catch (managerError) {
       console.error("[v0] Gamification Stats: Manager error", managerError)

@@ -12,8 +12,6 @@ const openai = new OpenAI({
 })
 
 export async function POST(req: NextRequest) {
-  console.log("[v0] Multi-AI Chat: Request received")
-
   try {
     const supabase = await createClient()
     const {
@@ -22,20 +20,27 @@ export async function POST(req: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      console.error("[v0] Multi-AI Chat: Unauthorized", authError)
       return new Response("Não autorizado", { status: 401 })
     }
 
-    console.log("[v0] Multi-AI Chat: User authenticated", user.id)
-
     const { messages, useEmpatheticMode } = await req.json()
 
-    if (!messages || !Array.isArray(messages)) {
-      console.error("[v0] Multi-AI Chat: Invalid messages format")
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response("Formato de mensagens inválido", { status: 400 })
     }
 
-    console.log("[v0] Multi-AI Chat: Fetching user context")
+    // Validate message structure
+    for (const msg of messages) {
+      if (!msg.role || !msg.content) {
+        return new Response("Mensagem com formato inválido", { status: 400 })
+      }
+      if (typeof msg.content !== "string" || msg.content.trim().length === 0) {
+        return new Response("Conteúdo da mensagem inválido", { status: 400 })
+      }
+      if (msg.content.length > 5000) {
+        return new Response("Mensagem muito longa (máximo 5000 caracteres)", { status: 400 })
+      }
+    }
 
     let profile = null
     let latestAnalysis = null
@@ -44,7 +49,7 @@ export async function POST(req: NextRequest) {
       const { data: profileData } = await supabase.from("profiles").select("*").eq("id", user.id).single()
       profile = profileData
     } catch (error) {
-      console.warn("[v0] Multi-AI Chat: Could not fetch profile", error)
+      // Profile fetch is optional
     }
 
     try {
@@ -57,7 +62,7 @@ export async function POST(req: NextRequest) {
         .single()
       latestAnalysis = analysisData
     } catch (error) {
-      console.warn("[v0] Multi-AI Chat: Could not fetch sentiment analysis", error)
+      // Sentiment analysis is optional
     }
 
     const context = `
@@ -66,8 +71,6 @@ Contexto da usuária:
 - Última análise emocional: ${latestAnalysis?.analysis?.emotion || "não disponível"}
 - Nível de risco: ${latestAnalysis?.risk_level || "não avaliado"}
 `
-
-    console.log("[v0] Multi-AI Chat: Using empathetic mode:", useEmpatheticMode)
 
     // Usar Claude para modo empático (melhor para suporte emocional)
     if (useEmpatheticMode) {
