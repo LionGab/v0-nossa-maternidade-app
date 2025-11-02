@@ -83,11 +83,14 @@ export async function waitFor(
 /**
  * Create a mock function with TypeScript support
  */
-export function createMockFn<T extends (...args: any[]) => any>(): jest.Mock<
-  ReturnType<T>,
-  Parameters<T>
-> {
-  return jest.fn() as any;
+export function createMockFn<T extends (...args: any[]) => any>() {
+  const fn = vi.fn() as any;
+  return fn as unknown as {
+    (...args: Parameters<T>): ReturnType<T>;
+    mockReturnValue: (value: ReturnType<T>) => any;
+    mockResolvedValue: (value: ReturnType<T>) => any;
+    mockImplementation: (impl: T) => any;
+  };
 }
 
 /**
