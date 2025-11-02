@@ -14,6 +14,10 @@ import type {
   PregnancyTracking 
 } from '@/lib/schemas/health-schemas';
 
+// Constants
+const MAX_RECENT_APPOINTMENTS = 10;
+const MAX_RECENT_OBSERVATIONS = 20;
+
 interface HealthDataState {
   // Patient data
   patient: Patient | null;
@@ -104,7 +108,7 @@ export const useHealthDataStore = create<HealthDataState>()(
           set((state) => ({
             recentAppointments: [appointment, ...state.recentAppointments]
               .sort((a, b) => new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime())
-              .slice(0, 10), // Keep only 10 most recent
+              .slice(0, MAX_RECENT_APPOINTMENTS),
           }));
         }
       },
@@ -134,7 +138,7 @@ export const useHealthDataStore = create<HealthDataState>()(
         set((state) => ({
           recentObservations: [observation, ...state.recentObservations]
             .sort((a, b) => new Date(b.effectiveDateTime).getTime() - new Date(a.effectiveDateTime).getTime())
-            .slice(0, 20), // Keep only 20 most recent
+            .slice(0, MAX_RECENT_OBSERVATIONS),
         }));
       },
 

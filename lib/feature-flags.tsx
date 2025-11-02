@@ -110,7 +110,7 @@ export function withFeatureFlag<P extends object>(
   Component: React.ComponentType<P>,
   Fallback?: React.ComponentType<P>
 ): React.ComponentType<P> {
-  return function FeatureFlagWrapper(props: P) {
+  const FeatureFlagWrapper = function (props: P) {
     if (isFeatureEnabled(feature)) {
       return <Component {...props} />;
     }
@@ -121,6 +121,10 @@ export function withFeatureFlag<P extends object>(
     
     return null;
   };
+
+  FeatureFlagWrapper.displayName = `withFeatureFlag(${Component.displayName || Component.name || 'Component'})`;
+  
+  return FeatureFlagWrapper;
 }
 
 /**

@@ -7,6 +7,10 @@
 
 import { createClient } from '@/lib/supabase/client';
 
+// Constants
+const DEFAULT_LIMIT = 10;
+const DEFAULT_OFFSET = 0;
+
 export type NotificationType = 
   | 'appointment_reminder'
   | 'exam_result'
@@ -106,7 +110,7 @@ export async function getUserNotifications(
   }
 
   if (options?.offset) {
-    query = query.range(options.offset, options.offset + (options.limit || 10) - 1);
+    query = query.range(options.offset, options.offset + (options.limit || DEFAULT_LIMIT) - 1);
   }
 
   const { data, error } = await query;

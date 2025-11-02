@@ -80,10 +80,10 @@ export async function POST(req: NextRequest) {
       system: SYSTEM_PROMPT,
       messages: convertToCoreMessages(messages),
       temperature: 0.7,
-      maxTokens: 1024, // Changed from maxTokens
+      maxTokens: 1024,
     });
 
-    return result.toTextStreamResponse(); // Changed from toDataStreamResponse
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error('Error in chat API:', error);
     
