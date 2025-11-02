@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { BottomNavigation } from "@/components/bottom-navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 
@@ -69,7 +70,7 @@ export default function DashboardPage() {
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <SidebarInset>
-          <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10">
+          <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-0">
             <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border/50 p-4">
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
@@ -143,6 +144,90 @@ export default function DashboardPage() {
                         </div>
                       </Link>
                     </Card>
+
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                      <Link href="/rotina">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-2xl">
+                            📅
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg mb-1">Rotina Semanal</h3>
+                            <p className="text-sm text-muted-foreground">Organize suas atividades</p>
+                          </div>
+                        </div>
+                      </Link>
+                    </Card>
+
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                      <Link href="/autocuidado">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-full bg-pink-50 flex items-center justify-center text-2xl">
+                            💝
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg mb-1">Autocuidado</h3>
+                            <p className="text-sm text-muted-foreground">10 minutos para você</p>
+                          </div>
+                        </div>
+                      </Link>
+                    </Card>
+
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                      <Link href="/brincadeiras">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-2xl">
+                            🎨
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg mb-1">Brincadeiras</h3>
+                            <p className="text-sm text-muted-foreground">Atividades sensoriais</p>
+                          </div>
+                        </div>
+                      </Link>
+                    </Card>
+
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                      <Link href="/historias-sono">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-2xl">
+                            🌙
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg mb-1">Histórias de Sono</h3>
+                            <p className="text-sm text-muted-foreground">Para adormecer tranquilo</p>
+                          </div>
+                        </div>
+                      </Link>
+                    </Card>
+
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                      <Link href="/birras">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-2xl">
+                            🤗
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg mb-1">Lidando com Birras</h3>
+                            <p className="text-sm text-muted-foreground">Respostas empáticas</p>
+                          </div>
+                        </div>
+                      </Link>
+                    </Card>
+
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                      <Link href="/perfil-bebe">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-2xl">
+                            👶
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg mb-1">Perfil do Bebê</h3>
+                            <p className="text-sm text-muted-foreground">Acompanhe o crescimento</p>
+                          </div>
+                        </div>
+                      </Link>
+                    </Card>
                   </div>
 
                   {/* Sugestão do Dia */}
@@ -170,6 +255,7 @@ export default function DashboardPage() {
               </div>
             </main>
           </div>
+          <BottomNavigation />
         </SidebarInset>
       </div>
     </SidebarProvider>
