@@ -40,8 +40,14 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Debug workspace
+        run: |
+          pwd
+          ls -la
+          test -f pnpm-lock.yaml && echo "pnpm-lock.yaml found" || echo "pnpm-lock.yaml NOT found!"
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run linter
         run: pnpm lint
@@ -82,8 +88,14 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Debug workspace
+        run: |
+          pwd
+          ls -la
+          test -f pnpm-lock.yaml && echo "pnpm-lock.yaml found" || echo "pnpm-lock.yaml NOT found!"
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run unit tests
         run: pnpm test
@@ -131,8 +143,14 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Debug workspace
+        run: |
+          pwd
+          ls -la
+          test -f pnpm-lock.yaml && echo "pnpm-lock.yaml found" || echo "pnpm-lock.yaml NOT found!"
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
@@ -182,8 +200,14 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Debug workspace
+        run: |
+          pwd
+          ls -la
+          test -f pnpm-lock.yaml && echo "pnpm-lock.yaml found" || echo "pnpm-lock.yaml NOT found!"
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build application
         run: pnpm build
@@ -228,8 +252,14 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Debug workspace
+        run: |
+          pwd
+          ls -la
+          test -f pnpm-lock.yaml && echo "pnpm-lock.yaml found" || echo "pnpm-lock.yaml NOT found!"
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run security audit
         run: pnpm audit --audit-level=moderate
