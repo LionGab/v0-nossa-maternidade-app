@@ -2,7 +2,22 @@ import { createClient } from "@supabase/supabase-js"
 import { embed } from "ai"
 import { openai } from "@ai-sdk/openai"
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+// Lazy initialization of Supabase client to avoid build-time errors
+let supabaseClient: ReturnType<typeof createClient> | null = null
+
+function getSupabaseClient() {
+  if (!supabaseClient) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("Supabase credentials not configured")
+    }
+
+    supabaseClient = createClient(supabaseUrl, supabaseKey)
+  }
+  return supabaseClient
+}
 
 export interface MemoryEntry {
   id: string
@@ -35,7 +50,7 @@ export class MemoryManager {
       })
 
       // Store in database
-      const { data, error } = await supabase
+      const { data, error } = await getSupabaseClient()
         .from("memory_embeddings")
         .insert({
           user_id: this.userId,
@@ -66,7 +81,7 @@ export class MemoryManager {
       })
 
       // Search similar memories
-      const { data, error } = await supabase.rpc("search_similar_memories", {
+      const { data, error } = await getSupabaseClient().rpc("search_similar_memories", {
         query_embedding: embedding,
         match_user_id: this.userId,
         match_threshold: threshold,
@@ -87,7 +102,7 @@ export class MemoryManager {
       const startDate = new Date()
       startDate.setDate(startDate.getDate() - daysAgo)
 
-      const { data, error } = await supabase
+      const { data, error } = await getSupabaseClient()
         .from("memory_embeddings")
         .select("*")
         .eq("user_id", this.userId)
@@ -113,7 +128,7 @@ export class MemoryManager {
       const relevantMemories = await this.searchMemories(currentQuery, 15, 0.75)
 
       // Get summarized context for longer periods
-      const { data: contextSummaries } = await supabase
+      const { data: contextSummaries } = await getSupabaseClient()
         .from("ai_memory_context")
         .select("*")
         .eq("user_id", this.userId)
@@ -158,7 +173,7 @@ export class MemoryManager {
   async generatePeriodSummary(startDate: Date, endDate: Date) {
     try {
       // Get all memories from period
-      const { data: memories } = await supabase
+      const { data: memories } = await getSupabaseClient()
         .from("memory_embeddings")
         .select("*")
         .eq("user_id", this.userId)
@@ -175,7 +190,7 @@ export class MemoryManager {
       const summary = await this.summarizeContent(allContent)
 
       // Store summary
-      const { data, error } = await supabase
+      const { data, error } = await getSupabaseClient()
         .from("ai_memory_context")
         .insert({
           user_id: this.userId,
