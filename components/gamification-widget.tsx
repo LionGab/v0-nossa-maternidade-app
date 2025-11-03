@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState, useMemo, memo } from "react"
-import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
-import { Flame, Trophy, Star, Sparkles, Target } from "lucide-react"
+import { Card } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 import { clientLogger } from "@/lib/logger-client"
+import { Flame, Sparkles, Star, Target, Trophy } from "lucide-react"
+import { memo, useEffect, useMemo, useState } from "react"
 
 interface GamificationStats {
   totalPoints: number
@@ -64,6 +64,24 @@ function GamificationWidgetComponent() {
     }
   }
 
+  // Cálculos custosos com useMemo - MOVIDO PARA ANTES DOS EARLY RETURNS
+  // Isso garante que os hooks sejam sempre chamados na mesma ordem
+  const levelProgress = useMemo(() => {
+    if (!stats) return 0
+    const basePoints = stats.currentLevel > 1
+      ? (stats.currentLevel - 1) * 100
+      : 0
+    const progress = stats.totalPoints - basePoints
+    const nextLevelPoints = stats.pointsToNextLevel
+    return Math.min(100, Math.max(0, (progress / nextLevelPoints) * 100))
+  }, [stats?.totalPoints, stats?.currentLevel, stats?.pointsToNextLevel])
+
+  const newAchievements = useMemo(() => {
+    if (!stats?.achievements) return []
+    return stats.achievements.filter((a) => a.isNew)
+  }, [stats?.achievements])
+
+  // Early returns APÓS todos os hooks
   if (loading || !stats) {
     return (
       <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">
@@ -82,21 +100,6 @@ function GamificationWidgetComponent() {
       </Card>
     )
   }
-
-  // Cálculos custosos com useMemo
-  const levelProgress = useMemo(() => {
-    const basePoints = stats.currentLevel > 1
-      ? (stats.currentLevel - 1) * 100
-      : 0
-    const progress = stats.totalPoints - basePoints
-    const nextLevelPoints = stats.pointsToNextLevel
-    return Math.min(100, Math.max(0, (progress / nextLevelPoints) * 100))
-  }, [stats.totalPoints, stats.currentLevel, stats.pointsToNextLevel])
-
-  const newAchievements = useMemo(
-    () => (stats.achievements ?? []).filter((a) => a.isNew),
-    [stats.achievements]
-  )
 
   return (
     <div className="space-y-4">
