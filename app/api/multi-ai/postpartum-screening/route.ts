@@ -1,13 +1,22 @@
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import Anthropic from "@anthropic-ai/sdk"
 import { GoogleGenerativeAI } from "@google/generative-ai"
+import { getApiKey, hasApiKey } from "@/lib/env"
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+// Inicialização condicional das APIs
+let anthropic: Anthropic | null = null
+let genAI: GoogleGenerativeAI | null = null
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
+if (hasApiKey('anthropic')) {
+  anthropic = new Anthropic({
+    apiKey: getApiKey('anthropic')!,
+  })
+}
+
+if (hasApiKey('google')) {
+  genAI = new GoogleGenerativeAI(getApiKey('google')!)
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,6 +27,16 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    }
+
+    if (!anthropic) {
+      return NextResponse.json(
+        { 
+          error: "Triagem não disponível",
+          message: "Configure ANTHROPIC_API_KEY para habilitar esta funcionalidade."
+        }, 
+        { status: 503 }
+      )
     }
 
     // Buscar histórico completo do usuário
@@ -65,9 +84,12 @@ Responda em JSON com: { riskScore, symptoms, riskFactors, protectiveFactors, rec
 
     const claudeResult = JSON.parse(claudeAnalysis.content[0].type === "text" ? claudeAnalysis.content[0].text : "{}")
 
-    // Usar Gemini para análise de padrões temporais
-    const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
-    const geminiPrompt = `Analise os padrões temporais e evolução do estado emocional:
+    // Usar Gemini para análise de padrões temporais (se disponível)
+    let geminiAnalysis = {}
+    if (genAI) {
+      try {
+        const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
+        const geminiPrompt = `Analise os padrões temporais e evolução do estado emocional:
 
 ${JSON.stringify(analyses)}
 
@@ -80,16 +102,20 @@ Identifique:
 
 Responda em JSON com: { trend, triggers, criticalTimes, sleepEnergyPattern, selfCareEffectiveness }`
 
-    const geminiResult = await geminiModel.generateContent(geminiPrompt)
-    const geminiText = geminiResult.response.text()
-    const geminiAnalysis = JSON.parse(geminiText.replace(/```json\n?/g, "").replace(/```\n?/g, ""))
+        const geminiResult = await geminiModel.generateContent(geminiPrompt)
+        const geminiText = geminiResult.response.text()
+        geminiAnalysis = JSON.parse(geminiText.replace(/```json\n?/g, "").replace(/```\n?/g, ""))
+      } catch (error) {
+        console.warn("Gemini temporal analysis failed, continuing with Claude only:", error)
+      }
+    }
 
     // Combinar análises
     const screening = {
       ...claudeResult,
       temporalAnalysis: geminiAnalysis,
       screeningDate: new Date().toISOString(),
-      models_used: ["claude-sonnet-4", "gemini-2.0-flash"],
+      models_used: genAI ? ["claude-sonnet-4", "gemini-2.0-flash"] : ["claude-sonnet-4"],
     }
 
     // Salvar triagem
