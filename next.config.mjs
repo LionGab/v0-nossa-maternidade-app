@@ -5,7 +5,7 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
-  // Desabilitar erros de TypeScript durante build (temporário)
+  // TypeScript
   typescript: {
     ignoreBuildErrors: false,
   },
@@ -19,6 +19,8 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
+  // Excluir arquivos de teste - apenas arquivos de página
+  pageExtensions: ['page.tsx', 'page.ts', 'tsx', 'ts', 'jsx', 'js'],
 }
 
 // Sentry é configurado via arquivos separados (sentry.client.config.ts, sentry.server.config.ts)
