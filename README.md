@@ -4,6 +4,20 @@
 
 Esta aplicação está **100% configurada, testada e documentada** para deploy imediato em produção.
 
+### 🆕 NOVIDADE: App Mobile iOS/Android
+
+✨ **Aplicativo nativo React Native/Expo** agora disponível!
+- 📱 Funciona 100% em iOS e Android
+- 🚀 4 telas completas implementadas
+- 🎨 Design mobile-first otimizado
+- 📖 [Documentação completa](./MOBILE_BUILD_GUIDE.md) | [Checklist](./MOBILE_CHECKLIST.md)
+
+**Quick Start Mobile:**
+```bash
+./setup-mobile.sh  # Setup automático
+cd mobile && npm start  # Testar com Expo Go
+```
+
 ---
 
 ## 🚀 Quick Start
@@ -44,12 +58,23 @@ Abra [http://localhost:3000](http://localhost:3000)
 ## 📦 O Que Está Incluído
 
 ### ✅ Frontend Mobile-First
-- **Next.js 16** com App Router e Turbopack
+- **Next.js 16** com App Router e Turbopack (Web)
+- **React Native 0.76** com Expo 52 (Mobile iOS/Android) 🆕
 - **React 19** com Server Components
 - **TypeScript 5.7** com strict mode
 - **Tailwind CSS 4** com design maternal acolhedor
 - **PWA** completo (service worker + manifest)
 - **Responsivo** para mobile, tablet e desktop
+
+### ✅ 📱 App Mobile Nativo (NOVO!)
+- **React Native + Expo**: Apps nativos para iOS e Android
+- **4 Telas Completas**: Boas-vindas, Dashboard, Chat, Diário, Perfil
+- **Expo Router**: Navegação moderna baseada em arquivos
+- **Safe Area**: Suporte completo a notch/dynamic island
+- **Gestos Nativos**: Experiência fluida e responsiva
+- **Build Automatizado**: Scripts para EAS Build
+- **Deploy nas Lojas**: Pronto para App Store e Play Store
+- 📖 [Guia Completo](./MOBILE_BUILD_GUIDE.md) | [Checklist](./MOBILE_CHECKLIST.md)
 
 ### ✅ Backend & Integração
 - **Supabase** com @supabase/ssr oficial
