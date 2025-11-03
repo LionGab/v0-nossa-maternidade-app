@@ -5,13 +5,11 @@
 
 [build]
   command = "npm install --legacy-peer-deps && npm run build"
-  publish = ".next"
-  
+
 [build.environment]
   NODE_VERSION = "20"
   NPM_VERSION = "latest"
   NODE_ENV = "production"
-  # Enable Next.js standalone output
   NEXT_TELEMETRY_DISABLED = "1"
 
 # Plugin Next.js para Netlify
@@ -37,7 +35,7 @@
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
-    
+
 # Headers específicos para service worker
 [[headers]]
   for = "/sw.js"
