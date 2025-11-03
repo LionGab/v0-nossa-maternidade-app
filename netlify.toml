@@ -8,13 +8,15 @@
 [build.environment]
   NODE_VERSION = "20"
   PNPM_VERSION = "latest"
-  PNPM_FLAGS = "--shamefully-hoist"
-
+  
 # Context-specific configurations
 [context.production.environment]
   NODE_ENV = "production"
 
 [context.deploy-preview.environment]
+  NODE_ENV = "development"
+
+[context.branch-deploy.environment]
   NODE_ENV = "development"
 
 # Redirects são gerenciados pelo Next.js e plugin
