@@ -63,7 +63,10 @@ export function MultiAIChat() {
         }
       }
     } catch (error) {
-      console.error("MultiAIChat: Error sending message", error)
+      // Error será visível para o usuário através do estado da UI
+      if (process.env.NODE_ENV === 'development') {
+        console.error("MultiAIChat: Error sending message", error)
+      }
     } finally {
       setIsLoading(false)
     }

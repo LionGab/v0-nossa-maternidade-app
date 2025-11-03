@@ -79,7 +79,10 @@ export function CodeAgentsPanel() {
       const data = await response.json()
       setAgents(data.agents || [])
     } catch (error) {
-      console.error("Erro ao carregar agentes:", error)
+      // Error será mostrado na UI através do estado do componente
+      if (error instanceof Error) {
+        console.error("Erro ao carregar agentes:", error.message)
+      }
     }
   }
 
@@ -146,8 +149,9 @@ export function CodeAgentsPanel() {
       setResults(data.results)
       setSummary(data.summary)
     } catch (error) {
-      console.error("Erro ao executar agentes:", error)
-      alert(error instanceof Error ? error.message : "Erro ao executar agentes")
+      // Error é mostrado através do alert para o usuário
+      const errorMessage = error instanceof Error ? error.message : "Erro ao executar agentes"
+      alert(errorMessage)
     } finally {
       setIsLoading(false)
     }
