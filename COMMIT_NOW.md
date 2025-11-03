@@ -20,11 +20,10 @@ git add scripts/commit-fix-url.ps1
 
 git commit -m "fix: remover referências à URL antiga do Supabase e adicionar URL correta
 
-- Removidas todas as menções à URL antiga bbcwitnbnosyfpjtzkr.supabase.co
+- Removidas todas as menções à URL antiga mnszbkeuerjcevjvdqme.supabase.co
 - Atualizado .cursor/mcp-config.json para usar variáveis de ambiente
 - Adicionada URL correta (mnszbkeuerjcevjvdqme.supabase.co) em arquivos de documentação
 - Corrigidos arquivos de configuração e scripts relacionados"
-
 git push origin main
 ```
 
