@@ -33,10 +33,11 @@
 2. **Copie** o conteúdo do arquivo `mcp-config-example.json` que está nesta pasta
 3. **Cole** no arquivo de configuração do Claude Desktop
 4. **Substitua** os valores:
-   - `COLE_SUA_URL_AQUI` → URL do Supabase
-   - `COLE_SUA_CHAVE_ANONIMA_AQUI` → anon key
-   - `COLE_SUA_CHAVE_SERVICE_ROLE_AQUI` → service_role key
+   - `https://SEU-PROJETO.supabase.co` → URL do Supabase
+   - `COLOQUE_SUA_ANON_KEY_AQUI` → anon key
+   - `COLOQUE_SUA_SERVICE_ROLE_KEY_AQUI` → service_role key
    - `COLE_SUA_CHAVE_BRAVE_AQUI` → Brave API key (ou remova a seção brave-search)
+   - `/caminho/para/seu/projeto/...` → ajuste os caminhos para onde o repositório está salvo (ex.: `/home/usuario/projetos` no Linux ou `C:\Users\SeuUsuario\Projetos` no Windows)
 
 ## ✅ Passo 5: Validar o JSON
 
