@@ -4,16 +4,34 @@
 Write-Host "🔄 Verificando status do Git..." -ForegroundColor Cyan
 git status
 
-Write-Host "`n📦 Adicionando arquivos..." -ForegroundColor Cyan
+Write-Host "`n📦 Verificando arquivos não rastreados..." -ForegroundColor Cyan
+$untracked = git ls-files --others --exclude-standard
+if ($untracked) {
+    Write-Host "Arquivos não rastreados encontrados:" -ForegroundColor Yellow
+    $untracked | ForEach-Object { Write-Host "  - $_" -ForegroundColor Gray }
+}
+
+Write-Host "`n📦 Adicionando TODOS os arquivos (incluindo novos)..." -ForegroundColor Cyan
 git add -A
 
+Write-Host "`n🔍 Verificando o que será commitado..." -ForegroundColor Cyan
+git status --short
+
 Write-Host "`n💾 Fazendo commit..." -ForegroundColor Cyan
-git commit -m "fix: atualizar credenciais do Supabase e corrigir configuracoes
+$hasChanges = git diff --cached --name-only
+if ($hasChanges -or $untracked) {
+    git commit -m "fix: atualizar credenciais do Supabase e corrigir configuracoes
 
 - Atualizar URL do Supabase para mnszbkeuerjcevjvdqme.supabase.co
 - Adicionar scripts e documentacao para atualizar variaveis no Netlify
 - Criar guias de correcao para signup e configuracoes
 - Testes confirmam que credenciais estao funcionando corretamente"
+}
+else {
+    Write-Host "⚠️  Nenhuma mudança para commitar!" -ForegroundColor Yellow
+    Write-Host "Todos os arquivos já estão commitados ou não há mudanças." -ForegroundColor Gray
+    exit 0
+}
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "✅ Commit realizado com sucesso!" -ForegroundColor Green
