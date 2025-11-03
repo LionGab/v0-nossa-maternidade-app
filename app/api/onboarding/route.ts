@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { onboardingSchema } from "@/lib/validations/schemas"
 import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
 import { logger } from "@/lib/logger"
+import { sanitizeString, sanitizeObject } from "@/lib/sanitize"
 
 export { OPTIONS } // CORS preflight
 
@@ -35,17 +36,21 @@ async function onboardingHandler(req: NextRequest) {
 
     const responses = validationResult.data
 
+    // Sanitize user input arrays before storing
+    const sanitizedChallenges = (responses.mainChallenges || []).map(sanitizeString)
+    const sanitizedNeeds = (responses.specificNeeds || []).map(sanitizeString)
+
     // Store onboarding responses
     const { data, error } = await supabase
       .from("onboarding_responses")
       .insert({
         user_id: user.id,
         emotional_state: responses.emotionalState,
-        main_challenges: responses.mainChallenges || [],
+        main_challenges: sanitizedChallenges,
         sleep_quality: responses.sleepQuality,
         self_care_frequency: responses.selfCareFrequency,
         baby_age_months: responses.babyAge,
-        specific_needs: responses.specificNeeds || [],
+        specific_needs: sanitizedNeeds,
       })
       .select()
       .single()

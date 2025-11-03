@@ -51,6 +51,9 @@ async function multiAIChatHandler(req: NextRequest) {
 
     const { messages, useEmpatheticMode } = validationResult.data
 
+    // Sanitize message content to prevent XSS
+    const sanitizedMessages = sanitizeMessages(messages)
+
     let profile = null
     let latestAnalysis = null
 
@@ -85,27 +88,26 @@ Contexto da usuária:
     if (useEmpatheticMode) {
       if (!anthropic) {
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             error: "Modo empático não disponível",
             message: "A API do Anthropic não está configurada. Configure ANTHROPIC_API_KEY."
-          }), 
+          }),
           { status: 503, headers: { 'Content-Type': 'application/json' } }
         )
       }
-      
+
       const stream = await anthropic.messages.stream({
         model: "claude-sonnet-4-20250514",
         max_tokens: 1024,
         messages: [
           {
-            role: "user",
-            content: `Você é NathAI, uma assistente maternal empática e acolhedora. ${context}
-
-Histórico da conversa:
-${messages.map((m: any) => `${m.role}: ${m.content}`).join("\n")}
-
-Responda de forma calorosa, empática e prática. Ofereça suporte emocional genuíno e conselhos baseados em evidências.`,
+            role: "system",
+            content: `Você é NathAI, uma assistente maternal empática e acolhedora. ${context}`,
           },
+          ...sanitizedMessages.map((msg) => ({
+            role: msg.role as "user" | "assistant",
+            content: msg.content,
+          })),
         ],
       })
 
@@ -140,14 +142,14 @@ Responda de forma calorosa, empática e prática. Ofereça suporte emocional gen
     // Usar GPT-4 para conversação geral e recomendações
     if (!openai) {
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: "Chat não disponível",
           message: "A API da OpenAI não está configurada. Configure OPENAI_API_KEY."
-        }), 
+        }),
         { status: 503, headers: { 'Content-Type': 'application/json' } }
       )
     }
-    
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
       messages: [
@@ -157,7 +159,10 @@ Responda de forma calorosa, empática e prática. Ofereça suporte emocional gen
 
 Forneça respostas práticas, baseadas em evidências e personalizadas para a situação da mãe.`,
         },
-        ...messages,
+        ...sanitizedMessages.map((msg) => ({
+          role: msg.role as "user" | "assistant",
+          content: msg.content,
+        })),
       ],
       stream: true,
     })

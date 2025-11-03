@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo, memo } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { Flame, Trophy, Star, Sparkles, Target } from "lucide-react"
+import { clientLogger } from "@/lib/logger-client"
 
 interface GamificationStats {
   totalPoints: number
@@ -17,7 +18,7 @@ interface GamificationStats {
   activeChallenges: any[]
 }
 
-export function GamificationWidget() {
+function GamificationWidgetComponent() {
   const [stats, setStats] = useState<GamificationStats | null>(null)
   const [showAchievements, setShowAchievements] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -47,7 +48,7 @@ export function GamificationWidget() {
         throw new Error("Failed to fetch stats")
       }
     } catch (error) {
-      console.error("Gamification Widget: Error", error)
+      clientLogger.error("Gamification Widget: Erro ao carregar estatísticas", error)
       setError("Erro ao carregar estatísticas")
       setStats({
         totalPoints: 0,
@@ -82,12 +83,20 @@ export function GamificationWidget() {
     )
   }
 
-  const levelProgress =
-    ((stats.totalPoints - (stats.totalPoints - stats.pointsToNextLevel)) /
-      (stats.totalPoints + stats.pointsToNextLevel)) *
-    100
+  // Cálculos custosos com useMemo
+  const levelProgress = useMemo(() => {
+    const basePoints = stats.currentLevel > 1
+      ? (stats.currentLevel - 1) * 100
+      : 0
+    const progress = stats.totalPoints - basePoints
+    const nextLevelPoints = stats.pointsToNextLevel
+    return Math.min(100, Math.max(0, (progress / nextLevelPoints) * 100))
+  }, [stats.totalPoints, stats.currentLevel, stats.pointsToNextLevel])
 
-  const newAchievements = (stats.achievements ?? []).filter((a) => a.isNew)
+  const newAchievements = useMemo(
+    () => (stats.achievements ?? []).filter((a) => a.isNew),
+    [stats.achievements]
+  )
 
   return (
     <div className="space-y-4">
@@ -234,3 +243,6 @@ export function GamificationWidget() {
     </div>
   )
 }
+
+// Memoizar componente para evitar re-renders desnecessários
+export const GamificationWidget = memo(GamificationWidgetComponent)

@@ -17,6 +17,17 @@
 3. Gere uma API key
 4. Copie a chave
 
+## ✅ Passo 2.5: Obter Token do GitHub (Opcional)
+
+1. Acesse: https://github.com/settings/tokens
+2. Clique em "Generate new token" → "Generate new token (classic)"
+3. Dê um nome: "Claude Desktop MCP"
+4. Selecione as permissões necessárias:
+   - `repo` (acesso completo a repositórios)
+   - `read:org` (se quiser acesso a organizações)
+5. Clique em "Generate token"
+6. **COPIE O TOKEN** (você só verá uma vez!)
+
 ## ✅ Passo 3: Localizar o Arquivo de Configuração
 
 ### Windows:
@@ -27,15 +38,28 @@
 **Se o arquivo NÃO existir:**
 - Crie manualmente um arquivo chamado `claude_desktop_config.json` nessa pasta
 
-## ✅ Passo 4: Editar a Configuração
+## ✅ Passo 4: Configurar MCPs (Opção 1: Automático)
+
+### Usando o Script PowerShell:
+
+1. Abra o PowerShell na pasta do projeto
+2. Execute:
+```powershell
+.\scripts\setup-mcps.ps1
+```
+3. O script irá:
+   - Criar/atualizar o arquivo de configuração
+   - Fazer backup se já existir
+   - Atualizar caminhos automaticamente
+   - Preservar configurações existentes
+
+## ✅ Passo 4: Configurar MCPs (Opção 2: Manual)
 
 1. **Abra** o arquivo `claude_desktop_config.json` com um editor de texto
 2. **Copie** o conteúdo do arquivo `mcp-config-example.json` que está nesta pasta
 3. **Cole** no arquivo de configuração do Claude Desktop
 4. **Substitua** os valores:
-   - `COLE_SUA_URL_AQUI` → URL do Supabase
-   - `COLE_SUA_CHAVE_ANONIMA_AQUI` → anon key
-   - `COLE_SUA_CHAVE_SERVICE_ROLE_AQUI` → service_role key
+   - `COLE_SEU_TOKEN_GITHUB_AQUI` → Token GitHub (ou remova a seção github)
    - `COLE_SUA_CHAVE_BRAVE_AQUI` → Brave API key (ou remova a seção brave-search)
 
 ## ✅ Passo 5: Validar o JSON
@@ -70,9 +94,19 @@ Mostre a estrutura de pastas do projeto v0-nossa-maternidade-app
 Quais foram os últimos 5 commits do projeto?
 ```
 
+### Testar GitHub:
+```
+Mostre os últimos 5 commits do repositório LionGab/v0-nossa-maternidade-app
+```
+
 ### Testar Brave Search:
 ```
 Pesquise sobre as melhores práticas de Next.js 15 em 2025
+```
+
+### Testar Browser Extension:
+```
+Navegue para https://supabase.com e tire um snapshot da página
 ```
 
 ---
@@ -80,12 +114,14 @@ Pesquise sobre as melhores práticas de Next.js 15 em 2025
 ## 🔧 Troubleshooting
 
 ### Erro: "Cannot find module"
-Execute no terminal:
+Os MCPs usam `npx -y` para instalação automática, mas se tiver problemas:
 ```bash
 npm cache clean --force
 npm install -g @modelcontextprotocol/server-filesystem
 npm install -g @modelcontextprotocol/server-git
+npm install -g @modelcontextprotocol/server-github
 npm install -g @modelcontextprotocol/server-brave-search
+npm install -g @modelcontextprotocol/server-browser
 npm install -g supabase-mcp
 ```
 
@@ -112,12 +148,14 @@ Ou use `npx` como configurado no exemplo.
 - A chave `anon_key` é pública (ok compartilhar)
 - A chave `service_role_key` é PRIVADA (nunca commitar no Git)
 
-## 🎯 MCPs Essenciais Instalados
+## 🎯 MCPs Configurados
 
 ✅ **Supabase** - Interagir com seu banco de dados
 ✅ **Filesystem** - Navegar pelos arquivos do projeto
 ✅ **Git** - Ver histórico, branches, commits
-✅ **Brave Search** - Buscar informações atualizadas
+✅ **GitHub** - Gerenciar issues, PRs, commits via API
+✅ **Brave Search** - Buscar informações atualizadas na web
+✅ **Browser Extension** - Navegar e interagir com páginas web
 
 ---
 
@@ -133,16 +171,34 @@ Ou use `npx` como configurado no exemplo.
 # Histórico git
 "Mostre os commits relacionados a autenticação nos últimos 30 dias"
 
+# GitHub
+"Crie uma issue no repositório sobre melhorias de performance"
+"Liste todas as PRs abertas no repositório"
+"Mostre os detalhes do último commit na branch main"
+
 # Pesquisa atualizada
 "Pesquise sobre as vulnerabilidades de segurança mais recentes do Next.js"
+
+# Browser
+"Navegue para a documentação do Next.js e resuma os principais pontos"
 ```
 
 ---
 
 ## ✅ Checklist de Instalação
 
+### Método Automático (Recomendado)
+- [ ] Executei `.\scripts\setup-mcps.ps1`
+- [ ] Editei o arquivo de configuração e adicionei tokens (se necessário)
+- [ ] Fechei completamente o Claude Desktop
+- [ ] Reabri o Claude Desktop
+- [ ] Aguardei 60 segundos
+- [ ] Testei pelo menos um MCP
+
+### Método Manual
 - [ ] Obtive as credenciais do Supabase
 - [ ] Obtive a chave do Brave Search (opcional)
+- [ ] Obtive o token do GitHub (opcional)
 - [ ] Localizei o arquivo claude_desktop_config.json
 - [ ] Copiei a configuração do mcp-config-example.json
 - [ ] Substituí todas as credenciais

@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { ChefHat, Sparkles, Clock, Users, Flame } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Textarea } from "@/components/ui/textarea"
+import { clientLogger } from "@/lib/logger-client"
+import { ChefHat, Clock, Flame, Sparkles, Users } from "lucide-react"
+import { useState } from "react"
 
 const moodOptions = [
   { value: "energizada", label: "😊 Energizada e motivada", color: "bg-green-100 text-green-800" },
@@ -48,7 +49,11 @@ export default function ReceitasPage() {
       const data = await response.json()
       setRecipes(data.recipes || [])
     } catch (error) {
-      console.error("Recipes: Error", error)
+      clientLogger.error("Receitas: Erro ao gerar receitas", error, {
+        mood,
+        hasPreferences: !!preferences,
+        hasIngredients: !!ingredients,
+      })
       setError("Erro ao gerar receitas. Tente novamente.")
     } finally {
       setIsLoading(false)

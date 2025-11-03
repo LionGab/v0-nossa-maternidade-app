@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Sparkles, Send, Loader2, Heart, Brain, Smile } from "lucide-react"
 import { Avatar } from "@/components/ui/avatar"
+import { clientLogger } from "@/lib/logger-client"
 
 type Message = {
   id: string
@@ -33,6 +34,8 @@ export default function ChatPage() {
   ])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [streamingMessage, setStreamingMessage] = useState<string | null>(null)
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -41,7 +44,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages])
+  }, [messages, streamingMessage])
 
   const sendMessage = async (content: string) => {
     if (!content.trim() || isLoading) return
@@ -95,6 +98,11 @@ export default function ChatPage() {
 
       const decoder = new TextDecoder()
       let assistantMessageContent = ""
+      const messageId = (Date.now() + 1).toString()
+
+      // Iniciar streaming visual
+      setStreamingMessageId(messageId)
+      setStreamingMessage("")
 
       while (true) {
         const { done, value } = await reader.read()
@@ -103,20 +111,30 @@ export default function ChatPage() {
         const chunk = decoder.decode(value, { stream: true })
         assistantMessageContent += chunk
 
-        // Atualizar mensagem em tempo real (opcional - comentado para evitar múltiplas atualizações)
-        // Você pode criar um estado separado para mensagem parcial se quiser streaming visual
+        // Atualizar mensagem em tempo real para streaming visual
+        setStreamingMessage(assistantMessageContent)
       }
 
+      // Finalizar: adicionar mensagem completa e limpar streaming
       const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: messageId,
         role: "assistant",
         content: assistantMessageContent || "Desculpe, não consegui processar sua mensagem. Tente novamente.",
         timestamp: new Date(),
       }
 
+      setStreamingMessage(null)
+      setStreamingMessageId(null)
       setMessages(prev => [...prev, assistantMessage])
     } catch (error) {
-      console.error("Chat error:", error)
+      // Limpar streaming em caso de erro
+      setStreamingMessage(null)
+      setStreamingMessageId(null)
+
+      clientLogger.error("Chat: Erro ao enviar mensagem", error, {
+        userId: "client-side",
+        message: content.trim().substring(0, 50),
+      })
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
@@ -199,7 +217,31 @@ export default function ChatPage() {
             </div>
           ))}
 
-          {isLoading && (
+          {/* Mensagem sendo transmitida (streaming) */}
+          {streamingMessage && streamingMessageId && (
+            <div
+              key={streamingMessageId}
+              className="flex gap-3 justify-start"
+            >
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+              <div className="max-w-[75%] rounded-2xl p-4 bg-muted">
+                <p className="text-sm whitespace-pre-wrap">
+                  {streamingMessage}
+                  <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1">|</span>
+                </p>
+                <p className="text-xs mt-2 text-muted-foreground">
+                  {new Date().toLocaleTimeString("pt-BR", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  })}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {isLoading && !streamingMessage && (
             <div className="flex gap-3 justify-start">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
                 <Sparkles className="h-5 w-5 text-white" />

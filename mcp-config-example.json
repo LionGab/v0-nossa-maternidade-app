@@ -27,12 +27,23 @@
         "C:\\Users\\Usuario\\Documents\\gl\\v0-nossa-maternidade-app"
       ]
     },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "COLE_SEU_TOKEN_GITHUB_AQUI"
+      }
+    },
     "brave-search": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-brave-search"],
       "env": {
         "BRAVE_API_KEY": "COLE_SUA_CHAVE_BRAVE_AQUI"
       }
+    },
+    "browser-extension": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-browser"]
     }
   }
 }

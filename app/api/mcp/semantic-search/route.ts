@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase/server"
 import { MemoryManager } from "@/lib/mcp/memory-manager"
 import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
 import { logger } from "@/lib/logger"
+import { sanitizeString } from "@/lib/sanitize"
 
 export { OPTIONS } // CORS preflight
 
@@ -25,8 +26,11 @@ async function handleSemanticSearch(req: NextRequest) {
       return NextResponse.json({ error: "Query is required" }, { status: 400 })
     }
 
+    // Sanitize query input
+    const sanitizedQuery = sanitizeString(query)
+
     const memoryManager = new MemoryManager(user.id)
-    const results = await memoryManager.searchMemories(query, limit, threshold)
+    const results = await memoryManager.searchMemories(sanitizedQuery, limit, threshold)
 
     logger.info("Semantic search completed successfully", {
       userId: user.id,

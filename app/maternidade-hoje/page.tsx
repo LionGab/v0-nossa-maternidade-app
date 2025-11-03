@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Newspaper, TrendingUp, Heart, BookOpen, Baby, Sparkles } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { clientLogger } from "@/lib/logger-client"
 
 interface NewsArticle {
   title: string
@@ -52,7 +53,9 @@ export default function MaternidadeHojePage() {
       const data = await response.json()
       setArticles(data.articles || [])
     } catch (error) {
-      console.error("News: Error", error)
+      clientLogger.error("Maternidade Hoje: Erro ao buscar notícias", error, {
+        category: selectedCategory,
+      })
       setError("Erro ao buscar notícias. Tente novamente.")
     } finally {
       setIsLoading(false)

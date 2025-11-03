@@ -4,6 +4,7 @@ import { anthropic } from "@ai-sdk/anthropic"
 import { createServerClient } from "@/lib/supabase/server"
 import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
 import { logger } from "@/lib/logger"
+import { sanitizeString } from "@/lib/sanitize"
 
 export { OPTIONS } // CORS preflight
 
@@ -26,12 +27,16 @@ async function handleSummarize(req: NextRequest) {
       return NextResponse.json({ error: "Text is required" }, { status: 400 })
     }
 
+    // Sanitize input text to prevent XSS
+    const sanitizedText = sanitizeString(text)
+    const sanitizedType = type ? sanitizeString(type) : "texto"
+
     // Use Claude for empathetic summarization
     const { text: summary } = await generateText({
       model: anthropic("claude-sonnet-4-20250514"),
-      prompt: `Você é uma assistente maternal empática. Resuma o seguinte ${type || "texto"} de forma clara e acolhedora, mantendo os pontos emocionais importantes:
+      prompt: `Você é uma assistente maternal empática. Resuma o seguinte ${sanitizedType} de forma clara e acolhedora, mantendo os pontos emocionais importantes:
 
-${text}
+${sanitizedText}
 
 Crie um resumo em 2-3 parágrafos que capture a essência emocional e os pontos principais.`,
     })
@@ -41,7 +46,7 @@ Crie um resumo em 2-3 parágrafos que capture a essência emocional e os pontos 
       model: anthropic("claude-sonnet-4-20250514"),
       prompt: `Extraia os principais tópicos e temas do seguinte texto. Liste apenas os tópicos, separados por vírgula:
 
-${text}`,
+${sanitizedText}`,
     })
 
     logger.info("Summary generated successfully", {

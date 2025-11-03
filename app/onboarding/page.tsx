@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
+import { clientLogger } from "@/lib/logger-client"
 
 const questions = [
   {
@@ -124,7 +125,10 @@ export default function OnboardingPage() {
 
         router.push("/dashboard")
       } catch (error) {
-        console.error("Onboarding: Error", error)
+        clientLogger.error("Onboarding: Erro ao processar", error, {
+          step: currentStep,
+          hasResponses: Object.keys(responses).length > 0,
+        })
         const errorMessage = error instanceof Error ? error.message : "Erro ao processar onboarding"
         setError(errorMessage)
         toast({

@@ -4,6 +4,7 @@ import { createServerClient } from "@/lib/supabase/server"
 import { MemoryManager } from "@/lib/mcp/memory-manager"
 import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
 import { logger } from "@/lib/logger"
+import { sanitizeMessages, sanitizeString } from "@/lib/sanitize"
 import type { NextRequest } from "next/server"
 
 export { OPTIONS } // CORS preflight
@@ -24,7 +25,10 @@ async function chatHandler(req: NextRequest) {
     }
 
     const { messages } = await req.json()
-    const lastMessage = messages[messages.length - 1].content
+
+    // Sanitize message content to prevent XSS
+    const sanitizedMessages = sanitizeMessages(messages)
+    const lastMessage = sanitizeString(sanitizedMessages[sanitizedMessages.length - 1].content)
 
     const memoryManager = new MemoryManager(user.id)
 
@@ -68,7 +72,7 @@ Seja calorosa, empática e demonstre que você realmente conhece e acompanha a h
 
     const result = streamText({
       model: anthropic("claude-sonnet-4-20250514"),
-      messages: [{ role: "system", content: systemPrompt }, ...messages],
+      messages: [{ role: "system", content: systemPrompt }, ...sanitizedMessages],
       async onFinish({ text }) {
         // Store this conversation in memory for future reference
         await memoryManager.storeMemory(`Usuária: ${lastMessage}\nNathAI: ${text}`, "conversation", undefined, {

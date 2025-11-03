@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo, memo } from "react"
 import { useRouter } from "next/navigation"
 import { GamificationWidget } from "@/components/gamification-widget"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -10,6 +10,45 @@ import { Button } from "@/components/ui/button"
 import { BottomNavigation } from "@/components/bottom-navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
+import { clientLogger } from "@/lib/logger-client"
+
+// Componente memoizado para cards do dashboard
+const DashboardCards = memo(() => {
+  const dashboardCards = useMemo(() => [
+    { href: "/mundo-nath", icon: "🎥", title: "Mundo Nath", desc: "Vídeos virais e conteúdo exclusivo da Nathália", bg: "bg-primary/10" },
+    { href: "/receitas", icon: "👨‍🍳", title: "Receitas do Coração", desc: "Receitas personalizadas com IA", bg: "bg-secondary/10" },
+    { href: "/maternidade-hoje", icon: "📰", title: "Maternidade Hoje", desc: "Notícias e tendências atuais", bg: "bg-accent/10" },
+    { href: "/chat", icon: "✨", title: "NathIA", desc: "Sua assistente maternal com IA", bg: "bg-primary/10" },
+    { href: "/rotina", icon: "📅", title: "Rotina Semanal", desc: "Organize suas atividades", bg: "bg-blue-50" },
+    { href: "/autocuidado", icon: "💝", title: "Autocuidado", desc: "10 minutos para você", bg: "bg-pink-50" },
+    { href: "/brincadeiras", icon: "🎨", title: "Brincadeiras", desc: "Atividades sensoriais", bg: "bg-purple-50" },
+    { href: "/historias-sono", icon: "🌙", title: "Histórias de Sono", desc: "Para adormecer tranquilo", bg: "bg-indigo-50" },
+    { href: "/birras", icon: "🤗", title: "Lidando com Birras", desc: "Respostas empáticas", bg: "bg-orange-50" },
+    { href: "/perfil-bebe", icon: "👶", title: "Perfil do Bebê", desc: "Acompanhe o crescimento", bg: "bg-green-50" },
+  ], [])
+
+  return (
+    <div className="grid md:grid-cols-2 gap-4">
+      {dashboardCards.map((card) => (
+        <Card key={card.href} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
+          <Link href={card.href}>
+            <div className="flex items-start gap-4">
+              <div className={`w-12 h-12 rounded-full ${card.bg} flex items-center justify-center text-2xl`}>
+                {card.icon}
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg mb-1">{card.title}</h3>
+                <p className="text-sm text-muted-foreground">{card.desc}</p>
+              </div>
+            </div>
+          </Link>
+        </Card>
+      ))}
+    </div>
+  )
+})
+
+DashboardCards.displayName = "DashboardCards"
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -40,10 +79,10 @@ export default function DashboardPage() {
           setUserName(profile.full_name)
         }
       } catch (error) {
-        console.warn("Dashboard: Could not fetch profile", error)
+        clientLogger.warn("Dashboard: Não foi possível buscar perfil", { userId: user?.id })
       }
     } catch (error) {
-      console.error("Dashboard: Unexpected error", error)
+      clientLogger.error("Dashboard: Erro inesperado", error, { userId: "unknown" })
       router.push("/login")
     } finally {
       setIsLoading(false)
@@ -82,149 +121,7 @@ export default function DashboardPage() {
                 {/* Coluna Principal */}
                 <div className="lg:col-span-2 space-y-6">
                   {/* Cards de Acesso Rápido */}
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                      <Link href="/mundo-nath">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
-                            🎥
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">Mundo Nath</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Vídeos virais e conteúdo exclusivo da Nathália
-                            </p>
-                          </div>
-                        </div>
-                      </Link>
-                    </Card>
-
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                      <Link href="/receitas">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-2xl">
-                            👨‍🍳
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">Receitas do Coração</h3>
-                            <p className="text-sm text-muted-foreground">Receitas personalizadas com IA</p>
-                          </div>
-                        </div>
-                      </Link>
-                    </Card>
-
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                      <Link href="/maternidade-hoje">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center text-2xl">
-                            📰
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">Maternidade Hoje</h3>
-                            <p className="text-sm text-muted-foreground">Notícias e tendências atuais</p>
-                          </div>
-                        </div>
-                      </Link>
-                    </Card>
-
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                      <Link href="/chat">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
-                            ✨
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">NathIA</h3>
-                            <p className="text-sm text-muted-foreground">Sua assistente maternal com IA</p>
-                          </div>
-                        </div>
-                      </Link>
-                    </Card>
-
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                      <Link href="/rotina">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-2xl">
-                            📅
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">Rotina Semanal</h3>
-                            <p className="text-sm text-muted-foreground">Organize suas atividades</p>
-                          </div>
-                        </div>
-                      </Link>
-                    </Card>
-
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                      <Link href="/autocuidado">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-full bg-pink-50 flex items-center justify-center text-2xl">
-                            💝
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">Autocuidado</h3>
-                            <p className="text-sm text-muted-foreground">10 minutos para você</p>
-                          </div>
-                        </div>
-                      </Link>
-                    </Card>
-
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                      <Link href="/brincadeiras">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-2xl">
-                            🎨
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">Brincadeiras</h3>
-                            <p className="text-sm text-muted-foreground">Atividades sensoriais</p>
-                          </div>
-                        </div>
-                      </Link>
-                    </Card>
-
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                      <Link href="/historias-sono">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-2xl">
-                            🌙
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">Histórias de Sono</h3>
-                            <p className="text-sm text-muted-foreground">Para adormecer tranquilo</p>
-                          </div>
-                        </div>
-                      </Link>
-                    </Card>
-
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                      <Link href="/birras">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-2xl">
-                            🤗
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">Lidando com Birras</h3>
-                            <p className="text-sm text-muted-foreground">Respostas empáticas</p>
-                          </div>
-                        </div>
-                      </Link>
-                    </Card>
-
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                      <Link href="/perfil-bebe">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-2xl">
-                            👶
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">Perfil do Bebê</h3>
-                            <p className="text-sm text-muted-foreground">Acompanhe o crescimento</p>
-                          </div>
-                        </div>
-                      </Link>
-                    </Card>
-                  </div>
+                  <DashboardCards />
 
                   {/* Sugestão do Dia */}
                   <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">

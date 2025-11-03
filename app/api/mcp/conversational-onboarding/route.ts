@@ -5,6 +5,7 @@ import { createServerClient } from "@/lib/supabase/server"
 import { MemoryManager } from "@/lib/mcp/memory-manager"
 import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
 import { logger } from "@/lib/logger"
+import { sanitizeMessages } from "@/lib/sanitize"
 
 export { OPTIONS } // CORS preflight
 
@@ -22,6 +23,10 @@ async function handleConversationalOnboarding(req: NextRequest) {
     }
 
     const { messages } = await req.json()
+
+    // Sanitize message content to prevent XSS
+    const sanitizedMessages = sanitizeMessages(messages)
+
     const memoryManager = new MemoryManager(user.id)
 
     // Get user's onboarding progress
@@ -68,11 +73,11 @@ Diretrizes:
 
     const result = streamText({
       model: anthropic("claude-sonnet-4-20250514"),
-      messages: [{ role: "system", content: systemPrompt }, ...messages],
+      messages: [{ role: "system", content: systemPrompt }, ...sanitizedMessages],
       async onFinish({ text }) {
         // Store conversation in memory
         await memoryManager.storeMemory(
-          `Usuária: ${messages[messages.length - 1].content}\nNathAI: ${text}`,
+          `Usuária: ${sanitizedMessages[sanitizedMessages.length - 1].content}\nNathAI: ${text}`,
           "conversation",
           undefined,
           { type: "onboarding", complete: onboardingComplete },

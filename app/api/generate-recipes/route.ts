@@ -37,11 +37,16 @@ async function generateRecipesHandler(request: NextRequest) {
 
     const { mood, preferences, ingredients } = validationResult.data
 
+    // Sanitize user input to prevent XSS
+    const sanitizedMood = sanitizeString(mood)
+    const sanitizedPreferences = sanitizeString(preferences)
+    const sanitizedIngredients = sanitizeString(ingredients)
+
     const prompt = `Você é uma chef especializada em receitas para mães ocupadas.
 
-Estado emocional da mãe: ${mood}
-Preferências alimentares: ${preferences}
-Ingredientes disponíveis: ${ingredients}
+Estado emocional da mãe: ${sanitizedMood}
+Preferências alimentares: ${sanitizedPreferences}
+Ingredientes disponíveis: ${sanitizedIngredients}
 
 Crie 3 receitas personalizadas considerando:
 1. O estado emocional (receitas reconfortantes se cansada/triste, energizantes se precisa de energia)

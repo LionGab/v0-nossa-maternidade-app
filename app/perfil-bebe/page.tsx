@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Baby, Calendar, Heart, Ruler, Weight, Edit, Loader2, AlertCircle } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import { clientLogger } from "@/lib/logger-client"
 
 interface BabyProfile {
   id?: string
@@ -86,7 +87,9 @@ export default function PerfilBebePage() {
         setEditing(true)
       }
     } catch (err) {
-      console.error("Error loading baby profile:", err)
+      clientLogger.error("Perfil Bebê: Erro ao carregar perfil", err, {
+        userId: user?.id,
+      })
       setError("Erro ao carregar perfil do bebê. Tente novamente.")
     } finally {
       setLoading(false)
@@ -140,7 +143,10 @@ export default function PerfilBebePage() {
 
       setEditing(false)
     } catch (err) {
-      console.error("Error saving baby profile:", err)
+      clientLogger.error("Perfil Bebê: Erro ao salvar perfil", err, {
+        userId,
+        hasId: !!babyData.id,
+      })
       setError("Erro ao salvar perfil. Tente novamente.")
     } finally {
       setSaving(false)
