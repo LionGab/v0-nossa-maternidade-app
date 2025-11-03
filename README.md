@@ -245,22 +245,34 @@ DEBUG=pw:api pnpm test:e2e
 
 ## 🚀 Deploy
 
-### Deploy na Vercel (Recomendado)
+### Deploy no Netlify (Recomendado)
 
-1. **Conecte seu repositório**
-   - Vá para [vercel.com](https://vercel.com)
+**Veja o guia completo em [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)**
+
+Resumo rápido:
+
+1. **Conecte seu repositório no Netlify**
+   - Acesse [app.netlify.com](https://app.netlify.com/)
    - Importe o projeto do GitHub
 
 2. **Configure variáveis de ambiente**
-   - Adicione todas as variáveis do `.env.local` na Vercel
+   - Adicione todas as variáveis do `.env.example`
+   - Veja instruções detalhadas no DEPLOY_GUIDE.md
 
 3. **Deploy automático**
    - Cada push para `main` gera um novo deploy
+   - Pull Requests geram preview deploys
 
 ### Build local
 
 ```bash
+# Copie .env.example para .env.local e configure
+cp .env.example .env.local
+
+# Build
 pnpm build
+
+# Rodar em produção
 pnpm start
 ```
 

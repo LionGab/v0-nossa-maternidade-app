@@ -21,7 +21,6 @@ export default function DashboardPage() {
   }, [])
 
   const checkAuth = async () => {
-    console.log("[v0] Dashboard: Checking authentication")
     try {
       const supabase = createClient()
       const {
@@ -29,10 +28,7 @@ export default function DashboardPage() {
         error: authError,
       } = await supabase.auth.getUser()
 
-      console.log("[v0] Dashboard: Auth check result", { hasUser: !!user, error: authError?.message })
-
       if (authError || !user) {
-        console.log("[v0] Dashboard: No user found, redirecting to login")
         router.push("/login")
         return
       }
@@ -44,10 +40,10 @@ export default function DashboardPage() {
           setUserName(profile.full_name)
         }
       } catch (error) {
-        console.warn("[v0] Dashboard: Could not fetch profile", error)
+        console.warn("Dashboard: Could not fetch profile", error)
       }
     } catch (error) {
-      console.error("[v0] Dashboard: Unexpected error", error)
+      console.error("Dashboard: Unexpected error", error)
       router.push("/login")
     } finally {
       setIsLoading(false)
