@@ -14,8 +14,8 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "C:\\Users\\Usuario\\Documents\\gl\\v0-nossa-maternidade-app",
-        "C:\\Users\\Usuario\\Documents\\gl"
+        "/workspace",
+        "/workspace"
       ]
     },
     "git": {
@@ -24,7 +24,7 @@
         "-y",
         "@modelcontextprotocol/server-git",
         "--repository",
-        "C:\\Users\\Usuario\\Documents\\gl\\v0-nossa-maternidade-app"
+        "/workspace"
       ]
     },
     "brave-search": {

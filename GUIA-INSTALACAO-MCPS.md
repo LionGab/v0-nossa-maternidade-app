@@ -156,4 +156,31 @@ Ou use `npx` como configurado no exemplo.
 
 **Configuração criada para:** v0-nossa-maternidade-app
 **Data:** 2025-11-03
-**Local do projeto:** C:\Users\Usuario\Documents\gl\v0-nossa-maternidade-app
+**Local do projeto (Windows):** C:\Users\Usuario\Documents\gl\v0-nossa-maternidade-app
+**Local do projeto (Linux/Mac):** /workspace
+
+---
+
+## 🐧 Configuração para Linux/Mac
+
+Se você estiver usando Linux ou Mac, o arquivo de configuração fica em:
+
+**Linux/Mac:**
+```bash
+~/.config/claude/claude_desktop_config.json
+```
+
+**Ou, se você estiver em um ambiente remoto:**
+```bash
+/workspace/.cursor/mcp-config.json
+```
+
+Os caminhos no arquivo de configuração devem usar `/` em vez de `\`:
+```json
+"/workspace"
+```
+
+Em vez de:
+```json
+"C:\\Users\\Usuario\\Documents\\gl\\v0-nossa-maternidade-app"
+```
