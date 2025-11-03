@@ -1,0 +1,64 @@
+═══════════════════════════════════════════════════════════════
+  COMANDOS RÁPIDOS - Ambiente de Testes
+═══════════════════════════════════════════════════════════════
+
+⚠️  ANTES DE TUDO - INSTALAR DEPENDÊNCIAS:
+
+    npm install
+
+    ⏱️  Isso pode levar 2-5 minutos na primeira vez
+
+═══════════════════════════════════════════════════════════════
+
+✅  DEPOIS DE INSTALAR, USE ESTES COMANDOS:
+
+    # Testes unitários (uma vez)
+    npm test
+
+    # Testes em watch mode (recarrega automaticamente)
+    npm run test:watch
+
+    # Interface visual de testes
+    npm run test:ui
+
+    # Testes com cobertura
+    npm run test:coverage
+
+    # Testes E2E (Playwright)
+    npm run test:e2e
+
+    # Interface visual E2E
+    npm run test:e2e:ui
+
+    # Todos os testes
+    npm run test:all
+
+═══════════════════════════════════════════════════════════════
+
+🔍  VERIFICAR INSTALAÇÃO:
+
+    # Verificar vitest
+    npm list vitest
+
+    # Verificar playwright
+    npm list @playwright/test
+
+    # Verificar todas as dependências
+    npm list --depth=0
+
+═══════════════════════════════════════════════════════════════
+
+🆘  SE NÃO FUNCIONAR:
+
+    1. Certifique-se de estar no diretório correto:
+       cd C:\Users\User\NossaMaternidade\v0-nossa-maternidade-app-2
+
+    2. Execute npm install novamente:
+       npm install
+
+    3. Se ainda não funcionar, limpe e reinstale:
+       Remove-Item -Recurse -Force node_modules
+       Remove-Item package-lock.json
+       npm install
+
+═══════════════════════════════════════════════════════════════
