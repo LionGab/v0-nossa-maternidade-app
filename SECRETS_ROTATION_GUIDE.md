@@ -35,7 +35,7 @@ Se você identificou que secrets foram expostos no repositório:
 
 1. Acesse: https://supabase.com/dashboard
 2. Faça login na sua conta
-3. Selecione o projeto: `bbcwitnbnosyfpfjtzkry` (ou seu projeto)
+3. Selecione o projeto no Supabase Dashboard (ou seu projeto)
 
 ### 1.2 Revogar Chaves Antigas
 

@@ -76,7 +76,7 @@ export { middleware as proxy }
 
 **Chaves Comprometidas:**
 ```
-✗ SUPABASE_URL: https://bbcwitnbnosyfpfjtzkry.supabase.co
+✗ SUPABASE_URL: [URL removida - configure com sua URL do Supabase]
 ✗ SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIs... (EXPOSTA)
 ✗ SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIs... (EXPOSTA - CRÍTICO!)
 ✗ ANTHROPIC_API_KEY: sk-ant-api03-dNzIjh... (EXPOSTA)

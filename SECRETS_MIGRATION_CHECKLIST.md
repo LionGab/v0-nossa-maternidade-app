@@ -8,7 +8,7 @@ Este checklist guia a migração segura de secrets expostos para ambientes prote
 
 ### Supabase
 - [ ] Acessar https://supabase.com/dashboard
-- [ ] Selecionar projeto `bbcwitnbnosyfpfjtzkry`
+- [ ] Selecionar projeto no Supabase Dashboard
 - [ ] Settings → API → Rotate `service_role` key
 - [ ] Settings → API → Rotate `anon` key
 - [ ] **ANOTAR** as novas chaves (você só verá uma vez!)

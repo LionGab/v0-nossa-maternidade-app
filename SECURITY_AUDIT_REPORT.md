@@ -98,7 +98,7 @@ DSN: https://5f090bd5a472ece70d4fb583bd01f3d1@o4510299490746368.ingest.us.sentry
 
 **URL Exposta:**
 ```
-SUPABASE_URL: https://bbcwitnbnosyfpfjtzkry.supabase.co
+SUPABASE_URL: [URL removida por segurança]
 ```
 
 **Impacto:**

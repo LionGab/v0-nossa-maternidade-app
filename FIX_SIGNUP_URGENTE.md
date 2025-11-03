@@ -1,9 +1,9 @@
 # 🚨 FIX URGENTE: Signup Não Funciona
 
 ## Problema
-O signup está falhando com erro `Failed to fetch` porque está usando a URL **antiga** do Supabase:
-- ❌ URL antiga: `bbcwitnbnosyfpjtzkr.supabase.co` (não resolve)
-- ✅ URL correta: `mnszbkeuerjcevjvdqme.supabase.co`
+O signup está falhando com erro `Failed to fetch` porque está usando uma URL **antiga** do Supabase que não resolve.
+
+Verifique se as variáveis de ambiente estão configuradas corretamente com a URL do seu projeto Supabase.
 
 ## Causa
 As variáveis de ambiente no **Netlify** ainda estão configuradas com valores antigos.
@@ -38,9 +38,7 @@ TypeError: Failed to fetch
 at signUp (AppEntry-80f466486c0…34d088c.js:641:6181)
 ```
 
-Requisição falhando para:
-- ❌ `bbcwitnbnosyfpjtzkr.supabase.co/auth/v1/signup`
-- ✅ Deveria usar: `mnszbkeuerjcevjvdqme.supabase.co/auth/v1/signup`
+Verifique se a URL do Supabase nas variáveis de ambiente está correta e apontando para seu projeto válido.
 
 ## Arquivos Já Corrigidos
 

@@ -2,7 +2,7 @@
 
 ## 🚨 Problema Identificado
 
-**Erro**: `ERR_NAME_NOT_RESOLVED - bbcwitnbnosyfpfjtzkry.supabase.co`
+**Erro**: `ERR_NAME_NOT_RESOLVED` - URL do Supabase não resolve
 
 **Causa**: A URL do Supabase no `.env.local` está incorreta. O domínio não existe.
 
@@ -40,13 +40,9 @@
 Abra o arquivo `.env.local` na raiz do projeto e **substitua** estas linhas:
 
 ```env
-# ANTES (URL ERRADA - NÃO EXISTE):
-NEXT_PUBLIC_SUPABASE_URL=https://bbcwitnbnosyfpfjtzkry.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...chave-antiga
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...chave-antiga
-
-# DEPOIS (cole suas credenciais aqui):
-NEXT_PUBLIC_SUPABASE_URL=https://SUA-URL-AQUI.supabase.co
+# Cole suas credenciais aqui:
+# URL atual do projeto: https://mnszbkeuerjcevjvdqme.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://mnszbkeuerjcevjvdqme.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-anon-key-completa-aqui
 SUPABASE_SERVICE_ROLE_KEY=sua-service-role-key-completa-aqui
 ```
@@ -79,7 +75,7 @@ node scripts/test-supabase-connection.mjs
 **Se der erro**:
 - Verifique se copiou a URL correta
 - Verifique se não tem espaços nas keys
-- Tente acessar a URL no navegador: `https://SUA-URL.supabase.co`
+- Tente acessar a URL no navegador: `https://mnszbkeuerjcevjvdqme.supabase.co`
 
 ---
 
@@ -87,7 +83,7 @@ node scripts/test-supabase-connection.mjs
 
 **Após a conexão funcionar**, você precisa criar as tabelas no banco:
 
-1. Acesse seu projeto Supabase: https://SUA-URL.supabase.co
+1. Acesse seu projeto Supabase: https://mnszbkeuerjcevjvdqme.supabase.co
 2. Vá em: **SQL Editor** → **New Query**
 3. Abra o arquivo: `scripts/CONSOLIDATED_SETUP.sql`
 4. Copie TODO o conteúdo (662 linhas)
