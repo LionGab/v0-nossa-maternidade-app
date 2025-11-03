@@ -5,6 +5,7 @@ import { generateText } from "ai"
 import { recipeRequestSchema } from "@/lib/validations/schemas"
 import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
 import { logger } from "@/lib/logger"
+import { sanitizeString } from "@/lib/sanitize"
 
 export { OPTIONS } // CORS preflight
 

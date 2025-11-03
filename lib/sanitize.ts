@@ -26,7 +26,7 @@ export function sanitizeString(input: string): string {
 /**
  * Sanitizes an object recursively, sanitizing all string values
  * Useful for sanitizing request bodies or nested objects
- *
+ * 
  * @param obj - The object to sanitize
  * @param maxDepth - Maximum recursion depth to prevent stack overflow (default: 10)
  * @returns A new object with all string values sanitized
@@ -47,13 +47,13 @@ export function sanitizeObject<T extends Record<string, unknown>>(
   if (Array.isArray(obj)) {
     return obj.map((item) => {
       if (typeof item === "string") {
-        return sanitizeString(item) as T
+        return sanitizeString(item)
       }
       if (typeof item === "object" && item !== null) {
-        return sanitizeObject(item as Record<string, unknown>, maxDepth - 1) as T
+        return sanitizeObject(item as Record<string, unknown>, maxDepth - 1)
       }
-      return item as T
-    }) as T
+      return item
+    }) as unknown as T
   }
 
   // Handle objects
@@ -61,11 +61,21 @@ export function sanitizeObject<T extends Record<string, unknown>>(
   for (const [key, value] of Object.entries(obj)) {
     if (typeof value === "string") {
       ;(sanitized as Record<string, unknown>)[key] = sanitizeString(value)
-    } else if (typeof value === "object" && value !== null) {
+    } else if (typeof value === "object" && value !== null && !Array.isArray(value)) {
       ;(sanitized as Record<string, unknown>)[key] = sanitizeObject(
         value as Record<string, unknown>,
         maxDepth - 1
       )
+    } else if (Array.isArray(value)) {
+      ;(sanitized as Record<string, unknown>)[key] = value.map((item) => {
+        if (typeof item === "string") {
+          return sanitizeString(item)
+        }
+        if (typeof item === "object" && item !== null) {
+          return sanitizeObject(item as Record<string, unknown>, maxDepth - 1)
+        }
+        return item
+      })
     } else {
       ;(sanitized as Record<string, unknown>)[key] = value
     }

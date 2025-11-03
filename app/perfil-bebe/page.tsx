@@ -88,7 +88,7 @@ export default function PerfilBebePage() {
       }
     } catch (err) {
       clientLogger.error("Perfil Bebê: Erro ao carregar perfil", err, {
-        userId: user?.id,
+        userId: userId || "unknown",
       })
       setError("Erro ao carregar perfil do bebê. Tente novamente.")
     } finally {

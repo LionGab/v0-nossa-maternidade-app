@@ -72,7 +72,13 @@ Seja calorosa, empática e demonstre que você realmente conhece e acompanha a h
 
     const result = streamText({
       model: anthropic("claude-sonnet-4-20250514"),
-      messages: [{ role: "system", content: systemPrompt }, ...sanitizedMessages],
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...sanitizedMessages.map((msg) => ({
+          role: msg.role as "user" | "assistant",
+          content: msg.content,
+        })),
+      ],
       async onFinish({ text }) {
         // Store this conversation in memory for future reference
         await memoryManager.storeMemory(`Usuária: ${lastMessage}\nNathAI: ${text}`, "conversation", undefined, {

@@ -6,6 +6,7 @@ import { chatRequestSchema } from "@/lib/validations/schemas"
 import { getApiKey, hasApiKey } from "@/lib/env"
 import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
 import { logger } from "@/lib/logger"
+import { sanitizeMessages } from "@/lib/sanitize"
 
 export { OPTIONS } // CORS preflight
 
@@ -99,16 +100,11 @@ Contexto da usuária:
       const stream = await anthropic.messages.stream({
         model: "claude-sonnet-4-20250514",
         max_tokens: 1024,
-        messages: [
-          {
-            role: "system",
-            content: `Você é NathAI, uma assistente maternal empática e acolhedora. ${context}`,
-          },
-          ...sanitizedMessages.map((msg) => ({
-            role: msg.role as "user" | "assistant",
-            content: msg.content,
-          })),
-        ],
+        system: `Você é NathAI, uma assistente maternal empática e acolhedora. ${context}`,
+        messages: sanitizedMessages.map((msg) => ({
+          role: msg.role as "user" | "assistant",
+          content: msg.content,
+        })),
       })
 
       const encoder = new TextEncoder()
