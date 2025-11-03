@@ -54,7 +54,7 @@ async function handleTranscribe(req: NextRequest) {
 
     // Analyze sentiment and emotion from transcript
     const { text: analysis } = await generateText({
-      model: anthropic("claude-sonnet-4-20250514"),
+      model: anthropic("claude-3-5-sonnet-20241022"),
       prompt: `Analise o seguinte áudio transcrito de uma mãe. Identifique:
 1. Estado emocional (calma, ansiosa, feliz, triste, estressada, etc.)
 2. Tom de voz percebido (baseado nas palavras e contexto)

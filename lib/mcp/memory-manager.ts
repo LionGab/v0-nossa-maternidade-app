@@ -84,7 +84,15 @@ export class MemoryManager {
       })
 
       if (error) throw error
-      return data || []
+      // Map the RPC response to MemoryEntry format
+      return (data || []).map((item: any) => ({
+        id: item.id,
+        contentText: item.content_text,
+        contentType: item.content_type,
+        metadata: item.metadata,
+        similarity: item.similarity,
+        createdAt: item.created_at,
+      }))
     } catch (error) {
       console.error("MemoryManager: Error searching memories", error)
       return []
@@ -153,7 +161,10 @@ export class MemoryManager {
       if (relevantMemories.length > 0) {
         context += "\n## Memórias Relevantes ao Contexto Atual:\n"
         relevantMemories.forEach((memory: MemoryEntry) => {
-          context += `- [${memory.createdAt}] (relevância: ${(memory.similarity * 100).toFixed(0)}%) ${memory.contentText}\n`
+          const createdAt = memory.createdAt || (memory as any).created_at || ""
+          const contentText = memory.contentText || (memory as any).content_text || ""
+          const similarity = memory.similarity || 0
+          context += `- [${createdAt}] (relevância: ${(similarity * 100).toFixed(0)}%) ${contentText}\n`
         })
       }
 

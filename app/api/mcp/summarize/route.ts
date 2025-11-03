@@ -28,7 +28,7 @@ async function handleSummarize(req: NextRequest) {
 
     // Use Claude for empathetic summarization
     const { text: summary } = await generateText({
-      model: anthropic("claude-sonnet-4-20250514"),
+      model: anthropic("claude-3-5-sonnet-20241022"),
       prompt: `Você é uma assistente maternal empática. Resuma o seguinte ${type || "texto"} de forma clara e acolhedora, mantendo os pontos emocionais importantes:
 
 ${text}
@@ -38,7 +38,7 @@ Crie um resumo em 2-3 parágrafos que capture a essência emocional e os pontos 
 
     // Extract key topics
     const { text: topics } = await generateText({
-      model: anthropic("claude-sonnet-4-20250514"),
+      model: anthropic("claude-3-5-sonnet-20241022"),
       prompt: `Extraia os principais tópicos e temas do seguinte texto. Liste apenas os tópicos, separados por vírgula:
 
 ${text}`,
