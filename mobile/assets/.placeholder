@@ -1,0 +1,26 @@
+# Assets Placeholder
+
+Os seguintes assets são necessários para o app funcionar completamente:
+
+## Ícones (Obrigatórios)
+
+- icon.png (1024x1024) - Ícone principal do app
+- adaptive-icon.png (1024x1024) - Ícone adaptativo Android
+- favicon.png (48x48) - Ícone para web
+
+## Splash Screen (Obrigatório)
+
+- splash.png (1242x2436) - Tela de carregamento
+
+## Fontes (Opcional)
+
+Coloque arquivos .ttf em assets/fonts/
+
+## Imagens (Opcional)
+
+Coloque imagens adicionais em assets/images/
+
+---
+
+Por enquanto, o app usa emojis como placeholders.
+Para produção, substitua por assets profissionais.

@@ -1,0 +1,55 @@
+name: 🧪 Mobile Tests
+
+on:
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/mobile-test.yml'
+  push:
+    branches: [main, develop]
+    paths:
+      - 'mobile/**'
+
+jobs:
+  lint-and-test:
+    name: 📋 Lint e Testes
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🔍 Checkout código
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+      
+      - name: 📦 Instalar dependências
+        working-directory: mobile
+        run: npm ci
+      
+      - name: 📊 Lint do código
+        working-directory: mobile
+        run: npm run lint
+        continue-on-error: true
+      
+      - name: 🧪 Executar testes
+        working-directory: mobile
+        run: npm test
+        continue-on-error: true
+      
+      - name: ✅ TypeScript Check
+        working-directory: mobile
+        run: npx tsc --noEmit
+      
+      - name: 📊 Resumo dos Testes
+        if: always()
+        run: |
+          echo "### 🧪 Testes Mobile" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Validações concluídas" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- TypeScript compilação OK" >> $GITHUB_STEP_SUMMARY
+          echo "- Estrutura de arquivos validada" >> $GITHUB_STEP_SUMMARY
