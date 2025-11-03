@@ -26,11 +26,11 @@ netlify open
 
 ## Configuração Correta
 
-O `netlify.toml` já está configurado corretamente. Se o erro persistir:
+O `netlify.toml` agora tem `base = "."` explicitamente configurado para garantir que o base directory seja a raiz do projeto. Se o erro persistir:
 
 1. **Remova configurações manuais** no Dashboard que conflitam com `netlify.toml`
 2. **Use apenas o `netlify.toml`** para configurações de build
-3. **Não defina** "Base directory" no Dashboard se já está no `netlify.toml`
+3. **Não defina** "Base directory" no Dashboard - o `netlify.toml` já gerencia isso
 
 ## Verificação
 
@@ -42,4 +42,3 @@ git push
 ```
 
 O build deve passar sem o erro de "Base directory does not exist".
-
