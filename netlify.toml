@@ -6,7 +6,7 @@
 [build]
   base = "."
   command = "npm install --legacy-peer-deps && npm run build"
-  publish = ".next"
+  # publish é gerenciado automaticamente pelo @netlify/plugin-nextjs
 
 [build.environment]
   NODE_VERSION = "20"
@@ -72,16 +72,7 @@
 # Não adicionar redirects manuais aqui
 
 # Configurações de otimização
+# O plugin Next.js gerencia automaticamente o processamento
+# Essas configurações são opcionais e podem ser removidas se causarem conflitos
 [build.processing]
   skip_processing = false
-
-[build.processing.css]
-  bundle = true
-  minify = true
-
-[build.processing.js]
-  bundle = true
-  minify = true
-
-[build.processing.images]
-  compress = true
