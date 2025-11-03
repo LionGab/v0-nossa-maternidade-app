@@ -2,12 +2,21 @@ import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import Anthropic from "@anthropic-ai/sdk"
 import { GoogleGenerativeAI } from "@google/generative-ai"
+import { getApiKey, hasApiKey } from "@/lib/env"
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+// Inicialização condicional das APIs
+let anthropic: Anthropic | null = null
+let genAI: GoogleGenerativeAI | null = null
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
+if (hasApiKey('anthropic')) {
+  anthropic = new Anthropic({
+    apiKey: getApiKey('anthropic')!,
+  })
+}
+
+if (hasApiKey('google')) {
+  genAI = new GoogleGenerativeAI(getApiKey('google')!)
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,6 +33,16 @@ export async function POST(req: NextRequest) {
 
     if (!responses) {
       return NextResponse.json({ error: "Responses are required" }, { status: 400 })
+    }
+
+    if (!anthropic) {
+      return NextResponse.json(
+        { 
+          error: "Análise de sentimento não disponível",
+          message: "Configure ANTHROPIC_API_KEY para habilitar esta funcionalidade."
+        }, 
+        { status: 503 }
+      )
     }
 
     // Usar Claude para análise empática profunda
@@ -51,9 +70,12 @@ Responda em JSON com: { emotion, riskLevel, concerns, recommendations, selfCareA
 
     const claudeResult = JSON.parse(claudeAnalysis.content[0].type === "text" ? claudeAnalysis.content[0].text : "{}")
 
-    // Usar Gemini para análise contextual e padrões
-    const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
-    const geminiPrompt = `Analise os padrões de comportamento e contexto desta mãe:
+    // Usar Gemini para análise contextual e padrões (se disponível)
+    let geminiAnalysis = {}
+    if (genAI) {
+      try {
+        const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
+        const geminiPrompt = `Analise os padrões de comportamento e contexto desta mãe:
 
 ${JSON.stringify(responses, null, 2)}
 
@@ -66,16 +88,20 @@ Identifique:
 
 Responda em JSON com: { sleepPattern, supportNetwork, stressFactors, strengths, urgentNeeds }`
 
-    const geminiResult = await geminiModel.generateContent(geminiPrompt)
-    const geminiText = geminiResult.response.text()
-    const geminiAnalysis = JSON.parse(geminiText.replace(/```json\n?/g, "").replace(/```\n?/g, ""))
+        const geminiResult = await geminiModel.generateContent(geminiPrompt)
+        const geminiText = geminiResult.response.text()
+        geminiAnalysis = JSON.parse(geminiText.replace(/```json\n?/g, "").replace(/```\n?/g, ""))
+      } catch (error) {
+        console.warn("Gemini analysis failed, continuing with Claude only:", error)
+      }
+    }
 
     // Combinar análises
     const combinedAnalysis = {
       ...claudeResult,
       ...geminiAnalysis,
       timestamp: new Date().toISOString(),
-      models_used: ["claude-sonnet-4", "gemini-2.0-flash"],
+      models_used: genAI ? ["claude-sonnet-4", "gemini-2.0-flash"] : ["claude-sonnet-4"],
     }
 
     // Salvar no Supabase

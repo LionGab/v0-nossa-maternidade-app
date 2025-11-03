@@ -224,10 +224,11 @@ export class GamificationManager {
 
     if (!gamification) return
 
+    const currentValue = (gamification as any)[column] || 0
     await this.supabase
       .from("user_gamification")
       .update({
-        [column]: (gamification[column] || 0) + 1,
+        [column]: currentValue + 1,
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", this.userId)

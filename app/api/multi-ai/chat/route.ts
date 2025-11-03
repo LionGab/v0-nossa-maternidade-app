@@ -3,14 +3,23 @@ import { createClient } from "@/lib/supabase/server"
 import Anthropic from "@anthropic-ai/sdk"
 import OpenAI from "openai"
 import { chatRequestSchema } from "@/lib/validations/schemas"
+import { getApiKey, hasApiKey } from "@/lib/env"
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+// Inicialização condicional das APIs
+let anthropic: Anthropic | null = null
+let openai: OpenAI | null = null
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+if (hasApiKey('anthropic')) {
+  anthropic = new Anthropic({
+    apiKey: getApiKey('anthropic')!,
+  })
+}
+
+if (hasApiKey('openai')) {
+  openai = new OpenAI({
+    apiKey: getApiKey('openai')!,
+  })
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -69,6 +78,16 @@ Contexto da usuária:
 
     // Usar Claude para modo empático (melhor para suporte emocional)
     if (useEmpatheticMode) {
+      if (!anthropic) {
+        return new Response(
+          JSON.stringify({ 
+            error: "Modo empático não disponível",
+            message: "A API do Anthropic não está configurada. Configure ANTHROPIC_API_KEY."
+          }), 
+          { status: 503, headers: { 'Content-Type': 'application/json' } }
+        )
+      }
+      
       const stream = await anthropic.messages.stream({
         model: "claude-sonnet-4-20250514",
         max_tokens: 1024,
@@ -111,6 +130,16 @@ Responda de forma calorosa, empática e prática. Ofereça suporte emocional gen
     }
 
     // Usar GPT-4 para conversação geral e recomendações
+    if (!openai) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Chat não disponível",
+          message: "A API da OpenAI não está configurada. Configure OPENAI_API_KEY."
+        }), 
+        { status: 503, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+    
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
       messages: [

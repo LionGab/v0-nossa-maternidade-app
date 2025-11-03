@@ -83,7 +83,7 @@ export default function DashboardPage() {
                 <div className="lg:col-span-2 space-y-6">
                   {/* Cards de Acesso Rápido */}
                   <div className="grid md:grid-cols-2 gap-4">
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
                       <Link href="/mundo-nath">
                         <div className="flex items-start gap-4">
                           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
@@ -99,7 +99,7 @@ export default function DashboardPage() {
                       </Link>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
                       <Link href="/receitas">
                         <div className="flex items-start gap-4">
                           <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-2xl">
@@ -113,7 +113,7 @@ export default function DashboardPage() {
                       </Link>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
                       <Link href="/maternidade-hoje">
                         <div className="flex items-start gap-4">
                           <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center text-2xl">
@@ -127,7 +127,7 @@ export default function DashboardPage() {
                       </Link>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
                       <Link href="/chat">
                         <div className="flex items-start gap-4">
                           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
@@ -141,7 +141,7 @@ export default function DashboardPage() {
                       </Link>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
                       <Link href="/rotina">
                         <div className="flex items-start gap-4">
                           <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-2xl">
@@ -155,7 +155,7 @@ export default function DashboardPage() {
                       </Link>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
                       <Link href="/autocuidado">
                         <div className="flex items-start gap-4">
                           <div className="w-12 h-12 rounded-full bg-pink-50 flex items-center justify-center text-2xl">
@@ -169,7 +169,7 @@ export default function DashboardPage() {
                       </Link>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
                       <Link href="/brincadeiras">
                         <div className="flex items-start gap-4">
                           <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-2xl">
@@ -183,7 +183,7 @@ export default function DashboardPage() {
                       </Link>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
                       <Link href="/historias-sono">
                         <div className="flex items-start gap-4">
                           <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-2xl">
@@ -197,7 +197,7 @@ export default function DashboardPage() {
                       </Link>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
                       <Link href="/birras">
                         <div className="flex items-start gap-4">
                           <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-2xl">
@@ -211,7 +211,7 @@ export default function DashboardPage() {
                       </Link>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" asChild>
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
                       <Link href="/perfil-bebe">
                         <div className="flex items-start gap-4">
                           <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-2xl">
@@ -236,7 +236,7 @@ export default function DashboardPage() {
                           Que tal dedicar 10 minutos hoje para um momento de autocuidado? Experimente uma respiração
                           profunda ou uma xícara de chá quentinho.
                         </p>
-                        <Button variant="outline" asChild>
+                        <Button variant="outline">
                           <Link href="/autocuidado">Ver Mais Sugestões</Link>
                         </Button>
                       </div>
