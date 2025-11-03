@@ -2,12 +2,13 @@ import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 
 /**
- * Middleware para proteção de rotas e autenticação
+ * Proxy middleware para proteção de rotas e autenticação
+ * (Atualizado para Next.js 16 - substitui middleware.ts)
  *
  * Rotas públicas: /, /login, /signup, /signup-success
  * Rotas protegidas: Todas as outras rotas requerem autenticação
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Rotas públicas que não requerem autenticação
@@ -51,6 +52,11 @@ export async function middleware(request: NextRequest) {
       // PGRST116 = "no rows returned" - perfil não existe ainda (comportamento esperado para novos usuários)
       // Outros erros indicam problemas de conexão/DB e devem ser tratados como erro crítico
       if (profileError.code === "PGRST116") {
+        // ⭐ Permitir acesso à API de onboarding mesmo sem perfil
+        if (pathname === "/api/onboarding") {
+          return NextResponse.next()
+        }
+
         // Perfil não existe ainda - redirecionar páginas para onboarding, APIs recebem JSON
         if (pathname.startsWith("/api")) {
           return NextResponse.json(
@@ -80,7 +86,13 @@ export async function middleware(request: NextRequest) {
 
     // Se perfil existe mas não completou onboarding e não está na página de onboarding
     if (profile && !profile.onboarding_completed && pathname !== "/onboarding") {
-      // Para APIs, retornar JSON em vez de redirecionar
+      // ⭐ Permitir acesso à API de onboarding mesmo sem ter completado onboarding
+      // (necessário para que o usuário possa completar o onboarding)
+      if (pathname === "/api/onboarding") {
+        return NextResponse.next()
+      }
+
+      // Para outras APIs, retornar JSON em vez de redirecionar
       if (pathname.startsWith("/api")) {
         return NextResponse.json(
           { error: "Onboarding não completo. Complete o onboarding para acessar esta funcionalidade." },

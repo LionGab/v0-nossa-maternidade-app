@@ -33,7 +33,16 @@ export function GamificationWidget() {
 
       if (response.ok) {
         const data = await response.json()
-        setStats(data)
+        // Normalize API response to match component interface
+        setStats({
+          totalPoints: data.points ?? data.totalPoints ?? 0,
+          currentLevel: data.level ?? data.currentLevel ?? 1,
+          pointsToNextLevel: data.pointsToNextLevel ?? 100,
+          currentStreak: data.streak ?? data.currentStreak ?? 0,
+          longestStreak: data.longestStreak ?? 0,
+          achievements: data.achievements ?? [],
+          activeChallenges: data.challenges ?? data.activeChallenges ?? [],
+        })
       } else {
         throw new Error("Failed to fetch stats")
       }
@@ -78,7 +87,7 @@ export function GamificationWidget() {
       (stats.totalPoints + stats.pointsToNextLevel)) *
     100
 
-  const newAchievements = stats.achievements.filter((a) => a.isNew)
+  const newAchievements = (stats.achievements ?? []).filter((a) => a.isNew)
 
   return (
     <div className="space-y-4">
@@ -169,7 +178,7 @@ export function GamificationWidget() {
       )}
 
       {/* Desafios Ativos */}
-      {stats.activeChallenges.length > 0 && (
+      {stats.activeChallenges && stats.activeChallenges.length > 0 && (
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
             <Target className="w-5 h-5 text-primary" />
@@ -214,7 +223,7 @@ export function GamificationWidget() {
             <Trophy className="w-5 h-5 text-primary" />
             <div>
               <p className="text-sm text-muted-foreground">Conquistas Desbloqueadas</p>
-              <p className="text-xl font-bold">{stats.achievements.length}</p>
+              <p className="text-xl font-bold">{(stats.achievements ?? []).length}</p>
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={() => setShowAchievements(true)}>

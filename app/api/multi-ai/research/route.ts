@@ -1,7 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
 
-export async function POST(req: NextRequest) {
+export { OPTIONS } // CORS preflight
+
+async function handleResearch(req: NextRequest) {
+  const startTime = Date.now()
   try {
     const supabase = await createClient()
     const {
@@ -43,6 +48,11 @@ export async function POST(req: NextRequest) {
 
     const data = await response.json()
 
+    logger.info("Research completed successfully", {
+      userId: user.id,
+      queryLength: query.length,
+      duration: Date.now() - startTime
+    })
     return NextResponse.json({
       success: true,
       answer: data.choices[0].message.content,
@@ -50,7 +60,9 @@ export async function POST(req: NextRequest) {
       model: "perplexity-sonar",
     })
   } catch (error) {
-    console.error("Research API: Error", error)
+    logger.apiError("POST", "/api/multi-ai/research", error as Error, { duration: Date.now() - startTime })
     return NextResponse.json({ error: "Erro ao pesquisar" }, { status: 500 })
   }
 }
+
+export const POST = withRateLimit(handleResearch, RATE_LIMITS.HEAVY)

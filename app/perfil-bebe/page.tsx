@@ -1,41 +1,181 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Baby, Calendar, Heart, Ruler, Weight, Edit } from "lucide-react"
+import { Baby, Calendar, Heart, Ruler, Weight, Edit, Loader2, AlertCircle } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+import { useRouter } from "next/navigation"
+
+interface BabyProfile {
+  id?: string
+  name: string
+  birth_date: string
+  current_weight: string
+  current_height: string
+  gender: string
+  milestones?: Array<{ id: number; titulo: string; idade: string; concluido: boolean }>
+}
 
 export default function PerfilBebePage() {
+  const router = useRouter()
   const [editing, setEditing] = useState(false)
-  const [babyData, setBabyData] = useState({
-    nome: "Maria Clara",
-    dataNascimento: "2024-05-15",
-    peso: "7.2",
-    altura: "65",
-    genero: "Feminino",
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [babyData, setBabyData] = useState<BabyProfile>({
+    name: "",
+    birth_date: "",
+    current_weight: "",
+    current_height: "",
+    gender: "feminino",
   })
 
+  const supabase = createClient()
+
+  useEffect(() => {
+    loadBabyProfile()
+  }, [])
+
+  const loadBabyProfile = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        router.push("/login")
+        return
+      }
+
+      setUserId(user.id)
+
+      const { data, error: fetchError } = await supabase
+        .from("baby_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single()
+
+      if (fetchError && fetchError.code !== "PGRST116") {
+        throw fetchError
+      }
+
+      if (data) {
+        setBabyData({
+          id: data.id,
+          name: data.name,
+          birth_date: data.birth_date,
+          current_weight: data.current_weight?.toString() || "",
+          current_height: data.current_height?.toString() || "",
+          gender: data.gender || "feminino",
+          milestones: data.milestones || defaultMilestones,
+        })
+      } else {
+        setBabyData({
+          ...babyData,
+          milestones: defaultMilestones,
+        })
+        setEditing(true)
+      }
+    } catch (err) {
+      console.error("Error loading baby profile:", err)
+      setError("Erro ao carregar perfil do bebê. Tente novamente.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const calcularIdade = () => {
+    if (!babyData.birth_date) return 0
     const hoje = new Date()
-    const nascimento = new Date(babyData.dataNascimento)
+    const nascimento = new Date(babyData.birth_date)
     const meses = Math.floor((hoje.getTime() - nascimento.getTime()) / (1000 * 60 * 60 * 24 * 30))
     return meses
   }
 
-  const handleSave = () => {
-    setEditing(false)
-    // TODO: Save to database
+  const handleSave = async () => {
+    if (!userId) return
+
+    try {
+      setSaving(true)
+      setError(null)
+
+      const profileData = {
+        user_id: userId,
+        name: babyData.name,
+        birth_date: babyData.birth_date,
+        current_weight: parseFloat(babyData.current_weight) || null,
+        current_height: parseFloat(babyData.current_height) || null,
+        gender: babyData.gender,
+        milestones: babyData.milestones || defaultMilestones,
+        is_active: true,
+      }
+
+      if (babyData.id) {
+        const { error: updateError } = await supabase
+          .from("baby_profiles")
+          .update(profileData)
+          .eq("id", babyData.id)
+
+        if (updateError) throw updateError
+      } else {
+        const { data, error: insertError } = await supabase
+          .from("baby_profiles")
+          .insert(profileData)
+          .select()
+          .single()
+
+        if (insertError) throw insertError
+
+        setBabyData({ ...babyData, id: data.id })
+      }
+
+      setEditing(false)
+    } catch (err) {
+      console.error("Error saving baby profile:", err)
+      setError("Erro ao salvar perfil. Tente novamente.")
+    } finally {
+      setSaving(false)
+    }
   }
 
-  const milestones = [
-    { id: 1, titulo: "Primeiro sorriso", idade: "2 meses", concluido: true },
+  const defaultMilestones = [
+    { id: 1, titulo: "Primeiro sorriso", idade: "2 meses", concluido: false },
     { id: 2, titulo: "Sentar sozinho", idade: "6 meses", concluido: false },
     { id: 3, titulo: "Primeiras palavras", idade: "12 meses", concluido: false },
     { id: 4, titulo: "Primeiros passos", idade: "12-15 meses", concluido: false },
   ]
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
+          <p className="text-lg text-muted-foreground">Carregando perfil...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const milestones = babyData.milestones || defaultMilestones
+
+  const toggleMilestone = (milestoneId: number) => {
+    if (!editing) return
+
+    const updatedMilestones = milestones.map(m =>
+      m.id === milestoneId ? { ...m, concluido: !m.concluido } : m
+    )
+
+    setBabyData({ ...babyData, milestones: updatedMilestones })
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-6">
@@ -52,11 +192,26 @@ export default function PerfilBebePage() {
           <Button
             variant={editing ? "default" : "outline"}
             onClick={() => editing ? handleSave() : setEditing(true)}
+            disabled={saving || !babyData.name || !babyData.birth_date}
           >
-            <Edit className="h-4 w-4 mr-2" />
-            {editing ? "Salvar" : "Editar"}
+            {saving ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Edit className="h-4 w-4 mr-2" />
+            )}
+            {saving ? "Salvando..." : editing ? "Salvar" : "Editar"}
           </Button>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <Card className="p-4 bg-destructive/10 border-destructive/20">
+            <div className="flex items-center gap-2 text-destructive">
+              <AlertCircle className="h-5 w-5" />
+              <p>{error}</p>
+            </div>
+          </Card>
+        )}
 
         {/* Informações Básicas */}
         <Card className="p-6">
@@ -66,9 +221,11 @@ export default function PerfilBebePage() {
               <Label htmlFor="nome">Nome do Bebê</Label>
               <Input
                 id="nome"
-                value={babyData.nome}
-                onChange={(e) => setBabyData({ ...babyData, nome: e.target.value })}
+                value={babyData.name}
+                onChange={(e) => setBabyData({ ...babyData, name: e.target.value })}
                 disabled={!editing}
+                placeholder="Ex: Maria Clara"
+                required
               />
             </div>
 
@@ -77,9 +234,10 @@ export default function PerfilBebePage() {
               <Input
                 id="data"
                 type="date"
-                value={babyData.dataNascimento}
-                onChange={(e) => setBabyData({ ...babyData, dataNascimento: e.target.value })}
+                value={babyData.birth_date}
+                onChange={(e) => setBabyData({ ...babyData, birth_date: e.target.value })}
                 disabled={!editing}
+                required
               />
             </div>
 
@@ -91,9 +249,10 @@ export default function PerfilBebePage() {
                   id="peso"
                   type="number"
                   step="0.1"
-                  value={babyData.peso}
-                  onChange={(e) => setBabyData({ ...babyData, peso: e.target.value })}
+                  value={babyData.current_weight}
+                  onChange={(e) => setBabyData({ ...babyData, current_weight: e.target.value })}
                   disabled={!editing}
+                  placeholder="7.2"
                 />
               </div>
             </div>
@@ -105,9 +264,10 @@ export default function PerfilBebePage() {
                 <Input
                   id="altura"
                   type="number"
-                  value={babyData.altura}
-                  onChange={(e) => setBabyData({ ...babyData, altura: e.target.value })}
+                  value={babyData.current_height}
+                  onChange={(e) => setBabyData({ ...babyData, current_height: e.target.value })}
                   disabled={!editing}
+                  placeholder="65"
                 />
               </div>
             </div>
@@ -140,8 +300,9 @@ export default function PerfilBebePage() {
                 <input
                   type="checkbox"
                   checked={milestone.concluido}
-                  className="h-5 w-5 rounded border-gray-300"
-                  readOnly
+                  onChange={() => toggleMilestone(milestone.id)}
+                  className="h-5 w-5 rounded border-gray-300 cursor-pointer disabled:cursor-not-allowed"
+                  disabled={!editing}
                 />
                 <div className="flex-1">
                   <p className={`font-medium ${milestone.concluido ? "line-through text-muted-foreground" : ""}`}>

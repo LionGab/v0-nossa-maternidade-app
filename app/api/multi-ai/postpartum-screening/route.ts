@@ -3,6 +3,10 @@ import { createClient } from "@/lib/supabase/server"
 import Anthropic from "@anthropic-ai/sdk"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { getApiKey, hasApiKey } from "@/lib/env"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
+
+export { OPTIONS } // CORS preflight
 
 // Inicialização condicional das APIs
 let anthropic: Anthropic | null = null
@@ -18,7 +22,8 @@ if (hasApiKey('google')) {
   genAI = new GoogleGenerativeAI(getApiKey('google')!)
 }
 
-export async function POST(req: NextRequest) {
+async function handlePostpartumScreening(req: NextRequest) {
+  const startTime = Date.now()
   try {
     const supabase = await createClient()
     const {
@@ -106,7 +111,7 @@ Responda em JSON com: { trend, triggers, criticalTimes, sleepEnergyPattern, self
         const geminiText = geminiResult.response.text()
         geminiAnalysis = JSON.parse(geminiText.replace(/```json\n?/g, "").replace(/```\n?/g, ""))
       } catch (error) {
-        console.warn("Gemini temporal analysis failed, continuing with Claude only:", error)
+        logger.debug("Gemini temporal analysis failed, continuing with Claude only", { error })
       }
     }
 
@@ -140,12 +145,21 @@ Responda em JSON com: { trend, triggers, criticalTimes, sleepEnergyPattern, self
       })
     }
 
+    logger.info("Postpartum screening completed", {
+      userId: user.id,
+      riskScore: claudeResult.riskScore,
+      needsProfessionalHelp: claudeResult.needsProfessionalHelp,
+      modelsUsed: screening.models_used,
+      duration: Date.now() - startTime
+    })
     return NextResponse.json({
       success: true,
       screening,
     })
   } catch (error) {
-    console.error("Postpartum screening: Error", error)
+    logger.apiError("POST", "/api/multi-ai/postpartum-screening", error as Error, { duration: Date.now() - startTime })
     return NextResponse.json({ error: "Erro ao realizar triagem" }, { status: 500 })
   }
 }
+
+export const POST = withRateLimit(handlePostpartumScreening, RATE_LIMITS.HEAVY)

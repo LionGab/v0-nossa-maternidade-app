@@ -1,11 +1,17 @@
-
 import { streamText } from "ai"
 import { anthropic } from "@ai-sdk/anthropic"
 import { createServerClient } from "@/lib/supabase/server"
 import { MemoryManager } from "@/lib/mcp/memory-manager"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
+import type { NextRequest } from "next/server"
 
-// Enhanced chat with long-term memory (80+ days)
-export async function POST(req: Request) {
+export { OPTIONS } // CORS preflight
+
+// Enhanced chat with long-term memory (90 days)
+async function chatHandler(req: NextRequest) {
+  const startTime = Date.now()
+
   try {
     const supabase = await createServerClient()
     const {
@@ -13,6 +19,7 @@ export async function POST(req: Request) {
     } = await supabase.auth.getUser()
 
     if (!user) {
+      logger.warn("Unauthorized chat attempt")
       return new Response("Unauthorized", { status: 401 })
     }
 
@@ -53,6 +60,12 @@ Exemplo: "Lembro que há 2 meses você mencionou que estava com dificuldade com 
 
 Seja calorosa, empática e demonstre que você realmente conhece e acompanha a história dela. 💕`
 
+    logger.info("Chat with memory request", {
+      userId: user.id,
+      babyAgeMonths: babyProfile?.age_months,
+      messageLength: lastMessage.length,
+    })
+
     const result = streamText({
       model: anthropic("claude-sonnet-4-20250514"),
       messages: [{ role: "system", content: systemPrompt }, ...messages],
@@ -62,12 +75,21 @@ Seja calorosa, empática e demonstre que você realmente conhece e acompanha a h
           timestamp: new Date().toISOString(),
           babyAgeMonths: babyProfile?.age_months,
         })
+
+        logger.info("Chat response stored in memory", {
+          userId: user.id,
+          duration: Date.now() - startTime,
+        })
       },
     })
 
     return result.toUIMessageStreamResponse()
   } catch (error) {
-    console.error("Chat with Memory API: Error", error)
+    logger.apiError("POST", "/api/chat-with-memory", error as Error, {
+      duration: Date.now() - startTime,
+    })
     return new Response("Internal Server Error", { status: 500 })
   }
 }
+
+export const POST = withRateLimit(chatHandler, RATE_LIMITS.HEAVY)

@@ -1,10 +1,16 @@
+import type { NextRequest } from "next/server"
 import { streamText } from "ai"
 import { anthropic } from "@ai-sdk/anthropic"
 import { createServerClient } from "@/lib/supabase/server"
 import { MemoryManager } from "@/lib/mcp/memory-manager"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
+
+export { OPTIONS } // CORS preflight
 
 // MCP: Onboarding Conversacional
-export async function POST(req: Request) {
+async function handleConversationalOnboarding(req: NextRequest) {
+  const startTime = Date.now()
   try {
     const supabase = await createServerClient()
     const {
@@ -71,12 +77,19 @@ Diretrizes:
           undefined,
           { type: "onboarding", complete: onboardingComplete },
         )
+        logger.info("Conversational onboarding message processed", {
+          userId: user.id,
+          onboardingComplete,
+          duration: Date.now() - startTime
+        })
       },
     })
 
     return result.toUIMessageStreamResponse()
   } catch (error) {
-    console.error("Conversational Onboarding API: Error", error)
+    logger.apiError("POST", "/api/mcp/conversational-onboarding", error as Error, { duration: Date.now() - startTime })
     return new Response("Internal Server Error", { status: 500 })
   }
 }
+
+export const POST = withRateLimit(handleConversationalOnboarding, RATE_LIMITS.AUTHENTICATED)

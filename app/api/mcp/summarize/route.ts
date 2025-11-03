@@ -2,9 +2,14 @@ import { type NextRequest, NextResponse } from "next/server"
 import { generateText } from "ai"
 import { anthropic } from "@ai-sdk/anthropic"
 import { createServerClient } from "@/lib/supabase/server"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
+
+export { OPTIONS } // CORS preflight
 
 // MCP: Resumo e Extração
-export async function POST(req: NextRequest) {
+async function handleSummarize(req: NextRequest) {
+  const startTime = Date.now()
   try {
     const supabase = await createServerClient()
     const {
@@ -39,6 +44,12 @@ Crie um resumo em 2-3 parágrafos que capture a essência emocional e os pontos 
 ${text}`,
     })
 
+    logger.info("Summary generated successfully", {
+      userId: user.id,
+      originalLength: text.length,
+      summaryLength: summary.length,
+      duration: Date.now() - startTime
+    })
     return NextResponse.json({
       summary,
       topics: topics.split(",").map((t) => t.trim()),
@@ -46,7 +57,9 @@ ${text}`,
       summaryLength: summary.length,
     })
   } catch (error) {
-    console.error("Summarize MCP API: Error", error)
+    logger.apiError("POST", "/api/mcp/summarize", error as Error, { duration: Date.now() - startTime })
     return NextResponse.json({ error: "Failed to generate summary" }, { status: 500 })
   }
 }
+
+export const POST = withRateLimit(handleSummarize, RATE_LIMITS.HEAVY)

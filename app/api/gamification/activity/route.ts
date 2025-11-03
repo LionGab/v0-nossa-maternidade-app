@@ -1,9 +1,15 @@
+import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { GamificationManager } from "@/lib/gamification/gamification-manager"
 import { gamificationActivitySchema } from "@/lib/validations/schemas"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
 
-export async function POST(request: Request) {
+export { OPTIONS } // CORS preflight
+
+async function handleActivityRecord(request: NextRequest) {
+  const startTime = Date.now()
   try {
     const supabase = await createClient()
 
@@ -32,9 +38,16 @@ export async function POST(request: Request) {
     const manager = new GamificationManager(supabase, user.id)
     const result = await manager.recordActivity(activityType, metadata)
 
+    logger.info("Gamification activity recorded", {
+      userId: user.id,
+      activityType,
+      duration: Date.now() - startTime
+    })
     return NextResponse.json(result)
   } catch (error) {
-    console.error("Gamification Activity: Error", error)
+    logger.apiError("POST", "/api/gamification/activity", error as Error, { duration: Date.now() - startTime })
     return NextResponse.json({ error: "Erro ao registrar atividade" }, { status: 500 })
   }
 }
+
+export const POST = withRateLimit(handleActivityRecord, RATE_LIMITS.AUTHENTICATED)

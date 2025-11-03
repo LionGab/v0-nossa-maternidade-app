@@ -58,28 +58,59 @@ export default function ChatPage() {
     setIsLoading(true)
 
     try {
+      // Preparar histórico de mensagens para a API
+      const conversationHistory = messages.map(m => ({
+        role: m.role,
+        content: m.content
+      }))
+
+      // Adicionar a nova mensagem do usuário ao histórico
+      const apiMessages = [
+        ...conversationHistory,
+        {
+          role: "user",
+          content: content.trim()
+        }
+      ]
+
       const response = await fetch("/api/multi-ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          message: content,
-          conversationHistory: messages.map(m => ({
-            role: m.role,
-            content: m.content
-          }))
+        body: JSON.stringify({
+          messages: apiMessages,
+          useEmpatheticMode: false
         }),
       })
 
       if (!response.ok) {
-        throw new Error("Erro ao enviar mensagem")
+        const errorText = await response.text()
+        throw new Error(errorText || "Erro ao enviar mensagem")
       }
 
-      const data = await response.json()
-      
+      // A API retorna um stream, não JSON
+      const reader = response.body?.getReader()
+      if (!reader) {
+        throw new Error("Resposta vazia do servidor")
+      }
+
+      const decoder = new TextDecoder()
+      let assistantMessageContent = ""
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        assistantMessageContent += chunk
+
+        // Atualizar mensagem em tempo real (opcional - comentado para evitar múltiplas atualizações)
+        // Você pode criar um estado separado para mensagem parcial se quiser streaming visual
+      }
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: data.response || "Desculpe, não consegui processar sua mensagem. Tente novamente.",
+        content: assistantMessageContent || "Desculpe, não consegui processar sua mensagem. Tente novamente.",
         timestamp: new Date(),
       }
 
@@ -141,7 +172,7 @@ export default function ChatPage() {
                   <Sparkles className="h-5 w-5 text-white" />
                 </div>
               )}
-              
+
               <div
                 className={`max-w-[75%] rounded-2xl p-4 ${
                   message.role === "user"
@@ -153,9 +184,9 @@ export default function ChatPage() {
                 <p className={`text-xs mt-2 ${
                   message.role === "user" ? "text-primary-foreground/70" : "text-muted-foreground"
                 }`}>
-                  {message.timestamp.toLocaleTimeString("pt-BR", { 
-                    hour: "2-digit", 
-                    minute: "2-digit" 
+                  {message.timestamp.toLocaleTimeString("pt-BR", {
+                    hour: "2-digit",
+                    minute: "2-digit"
                   })}
                 </p>
               </div>
@@ -220,8 +251,8 @@ export default function ChatPage() {
               disabled={isLoading}
               className="flex-1 h-12"
             />
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={!input.trim() || isLoading}
               size="lg"
               className="px-6"

@@ -4,6 +4,10 @@ import Anthropic from "@anthropic-ai/sdk"
 import OpenAI from "openai"
 import { chatRequestSchema } from "@/lib/validations/schemas"
 import { getApiKey, hasApiKey } from "@/lib/env"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
+
+export { OPTIONS } // CORS preflight
 
 // Inicialização condicional das APIs
 let anthropic: Anthropic | null = null
@@ -21,7 +25,8 @@ if (hasApiKey('openai')) {
   })
 }
 
-export async function POST(req: NextRequest) {
+async function multiAIChatHandler(req: NextRequest) {
+  const startTime = Date.now()
   try {
     const supabase = await createClient()
     const {
@@ -53,7 +58,7 @@ export async function POST(req: NextRequest) {
       const { data: profileData } = await supabase.from("profiles").select("*").eq("id", user.id).single()
       profile = profileData
     } catch (error) {
-      // Silently handle profile fetch errors
+      logger.debug("Profile fetch failed", { userId: user.id, error })
     }
 
     try {
@@ -66,7 +71,7 @@ export async function POST(req: NextRequest) {
         .single()
       latestAnalysis = analysisData
     } catch (error) {
-      // Silently handle sentiment analysis fetch errors
+      logger.debug("Sentiment analysis fetch failed", { userId: user.id, error })
     }
 
     const context = `
@@ -115,7 +120,10 @@ Responda de forma calorosa, empática e prática. Ofereça suporte emocional gen
             }
             controller.close()
           } catch (error) {
-            console.error("Multi-AI Chat: Stream error", error)
+            logger.apiError("POST", "/api/multi-ai/chat", error as Error, {
+              userId: user.id,
+              mode: "empathetic",
+            })
             controller.error(error)
           }
         },
@@ -166,7 +174,10 @@ Forneça respostas práticas, baseadas em evidências e personalizadas para a si
           }
           controller.close()
         } catch (error) {
-          console.error("Multi-AI Chat: Stream error", error)
+          logger.apiError("POST", "/api/multi-ai/chat", error as Error, {
+            userId: user.id,
+            mode: "general",
+          })
           controller.error(error)
         }
       },
@@ -179,8 +190,12 @@ Forneça respostas práticas, baseadas em evidências e personalizadas para a si
       },
     })
   } catch (error) {
-    console.error("Multi-AI Chat: Unexpected error", error)
+    logger.apiError("POST", "/api/multi-ai/chat", error as Error, {
+      duration: Date.now() - startTime,
+    })
     const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
     return new Response(`Erro ao processar mensagem: ${errorMessage}`, { status: 500 })
   }
 }
+
+export const POST = withRateLimit(multiAIChatHandler, RATE_LIMITS.HEAVY)

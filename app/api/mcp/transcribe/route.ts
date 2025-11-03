@@ -2,9 +2,14 @@ import { type NextRequest, NextResponse } from "next/server"
 import { generateText } from "ai"
 import { anthropic } from "@ai-sdk/anthropic"
 import { createServerClient } from "@/lib/supabase/server"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
+
+export { OPTIONS } // CORS preflight
 
 // MCP: Transcrição e Análise de Áudio
-export async function POST(req: NextRequest) {
+async function handleTranscribe(req: NextRequest) {
+  const startTime = Date.now()
   try {
     const supabase = await createServerClient()
     const {
@@ -69,13 +74,21 @@ Forneça a análise em formato JSON com as chaves: emotion, tone, concerns, urge
       parsedAnalysis = { summary: analysis }
     }
 
+    logger.info("Audio transcribed and analyzed successfully", {
+      userId: user.id,
+      audioSize: audioFile.size,
+      transcriptLength: transcript.length,
+      duration: Date.now() - startTime
+    })
     return NextResponse.json({
       transcript,
       analysis: parsedAnalysis,
       duration: audioFile.size, // approximate
     })
   } catch (error) {
-    console.error("Transcribe MCP API: Error", error)
+    logger.apiError("POST", "/api/mcp/transcribe", error as Error, { duration: Date.now() - startTime })
     return NextResponse.json({ error: "Failed to transcribe audio" }, { status: 500 })
   }
 }
+
+export const POST = withRateLimit(handleTranscribe, RATE_LIMITS.HEAVY)

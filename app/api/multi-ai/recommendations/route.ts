@@ -3,6 +3,10 @@ import { createClient } from "@/lib/supabase/server"
 import OpenAI from "openai"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { getApiKey, hasApiKey } from "@/lib/env"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
+
+export { OPTIONS } // CORS preflight
 
 // Inicialização condicional das APIs
 let openai: OpenAI | null = null
@@ -18,7 +22,8 @@ if (hasApiKey('google')) {
   genAI = new GoogleGenerativeAI(getApiKey('google')!)
 }
 
-export async function POST(req: NextRequest) {
+async function handleRecommendations(req: NextRequest) {
+  const startTime = Date.now()
   try {
     const supabase = await createClient()
     const {
@@ -91,17 +96,25 @@ Responda em JSON mantendo a estrutura original e adicionando os novos campos.`
         const geminiText = geminiResult.response.text()
         enrichedRecommendations = JSON.parse(geminiText.replace(/```json\n?/g, "").replace(/```\n?/g, ""))
       } catch (error) {
-        console.warn("Gemini enrichment failed, using GPT-4 recommendations only:", error)
+        logger.debug("Gemini enrichment failed, using GPT-4 recommendations only", { error })
       }
     }
 
+    logger.info("Recommendations generated successfully", {
+      userId: user.id,
+      category,
+      modelsUsed: genAI ? ["gpt-4", "gemini-2.0-flash"] : ["gpt-4"],
+      duration: Date.now() - startTime
+    })
     return NextResponse.json({
       success: true,
       recommendations: enrichedRecommendations,
       generated_by: genAI ? ["gpt-4", "gemini-2.0-flash"] : ["gpt-4"],
     })
   } catch (error) {
-    console.error("Recommendations API: Error", error)
+    logger.apiError("POST", "/api/multi-ai/recommendations", error as Error, { duration: Date.now() - startTime })
     return NextResponse.json({ error: "Erro ao gerar recomendações" }, { status: 500 })
   }
 }
+
+export const POST = withRateLimit(handleRecommendations, RATE_LIMITS.HEAVY)

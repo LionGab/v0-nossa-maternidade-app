@@ -1,6 +1,11 @@
+import type { NextRequest } from "next/server"
 import { generateText } from "ai"
 import { createClient } from "@/lib/supabase/server"
 import { z } from "zod"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
+
+export { OPTIONS } // CORS preflight
 
 const sentimentSchema = z.object({
   sentiment_score: z.number().min(-1).max(1),
@@ -17,7 +22,8 @@ const sentimentSchema = z.object({
   supportive_message: z.string(),
 })
 
-export async function POST(req: Request) {
+async function handleSentimentAnalysis(req: NextRequest) {
+  const startTime = Date.now()
   try {
     const { responses, analysisType = "onboarding" } = await req.json()
 
@@ -96,17 +102,28 @@ Forneça uma análise empática e construtiva com:
       .single()
 
     if (sentimentError) {
-      console.error("Error storing sentiment:", sentimentError)
+      logger.apiError("POST", "/api/sentiment-analysis", sentimentError as Error, {
+        userId: user.id,
+        duration: Date.now() - startTime
+      })
       return Response.json({ error: "Failed to store analysis" }, { status: 500 })
     }
 
+    logger.info("Sentiment analysis completed successfully", {
+      userId: user.id,
+      analysisType,
+      sentimentScore: analysis.sentiment_score,
+      duration: Date.now() - startTime
+    })
     return Response.json({
       success: true,
       analysis,
       sentimentId: sentimentData.id,
     })
   } catch (error) {
-    console.error("Sentiment analysis error:", error)
+    logger.apiError("POST", "/api/sentiment-analysis", error as Error, { duration: Date.now() - startTime })
     return Response.json({ error: "Failed to analyze sentiment" }, { status: 500 })
   }
 }
+
+export const POST = withRateLimit(handleSentimentAnalysis, RATE_LIMITS.AUTHENTICATED)

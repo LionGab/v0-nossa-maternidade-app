@@ -1,9 +1,16 @@
+import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { generateText } from "ai"
 import { recipeRequestSchema } from "@/lib/validations/schemas"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
 
-export async function POST(request: Request) {
+export { OPTIONS } // CORS preflight
+
+async function generateRecipesHandler(request: NextRequest) {
+  const startTime = Date.now()
+
   try {
     const supabase = await createClient()
     const {
@@ -12,6 +19,7 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser()
 
     if (authError || !user) {
+      logger.warn("Unauthorized recipe generation attempt")
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -20,6 +28,7 @@ export async function POST(request: Request) {
     // Validar dados de entrada
     const validationResult = recipeRequestSchema.safeParse(body)
     if (!validationResult.success) {
+      logger.warn("Invalid recipe request data", { userId: user.id, errors: validationResult.error.errors })
       return NextResponse.json(
         { error: "Invalid input data", details: validationResult.error.errors },
         { status: 400 },
@@ -75,9 +84,19 @@ Retorne em formato JSON array com a estrutura:
     const jsonMatch = text.match(/\[[\s\S]*\]/)
     const recipes = jsonMatch ? JSON.parse(jsonMatch[0]) : []
 
+    logger.info("Recipes generated", {
+      userId: user.id,
+      count: recipes.length,
+      duration: Date.now() - startTime
+    })
+
     return NextResponse.json({ recipes })
   } catch (error) {
-    console.error("Generate Recipes API: Error", error)
+    logger.apiError("POST", "/api/generate-recipes", error as Error, {
+      duration: Date.now() - startTime,
+    })
     return NextResponse.json({ error: "Failed to generate recipes" }, { status: 500 })
   }
 }
+
+export const POST = withRateLimit(generateRecipesHandler, RATE_LIMITS.HEAVY)

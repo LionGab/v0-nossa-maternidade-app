@@ -3,6 +3,10 @@ import { createClient } from "@/lib/supabase/server"
 import Anthropic from "@anthropic-ai/sdk"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { getApiKey, hasApiKey } from "@/lib/env"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
+
+export { OPTIONS } // CORS preflight
 
 // Inicialização condicional das APIs
 let anthropic: Anthropic | null = null
@@ -18,7 +22,8 @@ if (hasApiKey('google')) {
   genAI = new GoogleGenerativeAI(getApiKey('google')!)
 }
 
-export async function POST(req: NextRequest) {
+async function handleMultiAISentiment(req: NextRequest) {
+  const startTime = Date.now()
   try {
     const supabase = await createClient()
     const {
@@ -92,7 +97,7 @@ Responda em JSON com: { sleepPattern, supportNetwork, stressFactors, strengths, 
         const geminiText = geminiResult.response.text()
         geminiAnalysis = JSON.parse(geminiText.replace(/```json\n?/g, "").replace(/```\n?/g, ""))
       } catch (error) {
-        console.warn("Gemini analysis failed, continuing with Claude only:", error)
+        logger.debug("Gemini analysis failed, continuing with Claude only", { error })
       }
     }
 
@@ -115,12 +120,20 @@ Responda em JSON com: { sleepPattern, supportNetwork, stressFactors, strengths, 
 
     if (error) throw error
 
+    logger.info("Multi-AI sentiment analysis completed", {
+      userId: user.id,
+      riskLevel: claudeResult.riskLevel,
+      modelsUsed: combinedAnalysis.models_used,
+      duration: Date.now() - startTime
+    })
     return NextResponse.json({
       success: true,
       analysis: combinedAnalysis,
     })
   } catch (error) {
-    console.error("Sentiment Analysis API: Error", error)
+    logger.apiError("POST", "/api/multi-ai/sentiment", error as Error, { duration: Date.now() - startTime })
     return NextResponse.json({ error: "Erro ao processar análise" }, { status: 500 })
   }
 }
+
+export const POST = withRateLimit(handleMultiAISentiment, RATE_LIMITS.AUTHENTICATED)

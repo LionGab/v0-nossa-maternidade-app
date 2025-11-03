@@ -1,9 +1,15 @@
+import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { generateText } from "ai"
 import { newsRequestSchema } from "@/lib/validations/schemas"
+import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { logger } from "@/lib/logger"
 
-export async function POST(request: Request) {
+export { OPTIONS } // CORS preflight
+
+async function handleMaternalNews(request: NextRequest) {
+  const startTime = Date.now()
   try {
     const supabase = await createClient()
     const {
@@ -70,9 +76,17 @@ Os artigos devem ser relevantes, baseados em evidências e úteis para mães mod
     const jsonMatch = text.match(/\[[\s\S]*\]/)
     const articles = jsonMatch ? JSON.parse(jsonMatch[0]) : []
 
+    logger.info("Maternal news generated successfully", {
+      userId: user.id,
+      category,
+      articlesCount: articles.length,
+      duration: Date.now() - startTime
+    })
     return NextResponse.json({ articles })
   } catch (error) {
-    console.error("Maternal News API: Error", error)
+    logger.apiError("POST", "/api/maternal-news", error as Error, { duration: Date.now() - startTime })
     return NextResponse.json({ error: "Failed to fetch news" }, { status: 500 })
   }
 }
+
+export const POST = withRateLimit(handleMaternalNews, RATE_LIMITS.HEAVY)
