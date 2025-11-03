@@ -11,6 +11,17 @@ Este arquivo contém instruções específicas para usar o Cursor com Claude AI 
 3. Use o Claude no Cursor para executar cada seção
 4. Marque as tarefas conforme completa
 
+## 🧠 Configurar MCPs no Cursor
+
+Para que o Claude dentro do Cursor tenha acesso completo ao app, importe os MCPs essenciais (filesystem, git, Supabase e Brave Search).
+
+1. Abra o Cursor e vá em **Settings → AI → Model Context Protocol (MCP)** (ou use `Ctrl/Cmd + Shift + P` → `Open MCP Settings`).
+2. Clique em **Importar/Load from file** e selecione `cursor/mcp-config.json` deste repositório.
+3. Ajuste os caminhos se o projeto estiver em outro diretório diferente de `/workspace` e preencha `BRAVE_API_KEY` com a sua chave.
+4. Salve a configuração e reinicie o chat do Claude no Cursor para que os MCPs fiquem disponíveis.
+
+> Dica: se preferir cadastrar manualmente, use os mesmos comandos exibidos no arquivo `cursor/mcp-config.json` (todos utilizam `npx`).
+
 ---
 
 ## 📋 Prompt Inicial para o Claude

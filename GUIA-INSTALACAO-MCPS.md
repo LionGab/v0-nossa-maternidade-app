@@ -31,6 +31,7 @@
 
 1. **Abra** o arquivo `claude_desktop_config.json` com um editor de texto
 2. **Copie** o conteúdo do arquivo `mcp-config-example.json` que está nesta pasta
+   > Se estiver usando o Cursor, você pode importar diretamente o arquivo `cursor/mcp-config.json`, que já aponta para o diretório `/workspace` deste projeto.
 3. **Cole** no arquivo de configuração do Claude Desktop
 4. **Substitua** os valores:
    - `COLE_SUA_URL_AQUI` → URL do Supabase
