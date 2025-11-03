@@ -20,12 +20,12 @@ git status --short
 Write-Host "`n💾 Fazendo commit..." -ForegroundColor Cyan
 $hasChanges = git diff --cached --name-only
 if ($hasChanges -or $untracked) {
-    git commit -m "fix: atualizar credenciais do Supabase e corrigir configuracoes
+    git commit -m "fix: remover referências à URL antiga do Supabase e adicionar URL correta
 
-- Atualizar URL do Supabase para mnszbkeuerjcevjvdqme.supabase.co
-- Adicionar scripts e documentacao para atualizar variaveis no Netlify
-- Criar guias de correcao para signup e configuracoes
-- Testes confirmam que credenciais estao funcionando corretamente"
+- Removidas todas as menções à URL antiga bbcwitnbnosyfpjtzkr.supabase.co
+- Atualizado .cursor/mcp-config.json para usar variáveis de ambiente
+- Adicionada URL correta (mnszbkeuerjcevjvdqme.supabase.co) em arquivos de documentação
+- Corrigidos arquivos de configuração e scripts relacionados"
 }
 else {
     Write-Host "⚠️  Nenhuma mudança para commitar!" -ForegroundColor Yellow

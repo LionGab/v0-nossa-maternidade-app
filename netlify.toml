@@ -4,9 +4,8 @@
 # ============================================
 
 [build]
-  base = "."
   command = "npm install --legacy-peer-deps && npm run build"
-  publish = ".next"
+  # publish é gerenciado automaticamente pelo plugin @netlify/plugin-nextjs
 
 [build.environment]
   NODE_VERSION = "20"
