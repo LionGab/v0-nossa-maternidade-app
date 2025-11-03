@@ -13,21 +13,9 @@ export async function GET() {
     scope: "/",
     icons: [
       {
-        src: "/icons/icon-72x72.webp",
-        sizes: "72x72",
-        type: "image/webp",
-        purpose: "maskable any"
-      },
-      {
         src: "/icons/icon-72x72.png",
         sizes: "72x72",
         type: "image/png",
-        purpose: "maskable any"
-      },
-      {
-        src: "/icons/icon-96x96.webp",
-        sizes: "96x96",
-        type: "image/webp",
         purpose: "maskable any"
       },
       {
@@ -37,21 +25,9 @@ export async function GET() {
         purpose: "maskable any"
       },
       {
-        src: "/icons/icon-128x128.webp",
-        sizes: "128x128",
-        type: "image/webp",
-        purpose: "maskable any"
-      },
-      {
         src: "/icons/icon-128x128.png",
         sizes: "128x128",
         type: "image/png",
-        purpose: "maskable any"
-      },
-      {
-        src: "/icons/icon-144x144.webp",
-        sizes: "144x144",
-        type: "image/webp",
         purpose: "maskable any"
       },
       {
@@ -61,21 +37,9 @@ export async function GET() {
         purpose: "maskable any"
       },
       {
-        src: "/icons/icon-152x152.webp",
-        sizes: "152x152",
-        type: "image/webp",
-        purpose: "maskable any"
-      },
-      {
         src: "/icons/icon-152x152.png",
         sizes: "152x152",
         type: "image/png",
-        purpose: "maskable any"
-      },
-      {
-        src: "/icons/icon-192x192.webp",
-        sizes: "192x192",
-        type: "image/webp",
         purpose: "maskable any"
       },
       {
@@ -85,21 +49,9 @@ export async function GET() {
         purpose: "maskable any"
       },
       {
-        src: "/icons/icon-384x384.webp",
-        sizes: "384x384",
-        type: "image/webp",
-        purpose: "maskable any"
-      },
-      {
         src: "/icons/icon-384x384.png",
         sizes: "384x384",
         type: "image/png",
-        purpose: "maskable any"
-      },
-      {
-        src: "/icons/icon-512x512.webp",
-        sizes: "512x512",
-        type: "image/webp",
         purpose: "maskable any"
       },
       {
@@ -107,20 +59,6 @@ export async function GET() {
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable any"
-      }
-    ],
-    screenshots: [
-      {
-        src: "/screenshots/home.png",
-        sizes: "540x720",
-        type: "image/png",
-        form_factor: "narrow"
-      },
-      {
-        src: "/screenshots/chat.png",
-        sizes: "540x720",
-        type: "image/png",
-        form_factor: "narrow"
       }
     ],
     categories: ["health", "lifestyle", "medical"],
