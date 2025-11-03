@@ -1,5 +1,10 @@
+// Configuração do Next.js com suporte opcional para Sentry
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Otimizações de performance
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+  },
   // Desabilitar erros de TypeScript durante build (temporário)
   typescript: {
     ignoreBuildErrors: false,
@@ -11,12 +16,10 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
-  // Otimizações de performance
-  experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-  },
   // Configuração para Netlify
-  output: 'standalone',
+  // Usar 'export' em vez de 'standalone' para evitar erros de caminhos longos no Windows
+  // Para Netlify, 'export' cria arquivos estáticos otimizados
+  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
   // Headers de segurança e PWA
   async headers() {
     return [
@@ -58,4 +61,6 @@ const nextConfig = {
   compress: true,
 }
 
+// Sentry é configurado via arquivos separados (sentry.client.config.ts, sentry.server.config.ts)
+// Não é necessário wrappear nextConfig aqui - o Sentry funciona automaticamente se instalado
 export default nextConfig

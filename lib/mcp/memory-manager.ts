@@ -1,6 +1,7 @@
+import { logger } from "@/lib/logger"
+import { openai } from "@ai-sdk/openai"
 import { createClient } from "@supabase/supabase-js"
 import { embed } from "ai"
-import { openai } from "@ai-sdk/openai"
 
 // Create a new Supabase client for each request to avoid race conditions in serverless environments
 function getSupabaseClient() {
@@ -61,7 +62,10 @@ export class MemoryManager {
       if (error) throw error
       return data
     } catch (error) {
-      console.error("MemoryManager: Error storing memory", error)
+      logger.error("MemoryManager: Error storing memory", error as Error, {
+        userId: this.userId,
+        contentType,
+      })
       throw error
     }
   }
@@ -86,7 +90,10 @@ export class MemoryManager {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error("MemoryManager: Error searching memories", error)
+      logger.error("MemoryManager: Error searching memories", error as Error, {
+        userId: this.userId,
+        query,
+      })
       return []
     }
   }
@@ -108,7 +115,10 @@ export class MemoryManager {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error("MemoryManager: Error getting period memories", error)
+      logger.error("MemoryManager: Error getting period memories", error as Error, {
+        userId: this.userId,
+        daysAgo,
+      })
       return []
     }
   }
@@ -159,7 +169,10 @@ export class MemoryManager {
 
       return context
     } catch (error) {
-      console.error("MemoryManager: Error getting comprehensive context", error)
+      logger.error("MemoryManager: Error getting comprehensive context", error as Error, {
+        userId: this.userId,
+        currentQuery,
+      })
       return ""
     }
   }
@@ -200,7 +213,11 @@ export class MemoryManager {
       if (error) throw error
       return data
     } catch (error) {
-      console.error("MemoryManager: Error generating period summary", error)
+      logger.error("MemoryManager: Error generating period summary", error as Error, {
+        userId: this.userId,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      })
       throw error
     }
   }

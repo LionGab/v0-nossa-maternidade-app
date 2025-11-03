@@ -11,8 +11,10 @@ Esta aplicação está **100% configurada, testada e documentada** para deploy i
 ### 1. Instalar Dependências
 
 ```bash
-npm install --legacy-peer-deps
+npm install
 ```
+
+**Nota:** O projeto já tem `.npmrc` configurado com `legacy-peer-deps=true` para resolver conflitos de peer dependencies (vaul + React 19).
 
 ### 2. Configurar Variáveis de Ambiente
 

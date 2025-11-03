@@ -3,6 +3,8 @@
  * Valida e exporta variáveis de ambiente com tipos seguros
  */
 
+import { logger } from './logger'
+
 // Tipo para o ambiente validado
 export type EnvConfig = {
   supabase: {
@@ -45,13 +47,13 @@ const OPTIONAL_ENV_VARS = [
  */
 function validateRequiredEnvVars(): string[] {
   const missing: string[] = []
-  
+
   for (const varName of REQUIRED_ENV_VARS) {
     if (!process.env[varName]) {
       missing.push(varName)
     }
   }
-  
+
   return missing
 }
 
@@ -60,13 +62,13 @@ function validateRequiredEnvVars(): string[] {
  */
 function checkOptionalEnvVars(): string[] {
   const missing: string[] = []
-  
+
   for (const varName of OPTIONAL_ENV_VARS) {
     if (!process.env[varName]) {
       missing.push(varName)
     }
   }
-  
+
   return missing
 }
 
@@ -75,21 +77,19 @@ function checkOptionalEnvVars(): string[] {
  */
 export function getEnvConfig(): EnvConfig {
   const missingRequired = validateRequiredEnvVars()
-  
+
   if (missingRequired.length > 0) {
-    console.warn(
-      '⚠️  Missing required environment variables:',
-      missingRequired.join(', ')
-    )
-    console.warn('ℹ️  Some features may not work correctly.')
+    logger.warn('Missing required environment variables', {
+      missing: missingRequired,
+    })
+    logger.warn('Some features may not work correctly')
   }
 
   const missingOptional = checkOptionalEnvVars()
   if (missingOptional.length > 0 && process.env.NODE_ENV === 'development') {
-    console.info(
-      'ℹ️  Optional environment variables not configured:',
-      missingOptional.join(', ')
-    )
+    logger.info('Optional environment variables not configured', {
+      missing: missingOptional,
+    })
   }
 
   return {
@@ -150,13 +150,14 @@ export const env = getEnvConfig()
 
 // Log de inicialização apenas em desenvolvimento
 if (isDevelopment()) {
-  console.log('🔧 Environment configuration loaded')
-  console.log('✅ Supabase:', env.supabase.url ? 'configured' : 'missing')
-  console.log('✅ Anthropic:', env.ai.anthropic ? 'configured' : 'missing')
-  console.log('✅ OpenAI:', env.ai.openai ? 'configured' : 'missing')
-  console.log('🎯 Features:', {
-    ai: env.features.aiEnabled,
-    gamification: env.features.gamificationEnabled,
-    analytics: env.features.analyticsEnabled,
+  logger.info('Environment configuration loaded', {
+    supabase: env.supabase.url ? 'configured' : 'missing',
+    anthropic: env.ai.anthropic ? 'configured' : 'missing',
+    openai: env.ai.openai ? 'configured' : 'missing',
+    features: {
+      ai: env.features.aiEnabled,
+      gamification: env.features.gamificationEnabled,
+      analytics: env.features.analyticsEnabled,
+    },
   })
 }

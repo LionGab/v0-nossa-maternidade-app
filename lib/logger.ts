@@ -20,11 +20,22 @@ class Logger {
 
   info(message: string, context?: LogContext) {
     const formatted = this.formatMessage("info", message, context)
-    // Em produção, pode enviar para serviço de logging (ex: Sentry, LogRocket)
     if (this.isDevelopment) {
       console.info(formatted)
     }
-    // TODO: Enviar para serviço de logging em produção
+    // Em produção, enviar para Sentry se configurado
+    if (!this.isDevelopment && process.env.SENTRY_DSN) {
+      try {
+        // @ts-ignore - Sentry pode não estar instalado
+        const Sentry = require("@sentry/nextjs")
+        Sentry.captureMessage(message, {
+          level: "info",
+          extra: context,
+        })
+      } catch (e) {
+        // Sentry não instalado ou erro - ignorar silenciosamente
+      }
+    }
   }
 
   warn(message: string, context?: LogContext) {
@@ -32,7 +43,19 @@ class Logger {
     if (this.isDevelopment) {
       console.warn(formatted)
     }
-    // TODO: Enviar para serviço de logging em produção
+    // Em produção, enviar para Sentry se configurado
+    if (!this.isDevelopment && process.env.SENTRY_DSN) {
+      try {
+        // @ts-ignore - Sentry pode não estar instalado
+        const Sentry = require("@sentry/nextjs")
+        Sentry.captureMessage(message, {
+          level: "warning",
+          extra: context,
+        })
+      } catch (e) {
+        // Sentry não instalado ou erro - ignorar silenciosamente
+      }
+    }
   }
 
   error(message: string, error?: Error, context?: LogContext) {
@@ -52,10 +75,25 @@ class Logger {
       console.error(formatted)
     }
 
-    // TODO: Enviar para Sentry ou serviço de error tracking em produção
-    // if (process.env.SENTRY_DSN) {
-    //   Sentry.captureException(error, { extra: context })
-    // }
+    // Em produção, enviar para Sentry se configurado
+    if (!this.isDevelopment && process.env.SENTRY_DSN) {
+      try {
+        // @ts-ignore - Sentry pode não estar instalado
+        const Sentry = require("@sentry/nextjs")
+        if (error) {
+          Sentry.captureException(error, {
+            extra: { message, ...context },
+          })
+        } else {
+          Sentry.captureMessage(message, {
+            level: "error",
+            extra: context,
+          })
+        }
+      } catch (e) {
+        // Sentry não instalado ou erro - ignorar silenciosamente
+      }
+    }
   }
 
   debug(message: string, context?: LogContext) {

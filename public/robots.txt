@@ -1,0 +1,116 @@
+# ========================================
+# robots.txt - Nossa Maternidade PWA
+# ========================================
+# Arquivo estratégico para controle de indexação SEO
+# Última atualização: 2024
+# ========================================
+
+# ----------------------------------------
+# REGRAS GERAIS PARA TODOS OS CRAWLERS
+# ----------------------------------------
+User-agent: *
+# Permitir acesso completo ao site (melhor para SEO)
+Allow: /
+# Bloquear rotas de API e endpoints internos
+Disallow: /api/
+# Bloquear rotas administrativas (se existirem)
+Disallow: /admin/
+# Bloquear rotas internas
+Disallow: /internal/
+# Bloquear diretórios de build e dependências (segurança)
+Disallow: /node_modules/
+Disallow: /.next/
+Disallow: /build/
+Disallow: /.netlify/
+Disallow: /.vercel/
+# Bloquear arquivos de configuração sensíveis
+Disallow: /*.json$
+Disallow: /*.env$
+Disallow: /*.config.*$
+# Crawl delay para não sobrecarregar o servidor
+Crawl-delay: 1
+
+# ----------------------------------------
+# REGRAS ESPECÍFICAS PARA GOOGLEBOT
+# ----------------------------------------
+User-agent: Googlebot
+# Permitir indexação completa do site
+Allow: /
+# API endpoints não devem ser indexados
+Disallow: /api/
+# Rotas administrativas bloqueadas
+Disallow: /admin/
+# Rotas internas bloqueadas
+Disallow: /internal/
+# Diretórios técnicos bloqueados
+Disallow: /node_modules/
+Disallow: /.next/
+Disallow: /build/
+# Crawl delay específico para Google
+Crawl-delay: 1
+
+# ----------------------------------------
+# REGRAS ESPECÍFICAS PARA BINGBOT
+# ----------------------------------------
+User-agent: Bingbot
+# Permitir indexação completa do site
+Allow: /
+# API endpoints não devem ser indexados
+Disallow: /api/
+# Rotas administrativas bloqueadas
+Disallow: /admin/
+# Rotas internas bloqueadas
+Disallow: /internal/
+# Diretórios técnicos bloqueados
+Disallow: /node_modules/
+Disallow: /.next/
+Disallow: /build/
+# Crawl delay específico para Bing
+Crawl-delay: 1
+
+# ----------------------------------------
+# REGRAS PARA OUTROS BOTS POPULARES
+# ----------------------------------------
+User-agent: Yandex
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /internal/
+Crawl-delay: 2
+
+User-agent: Baiduspider
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /internal/
+Crawl-delay: 2
+
+# ----------------------------------------
+# BLOQUEAR BOTS MALICIOSOS/SPAM
+# ----------------------------------------
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# ----------------------------------------
+# SITEMAP URL
+# ----------------------------------------
+# Sitemap dinâmico gerado via app/sitemap.ts
+# Acessível em: https://nossamaternidade.netlify.app/sitemap.xml
+Sitemap: https://nossamaternidade.netlify.app/sitemap.xml
+
+# ----------------------------------------
+# NOTAS IMPORTANTES
+# ----------------------------------------
+# - Este arquivo deve ser acessível em: https://nossamaternidade.netlify.app/robots.txt
+# - Teste o arquivo em: https://www.google.com/webmasters/tools/robots-testing-tool
+# - Registre no Google Search Console para monitoramento
+# - Mantenha o sitemap.xml atualizado junto com este arquivo

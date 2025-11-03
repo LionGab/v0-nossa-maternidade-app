@@ -1,6 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
+
+// Configurar variáveis de ambiente ANTES de importar o módulo
+process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key-123456789'
+process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000'
+process.env.NODE_ENV = 'test'
+
+// Importar DEPOIS de configurar variáveis de ambiente
+import { hasApiKey, getEnvConfig } from '@/lib/env'
+
+// Mock variáveis de ambiente para testes
+beforeEach(() => {
+  // Garantir que as variáveis estão configuradas em cada teste
+  process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key-123456789'
+  process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000'
+  process.env.NODE_ENV = 'test'
+})
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
@@ -14,26 +31,22 @@ vi.mock('next/navigation', () => ({
 
 describe('Environment Configuration', () => {
   it('should load environment config', () => {
-    const { env } = require('@/lib/env')
-    
-    expect(env).toBeDefined()
-    expect(env.supabase).toBeDefined()
-    expect(env.ai).toBeDefined()
-    expect(env.app).toBeDefined()
-    expect(env.features).toBeDefined()
+    const config = getEnvConfig()
+    expect(config).toBeDefined()
+    expect(config.supabase).toBeDefined()
+    expect(config.ai).toBeDefined()
+    expect(config.app).toBeDefined()
+    expect(config.features).toBeDefined()
   })
 
   it('should have required Supabase config', () => {
-    const { env } = require('@/lib/env')
-    
-    expect(env.supabase.url).toBeTruthy()
-    expect(env.supabase.anonKey).toBeTruthy()
+    const config = getEnvConfig()
+    expect(config.supabase.url).toBeTruthy()
+    expect(config.supabase.anonKey).toBeTruthy()
   })
 
   it('should handle missing optional configs', () => {
-    const { hasApiKey } = require('@/lib/env')
-    
-    // These might be undefined in test env
+    // Estas podem ser undefined no ambiente de teste
     expect(typeof hasApiKey('anthropic')).toBe('boolean')
     expect(typeof hasApiKey('openai')).toBe('boolean')
     expect(typeof hasApiKey('google')).toBe('boolean')
@@ -42,10 +55,9 @@ describe('Environment Configuration', () => {
 
 describe('Feature Flags', () => {
   it('should have feature flags configured', () => {
-    const { env } = require('@/lib/env')
-    
-    expect(typeof env.features.aiEnabled).toBe('boolean')
-    expect(typeof env.features.gamificationEnabled).toBe('boolean')
-    expect(typeof env.features.analyticsEnabled).toBe('boolean')
+    const config = getEnvConfig()
+    expect(typeof config.features.aiEnabled).toBe('boolean')
+    expect(typeof config.features.gamificationEnabled).toBe('boolean')
+    expect(typeof config.features.analyticsEnabled).toBe('boolean')
   })
 })

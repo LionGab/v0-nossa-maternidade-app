@@ -5,29 +5,28 @@
  * Interface para coordenar e executar múltiplos agentes especializados
  */
 
-import { useState, useEffect } from "react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import {
-  Play,
-  Loader2,
-  CheckCircle2,
-  XCircle,
-  Code,
-  FileCode,
-  TestTube,
-  FileText,
-  Zap,
-  Bug,
-  Component,
-  CheckSquare,
-  Settings,
-  List,
-} from "lucide-react"
 import type { AgentType } from "@/lib/agents/types"
+import { clientLogger } from "@/lib/logger-client"
+import {
+  Bug,
+  CheckCircle2,
+  CheckSquare,
+  Code,
+  Component,
+  FileCode,
+  FileText,
+  List,
+  Loader2,
+  Play,
+  TestTube,
+  XCircle,
+  Zap
+} from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface AgentCapability {
   type: AgentType
@@ -79,7 +78,7 @@ export function CodeAgentsPanel() {
       const data = await response.json()
       setAgents(data.agents || [])
     } catch (error) {
-      console.error("Erro ao carregar agentes:", error)
+      clientLogger.error("Erro ao carregar agentes", error)
     }
   }
 
@@ -146,7 +145,10 @@ export function CodeAgentsPanel() {
       setResults(data.results)
       setSummary(data.summary)
     } catch (error) {
-      console.error("Erro ao executar agentes:", error)
+      clientLogger.error("Erro ao executar agentes", error, {
+        agentCount: selectedAgents.size,
+        mode: executionMode,
+      })
       alert(error instanceof Error ? error.message : "Erro ao executar agentes")
     } finally {
       setIsLoading(false)
@@ -257,13 +259,11 @@ export function CodeAgentsPanel() {
               {agents.map((agent) => (
                 <Card
                   key={agent.type}
-                  className={`p-3 cursor-pointer transition-all ${
-                    selectedAgents.has(agent.type)
-                      ? "ring-2 ring-primary"
-                      : ""
-                  } ${
-                    !agent.available ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`p-3 cursor-pointer transition-all ${selectedAgents.has(agent.type)
+                    ? "ring-2 ring-primary"
+                    : ""
+                    } ${!agent.available ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                   onClick={() => agent.available && toggleAgent(agent.type)}
                 >
                   <div className="flex items-start gap-3">

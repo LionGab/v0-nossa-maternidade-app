@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Heart, Brain, Sparkles, Search } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Textarea } from "@/components/ui/textarea"
+import { clientLogger } from "@/lib/logger-client"
+import { Brain, Heart, Search, Sparkles } from "lucide-react"
+import { useState } from "react"
 
 export function MultiAIChat() {
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([])
@@ -63,7 +64,9 @@ export function MultiAIChat() {
         }
       }
     } catch (error) {
-      console.error("MultiAIChat: Error sending message", error)
+      clientLogger.error("MultiAIChat: Error sending message", error, {
+        mode,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -110,9 +113,8 @@ export function MultiAIChat() {
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
-                    msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
-                  }`}
+                  className={`max-w-[80%] rounded-lg p-3 ${msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                    }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                 </div>

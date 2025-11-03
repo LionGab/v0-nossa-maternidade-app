@@ -1,5 +1,6 @@
 'use client'
 
+import { clientLogger } from '@/lib/logger-client'
 import { useEffect, useState } from 'react'
 
 interface PWAState {
@@ -24,10 +25,13 @@ export function usePWA(): PWAState {
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
-          console.log('✅ Service Worker registrado:', registration)
+          clientLogger.info('Service Worker registrado', {
+            scope: registration.scope,
+            active: registration.active?.scriptURL,
+          })
         })
         .catch((error) => {
-          console.error('❌ Erro ao registrar Service Worker:', error)
+          clientLogger.error('Erro ao registrar Service Worker', error)
         })
     }
 
@@ -44,7 +48,7 @@ export function usePWA(): PWAState {
     window.addEventListener('appinstalled', () => {
       setIsInstalled(true)
       setIsInstallable(false)
-      console.log('✅ PWA instalado com sucesso!')
+      clientLogger.info('PWA instalado com sucesso')
     })
 
     return () => {
@@ -57,8 +61,8 @@ export function usePWA(): PWAState {
 
     deferredPrompt.prompt()
     const { outcome } = await deferredPrompt.userChoice
-    
-    console.log(`User response to install prompt: ${outcome}`)
+
+    clientLogger.info('User response to install prompt', { outcome })
     setDeferredPrompt(null)
     setIsInstallable(false)
   }

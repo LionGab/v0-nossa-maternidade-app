@@ -1,8 +1,9 @@
 "use client"
 
-import React, { Component, ErrorInfo, ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { clientLogger } from "@/lib/logger-client"
+import { Component, ErrorInfo, ReactNode } from "react"
 
 interface Props {
   children: ReactNode
@@ -25,7 +26,9 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("ErrorBoundary caught an error:", error, errorInfo)
+    clientLogger.error("ErrorBoundary caught an error", error, {
+      componentStack: errorInfo.componentStack,
+    })
   }
 
   private handleReset = () => {
@@ -76,4 +79,3 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children
   }
 }
-

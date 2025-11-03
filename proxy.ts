@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger"
 import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 
@@ -75,7 +76,10 @@ export async function proxy(request: NextRequest) {
       }
 
       // Outro tipo de erro (conexão DB, permissões, etc.) - tratar como erro crítico
-      console.error("Middleware: Error fetching profile", profileError)
+      logger.error("Middleware: Error fetching profile", profileError as Error, {
+        userId: user.id,
+        pathname,
+      })
 
       if (!pathname.startsWith("/api")) {
         return NextResponse.redirect(new URL("/login", request.url))
@@ -108,7 +112,9 @@ export async function proxy(request: NextRequest) {
     // Usuário autenticado e com onboarding completo, permitir acesso
     return NextResponse.next()
   } catch (error) {
-    console.error("Middleware: Error", error)
+    logger.error("Middleware: Error", error as Error, {
+      pathname,
+    })
 
     // Em caso de erro, redirecionar para login (páginas) ou retornar 401 (APIs)
     if (!pathname.startsWith("/api")) {

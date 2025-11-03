@@ -5,6 +5,16 @@
 
 type LogLevel = "info" | "warn" | "error" | "debug"
 
+// Declaração de tipo para Sentry no window (se instalado)
+declare global {
+  interface Window {
+    Sentry?: {
+      captureException: (error: Error, options?: { extra?: any }) => void
+      captureMessage: (message: string, options?: { level?: string; extra?: any }) => void
+    }
+  }
+}
+
 interface LogContext {
   [key: string]: any
 }
@@ -48,10 +58,28 @@ class ClientLogger {
     // Sempre logar erros (mesmo em produção) para debugging no browser
     console.error(formatted)
 
-    // TODO: Em produção, enviar para serviço de error tracking
-    // if (typeof window !== "undefined" && window.Sentry) {
-    //   window.Sentry.captureException(error, { extra: context })
-    // }
+    // Em produção, enviar para Sentry se configurado
+    if (
+      typeof window !== "undefined" &&
+      process.env.NODE_ENV === "production" &&
+      (process.env.NEXT_PUBLIC_SENTRY_DSN || process.env.SENTRY_DSN)
+    ) {
+      try {
+        // Sentry pode não estar instalado, verificar se existe
+        if (window.Sentry) {
+          if (error instanceof Error) {
+            window.Sentry.captureException(error, { extra: context })
+          } else {
+            window.Sentry.captureMessage(message, {
+              level: "error",
+              extra: errorContext,
+            })
+          }
+        }
+      } catch (e) {
+        // Sentry não disponível - ignorar silenciosamente
+      }
+    }
   }
 
   debug(message: string, context?: LogContext) {
