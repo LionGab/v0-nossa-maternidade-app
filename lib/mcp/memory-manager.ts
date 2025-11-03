@@ -2,21 +2,16 @@ import { createClient } from "@supabase/supabase-js"
 import { embed } from "ai"
 import { openai } from "@ai-sdk/openai"
 
-// Lazy initialization of Supabase client to avoid build-time errors
-let supabaseClient: ReturnType<typeof createClient> | null = null
-
+// Create a new Supabase client for each request to avoid race conditions in serverless environments
 function getSupabaseClient() {
-  if (!supabaseClient) {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error("Supabase credentials not configured")
-    }
-
-    supabaseClient = createClient(supabaseUrl, supabaseKey)
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error("Supabase credentials not configured")
   }
-  return supabaseClient
+
+  return createClient(supabaseUrl, supabaseKey)
 }
 
 export interface MemoryEntry {
