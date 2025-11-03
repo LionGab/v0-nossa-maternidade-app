@@ -6,7 +6,7 @@
 [build]
   base = "."
   command = "npm install --legacy-peer-deps && npm run build"
-  # publish é gerenciado automaticamente pelo @netlify/plugin-nextjs
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
