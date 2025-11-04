@@ -1,10 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Heart, Clock, Star, Sparkles } from "lucide-react"
+import { PageHeader } from "@/components/page-header"
+import { BottomNavigation } from "@/components/bottom-navigation"
+import { Heart, Clock, Star, Sparkles, CheckCircle, Calendar, Play } from "lucide-react"
 
 type Sugestao = {
   id: number
@@ -109,16 +111,104 @@ const categoriaColors = {
 export default function AutocuidadoPage() {
   const [sugestoesState, setSugestoesState] = useState(sugestoes)
   const [filtroCategoria, setFiltroCategoria] = useState<string | null>(null)
+  const [atividadeEmAndamento, setAtividadeEmAndamento] = useState<number | null>(null)
+  const [tempoRestante, setTempoRestante] = useState<number>(0)
+  const [mostrarFiltroFavoritas, setMostrarFiltroFavoritas] = useState(false)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const toggleFavorita = (id: number) => {
-    setSugestoesState(sugestoesState.map(s => 
+    setSugestoesState(sugestoesState.map(s =>
       s.id === id ? { ...s, favorita: !s.favorita } : s
     ))
   }
 
-  const sugestoesFiltradas = filtroCategoria
-    ? sugestoesState.filter(s => s.categoria === filtroCategoria)
-    : sugestoesState
+  const handleAgendar = (sugestao: Sugestao) => {
+    // Criar evento no calendário (usando Web Share API ou mostrar opções)
+    const duracaoMinutos = parseInt(sugestao.duracao.replace(' min', ''))
+    const dataAgendamento = new Date()
+    dataAgendamento.setHours(dataAgendamento.getHours() + 1) // Agendar para daqui 1 hora
+
+    const textoEvento = `${sugestao.titulo} - ${sugestao.duracao}`
+    const descricaoEvento = `Autocuidado: ${sugestao.descricao}\n\nCategoria: ${categorias.find(c => c.value === sugestao.categoria)?.label}`
+
+    // Tentar usar Web Share API para compartilhar com apps de calendário
+    if (navigator.share) {
+      navigator.share({
+        title: textoEvento,
+        text: descricaoEvento,
+        url: window.location.href,
+      }).catch(() => {
+        // Fallback: copiar para clipboard
+        navigator.clipboard.writeText(`${textoEvento}\n${descricaoEvento}\nHorário sugerido: ${dataAgendamento.toLocaleString('pt-BR')}`)
+        alert(`✅ Atividade "${sugestao.titulo}" agendada!\n\nHorário sugerido: ${dataAgendamento.toLocaleString('pt-BR')}\n\nDica: Cole este texto no seu calendário preferido!`)
+      })
+    } else {
+      // Fallback: mostrar mensagem com opções
+      const mensagem = `📅 Agendar: ${sugestao.titulo}\n\nHorário sugerido: ${dataAgendamento.toLocaleString('pt-BR')}\n\nCopie esta mensagem e adicione ao seu calendário!`
+      navigator.clipboard.writeText(mensagem)
+      alert(`✅ Atividade agendada!\n\n"${sugestao.titulo}" foi copiada para a área de transferência.\n\nHorário sugerido: ${dataAgendamento.toLocaleString('pt-BR')}`)
+    }
+  }
+
+  // Limpar intervalo ao desmontar
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [])
+
+  const handleFazerAgora = (sugestao: Sugestao) => {
+    if (atividadeEmAndamento === sugestao.id) {
+      // Parar atividade
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+      setAtividadeEmAndamento(null)
+      setTempoRestante(0)
+      return
+    }
+
+    // Limpar intervalo anterior se existir
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+    }
+
+    // Iniciar atividade com timer
+    const duracaoMinutos = parseInt(sugestao.duracao.replace(' min', ''))
+    setAtividadeEmAndamento(sugestao.id)
+    setTempoRestante(duracaoMinutos * 60) // Converter para segundos
+
+    // Timer countdown
+    intervalRef.current = setInterval(() => {
+      setTempoRestante((prev) => {
+        if (prev <= 1) {
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current)
+            intervalRef.current = null
+          }
+          setAtividadeEmAndamento(null)
+          alert(`🎉 Parabéns! Você completou "${sugestao.titulo}"!\n\nEsperamos que você se sinta melhor agora. 💕`)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  const formatarTempo = (segundos: number) => {
+    const mins = Math.floor(segundos / 60)
+    const secs = segundos % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const sugestoesFiltradas = mostrarFiltroFavoritas
+    ? sugestoesState.filter(s => s.favorita)
+    : filtroCategoria
+      ? sugestoesState.filter(s => s.categoria === filtroCategoria)
+      : sugestoesState
 
   const categorias = [
     { value: "respiracao", label: "Respiração" },
@@ -129,18 +219,13 @@ export default function AutocuidadoPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <Heart className="h-10 w-10 text-primary" />
-            <div>
-              <h1 className="text-4xl font-serif font-bold text-foreground">Autocuidado em 10 Minutos</h1>
-              <p className="text-lg text-warm mt-1">Pequenos momentos que fazem grande diferença</p>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+      <PageHeader
+        title="Autocuidado em 10 Minutos"
+        description="Pequenos momentos que fazem grande diferença"
+        icon={<Heart className="h-5 w-5" />}
+      />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
         {/* Mensagem Acolhedora */}
         <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">
@@ -179,8 +264,8 @@ export default function AutocuidadoPage() {
         {/* Grid de Sugestões */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {sugestoesFiltradas.map((sugestao) => (
-            <Card 
-              key={sugestao.id} 
+            <Card
+              key={sugestao.id}
               className={`p-5 hover:shadow-lg transition-all cursor-pointer relative ${
                 sugestao.favorita ? "ring-2 ring-primary" : ""
               }`}
@@ -192,10 +277,10 @@ export default function AutocuidadoPage() {
                   onClick={() => toggleFavorita(sugestao.id)}
                   className="h-8 w-8 p-0"
                 >
-                  <Star 
+                  <Star
                     className={`h-5 w-5 ${
                       sugestao.favorita ? "fill-primary text-primary" : "text-muted-foreground"
-                    }`} 
+                    }`}
                   />
                 </Button>
               </div>
@@ -212,8 +297,8 @@ export default function AutocuidadoPage() {
                   {sugestao.descricao}
                 </p>
 
-                <Badge 
-                  variant="secondary" 
+                <Badge
+                  variant="secondary"
                   className={`${categoriaColors[sugestao.categoria]} border`}
                 >
                   {categorias.find(c => c.value === sugestao.categoria)?.label}
@@ -221,13 +306,50 @@ export default function AutocuidadoPage() {
               </div>
 
               <div className="flex gap-2 mt-4 pt-4 border-t">
-                <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                  Agendar
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 bg-transparent"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleAgendar(sugestao)
+                  }}
+                >
+                  <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="text-xs sm:text-sm">Agendar</span>
                 </Button>
-                <Button size="sm" className="flex-1">
-                  Fazer Agora
+                <Button
+                  size="sm"
+                  className="flex-1"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleFazerAgora(sugestao)
+                  }}
+                  variant={atividadeEmAndamento === sugestao.id ? "secondary" : "default"}
+                >
+                  {atividadeEmAndamento === sugestao.id ? (
+                    <>
+                      <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 animate-pulse" />
+                      <span className="text-xs sm:text-sm">{formatarTempo(tempoRestante)}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <span className="text-xs sm:text-sm">Fazer Agora</span>
+                    </>
+                  )}
                 </Button>
               </div>
+
+              {/* Indicador de atividade em andamento */}
+              {atividadeEmAndamento === sugestao.id && (
+                <div className="mt-2 p-2 bg-primary/10 rounded-lg border border-primary/20">
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <CheckCircle className="h-4 w-4 animate-pulse" />
+                    <span>Atividade em andamento...</span>
+                  </div>
+                </div>
+              )}
             </Card>
           ))}
         </div>
@@ -244,13 +366,18 @@ export default function AutocuidadoPage() {
                   }
                 </span>
               </div>
-              <Button variant="outline" size="sm">
-                Ver Favoritas
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setMostrarFiltroFavoritas(!mostrarFiltroFavoritas)}
+              >
+                {mostrarFiltroFavoritas ? "Mostrar Todas" : "Ver Favoritas"}
               </Button>
             </div>
           </Card>
         )}
       </div>
+      <BottomNavigation />
     </div>
   )
 }

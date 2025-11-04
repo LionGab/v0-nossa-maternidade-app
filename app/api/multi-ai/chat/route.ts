@@ -23,6 +23,7 @@ if (hasApiKey('anthropic')) {
 if (hasApiKey('openai')) {
   openai = new OpenAI({
     apiKey: getApiKey('openai')!,
+    timeout: 20000, // Timeout de 20 segundos
   })
 }
 
@@ -52,8 +53,11 @@ async function multiAIChatHandler(req: NextRequest) {
 
     const { messages, useEmpatheticMode } = validationResult.data
 
+    // Limitar histórico para as últimas 10 mensagens (5 interações) para respostas mais rápidas
+    const limitedMessages = messages.slice(-10)
+
     // Sanitize message content to prevent XSS
-    const sanitizedMessages = sanitizeMessages(messages)
+    const sanitizedMessages = sanitizeMessages(limitedMessages)
 
     let profile = null
     let latestAnalysis = null
@@ -98,9 +102,14 @@ Contexto da usuária:
       }
 
       const stream = await anthropic.messages.stream({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1024,
-        system: `Você é NathAI, uma assistente maternal empática e acolhedora. ${context}`,
+        model: "claude-3-5-haiku-20241022", // Modelo mais rápido
+        max_tokens: 500, // Limitar resposta
+        system: `Você é NathAI, assistente maternal. ${context}
+
+REGRAS IMPORTANTES:
+- Seja CONCISA e DIRETA (máximo 3-4 parágrafos)
+- Respostas curtas e práticas
+- Evite explicações longas`,
         messages: sanitizedMessages.map((msg) => ({
           role: msg.role as "user" | "assistant",
           content: msg.content,
@@ -146,14 +155,21 @@ Contexto da usuária:
       )
     }
 
+    // Usar modelo mais rápido (gpt-4o-mini) para respostas mais rápidas
     const completion = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-4o-mini", // Modelo mais rápido e eficiente
+      max_tokens: 400, // Limitar tamanho da resposta
+      temperature: 0.7,
       messages: [
         {
           role: "system",
-          content: `Você é NathAI, uma assistente maternal inteligente. ${context}
+          content: `Você é NathAI, assistente maternal. ${context}
 
-Forneça respostas práticas, baseadas em evidências e personalizadas para a situação da mãe.`,
+REGRAS IMPORTANTES:
+- Seja CONCISA e DIRETA (máximo 2-3 parágrafos)
+- Respostas curtas, práticas e objetivas
+- Evite explicações longas ou repetitivas
+- Foque em ações práticas imediatas`,
         },
         ...sanitizedMessages.map((msg) => ({
           role: msg.role as "user" | "assistant",

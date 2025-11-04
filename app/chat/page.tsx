@@ -63,8 +63,9 @@ export default function ChatPage() {
     setIsLoading(true)
 
     try {
-      // Preparar histórico de mensagens para a API
-      const conversationHistory = messages.map(m => ({
+      // Limitar histórico para as últimas 8 mensagens (4 interações) para respostas mais rápidas
+      const recentMessages = messages.slice(-8)
+      const conversationHistory = recentMessages.map(m => ({
         role: m.role,
         content: m.content
       }))
@@ -78,6 +79,10 @@ export default function ChatPage() {
         }
       ]
 
+      // AbortController para timeout de 20 segundos
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 20000)
+
       const response = await fetch("/api/multi-ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -85,7 +90,10 @@ export default function ChatPage() {
           messages: apiMessages,
           useEmpatheticMode: false
         }),
+        signal: controller.signal,
       })
+
+      clearTimeout(timeoutId)
 
       if (!response.ok) {
         const errorText = await response.text()
@@ -133,14 +141,19 @@ export default function ChatPage() {
       setStreamingMessage(null)
       setStreamingMessageId(null)
 
+      const isTimeout = error instanceof Error && (error.name === 'AbortError' || error.message.includes('timeout'))
+
       clientLogger.error("Chat: Erro ao enviar mensagem", error, {
         userId: "client-side",
         message: content.trim().substring(0, 50),
       })
+
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "Desculpe, tive um problema ao processar sua mensagem. Por favor, tente novamente em alguns instantes.",
+        content: isTimeout
+          ? "A resposta está demorando muito. Por favor, tente uma pergunta mais simples ou aguarde um momento."
+          : "Desculpe, tive um problema ao processar sua mensagem. Por favor, tente novamente.",
         timestamp: new Date(),
       }
       setMessages(prev => [...prev, errorMessage])

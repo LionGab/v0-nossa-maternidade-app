@@ -47,13 +47,13 @@ export function PageHeader({
       )}
     >
       <div className="flex items-center gap-3 max-w-7xl mx-auto">
-        {/* Botão voltar - sempre visível em mobile */}
+        {/* Botão voltar - sempre visível em todas as resoluções */}
         {showBack && (
           <Button
             variant="ghost"
             size="icon"
             onClick={handleBack}
-            className="h-10 w-10 touch-feedback shrink-0 md:hidden"
+            className="h-10 w-10 touch-feedback shrink-0"
             aria-label="Voltar"
           >
             <ArrowLeft className="h-5 w-5" />

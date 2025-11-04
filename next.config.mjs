@@ -19,8 +19,6 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
-  // Excluir arquivos de teste - apenas arquivos de página
-  pageExtensions: ['page.tsx', 'page.ts', 'tsx', 'ts', 'jsx', 'js'],
 }
 
 // Sentry é configurado via arquivos separados (sentry.client.config.ts, sentry.server.config.ts)

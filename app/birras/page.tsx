@@ -3,6 +3,8 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { PageHeader } from "@/components/page-header"
+import { BottomNavigation } from "@/components/bottom-navigation"
 import { AlertCircle, Heart, Lightbulb, CheckCircle } from "lucide-react"
 
 const situacoes = [
@@ -120,18 +122,13 @@ const situacoes = [
 
 export default function BirrasPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="h-10 w-10 text-primary" />
-            <div>
-              <h1 className="text-4xl font-serif font-bold text-foreground">Lidando com Birras</h1>
-              <p className="text-lg text-warm mt-1">Respostas empáticas e ações práticas</p>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+      <PageHeader
+        title="Lidando com Birras"
+        description="Respostas empáticas e ações práticas"
+        icon={<AlertCircle className="h-5 w-5" />}
+      />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
         {/* Mensagem de Apoio */}
         <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">
@@ -140,8 +137,8 @@ export default function BirrasPage() {
             <div>
               <h3 className="font-semibold text-lg mb-2">Você não está sozinha</h3>
               <p className="text-muted-foreground mb-3">
-                Birras são uma parte normal e saudável do desenvolvimento infantil. Elas acontecem porque a criança 
-                está aprendendo a lidar com emoções intensas, mas ainda não tem as ferramentas linguísticas ou 
+                Birras são uma parte normal e saudável do desenvolvimento infantil. Elas acontecem porque a criança
+                está aprendendo a lidar com emoções intensas, mas ainda não tem as ferramentas linguísticas ou
                 emocionais para expressá-las adequadamente.
               </p>
               <p className="text-muted-foreground font-medium">
@@ -244,6 +241,7 @@ export default function BirrasPage() {
           </div>
         </Card>
       </div>
+      <BottomNavigation />
     </div>
   )
 }

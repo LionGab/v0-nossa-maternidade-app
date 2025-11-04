@@ -3,6 +3,8 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { PageHeader } from "@/components/page-header"
+import { BottomNavigation } from "@/components/bottom-navigation"
 import { Play, Clock, Sparkles, Baby } from "lucide-react"
 
 const brincadeiras = [
@@ -106,18 +108,13 @@ const brincadeiras = [
 
 export default function BrincadeirasPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <Play className="h-10 w-10 text-primary" />
-            <div>
-              <h1 className="text-4xl font-serif font-bold text-foreground">Brincadeiras Sensoriais</h1>
-              <p className="text-lg text-warm mt-1">Atividades para estimular o desenvolvimento do bebê</p>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+      <PageHeader
+        title="Brincadeiras Sensoriais"
+        description="Atividades para estimular o desenvolvimento do bebê"
+        icon={<Play className="h-5 w-5" />}
+      />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
         {/* Mensagem Informativa */}
         <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">
@@ -126,7 +123,7 @@ export default function BrincadeirasPage() {
             <div>
               <h3 className="font-semibold text-lg mb-2">Sobre Brincadeiras Sensoriais</h3>
               <p className="text-muted-foreground">
-                Brincadeiras sensoriais são fundamentais para o desenvolvimento cognitivo, motor e emocional do bebê. 
+                Brincadeiras sensoriais são fundamentais para o desenvolvimento cognitivo, motor e emocional do bebê.
                 Elas estimulam os cinco sentidos e ajudam na conexão neural. Sempre supervisione as atividades!
               </p>
             </div>
@@ -154,8 +151,8 @@ export default function BrincadeirasPage() {
                     </div>
                   </div>
                   <Badge className={
-                    brincadeira.dificuldade === "Fácil" 
-                      ? "bg-green-100 text-green-800 border-green-300" 
+                    brincadeira.dificuldade === "Fácil"
+                      ? "bg-green-100 text-green-800 border-green-300"
                       : "bg-orange-100 text-orange-800 border-orange-300"
                   }>
                     {brincadeira.dificuldade}
@@ -221,6 +218,7 @@ export default function BrincadeirasPage() {
           </div>
         </Card>
       </div>
+      <BottomNavigation />
     </div>
   )
 }

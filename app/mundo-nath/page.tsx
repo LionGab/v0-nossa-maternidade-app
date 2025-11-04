@@ -1,11 +1,11 @@
 "use client"
 
+import { BottomNavigation } from "@/components/bottom-navigation"
+import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { PageHeader } from "@/components/page-header"
-import { BottomNavigation } from "@/components/bottom-navigation"
 import { Heart, MessageCircle, Play, Search, Share2, TrendingUp, Video } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
@@ -22,6 +22,8 @@ const viralVideos = [
     duration: "3:45",
     platform: "TikTok",
     isNew: true,
+    url: "https://www.tiktok.com/@nathaliavalente",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Placeholder - substituir por URL real
   },
   {
     id: 2,
@@ -33,6 +35,8 @@ const viralVideos = [
     duration: "5:12",
     platform: "Instagram",
     isNew: true,
+    url: "https://www.instagram.com/nathaliavalente",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
   {
     id: 3,
@@ -44,6 +48,8 @@ const viralVideos = [
     duration: "4:30",
     platform: "TikTok",
     isNew: false,
+    url: "https://www.tiktok.com/@nathaliavalente",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
   {
     id: 4,
@@ -55,6 +61,8 @@ const viralVideos = [
     duration: "6:20",
     platform: "Instagram",
     isNew: false,
+    url: "https://www.instagram.com/nathaliavalente",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
   {
     id: 5,
@@ -66,6 +74,8 @@ const viralVideos = [
     duration: "4:15",
     platform: "TikTok",
     isNew: false,
+    url: "https://www.tiktok.com/@nathaliavalente",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
   {
     id: 6,
@@ -77,6 +87,8 @@ const viralVideos = [
     duration: "2:50",
     platform: "Instagram",
     isNew: false,
+    url: "https://www.instagram.com/nathaliavalente",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
   {
     id: 7,
@@ -88,6 +100,8 @@ const viralVideos = [
     duration: "5:45",
     platform: "TikTok",
     isNew: false,
+    url: "https://www.tiktok.com/@nathaliavalente",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
   {
     id: 8,
@@ -99,6 +113,8 @@ const viralVideos = [
     duration: "3:30",
     platform: "Instagram",
     isNew: false,
+    url: "https://www.instagram.com/nathaliavalente",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
   {
     id: 9,
@@ -110,6 +126,8 @@ const viralVideos = [
     duration: "4:00",
     platform: "TikTok",
     isNew: false,
+    url: "https://www.tiktok.com/@nathaliavalente",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
   {
     id: 10,
@@ -121,12 +139,15 @@ const viralVideos = [
     duration: "6:10",
     platform: "Instagram",
     isNew: false,
+    url: "https://www.instagram.com/nathaliavalente",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
 ]
 
 export default function MundoNathPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedPlatform, setSelectedPlatform] = useState<"all" | "TikTok" | "Instagram">("all")
+  const [selectedVideo, setSelectedVideo] = useState<number | null>(null)
 
   const filteredVideos = viralVideos.filter((video) => {
     const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -135,9 +156,21 @@ export default function MundoNathPage() {
   })
 
   const handlePlayVideo = (videoId: number) => {
-    // TODO: Implementar player de vídeo
-    console.log("Reproduzir vídeo:", videoId)
-    alert(`Reproduzindo vídeo ${videoId}. Em breve: player integrado!`)
+    const video = viralVideos.find(v => v.id === videoId)
+    if (video?.url) {
+      // Abrir vídeo em nova aba ou modal
+      window.open(video.url, '_blank', 'noopener,noreferrer')
+    } else if (video?.embedUrl) {
+      // Abrir modal com player
+      setSelectedVideo(videoId)
+    } else {
+      // Fallback: mostrar modal com informações
+      setSelectedVideo(videoId)
+    }
+  }
+
+  const closeVideoModal = () => {
+    setSelectedVideo(null)
   }
 
   const handleSaveVideo = (videoId: number) => {
@@ -220,31 +253,47 @@ export default function MundoNathPage() {
 
         {/* Grid de Vídeos */}
         {filteredVideos.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
             {filteredVideos.map((video) => (
               <Card
                 key={video.id}
-                className="overflow-hidden group hover:shadow-xl transition-all duration-300 flex flex-col"
+                className="overflow-hidden group hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer"
+                onClick={() => handlePlayVideo(video.id)}
               >
                 {/* Container da imagem com position relative e aspect-video para garantir visibilidade */}
-                <div className="relative w-full aspect-video bg-muted overflow-hidden">
+                <div
+                  className="relative w-full aspect-video bg-muted overflow-hidden cursor-pointer"
+                  onClick={() => handlePlayVideo(video.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      handlePlayVideo(video.id)
+                    }
+                  }}
+                  aria-label={`Assistir vídeo: ${video.title}`}
+                >
                   <Image
                     src={video.thumbnail || "/placeholder.svg"}
                     alt={video.title}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover"
+                    className="object-cover transition-transform group-hover:scale-105"
                     priority={video.id <= 3}
                   />
-                  {/* Overlay no hover/touch */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 md:group-hover:opacity-100 active:opacity-100 transition-opacity flex items-center justify-center z-10">
+                  {/* Overlay sempre visível em mobile, hover em desktop */}
+                  <div className="absolute inset-0 bg-black/40 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
                     <Button
                       size="lg"
-                      className="rounded-full"
-                      onClick={() => handlePlayVideo(video.id)}
+                      className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handlePlayVideo(video.id)
+                      }}
                     >
-                      <Play className="h-6 w-6 mr-2" />
-                      Assistir
+                      <Play className="h-5 w-5 sm:h-6 sm:w-6 mr-2 fill-current" />
+                      <span className="text-sm sm:text-base">Assistir</span>
                     </Button>
                   </div>
                   {/* Badges no topo */}
@@ -285,20 +334,28 @@ export default function MundoNathPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1"
-                      onClick={() => handleSaveVideo(video.id)}
+                      className="flex-1 text-xs sm:text-sm px-2 sm:px-4"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleSaveVideo(video.id)
+                      }}
                     >
-                      <Heart className="h-4 w-4 mr-2" />
-                      Salvar
+                      <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">Salvar</span>
+                      <span className="sm:hidden">Salvar</span>
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1"
-                      onClick={() => handleShareVideo(video.id, video.title)}
+                      className="flex-1 text-xs sm:text-sm px-2 sm:px-4"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleShareVideo(video.id, video.title)
+                      }}
                     >
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Compartilhar
+                      <Share2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">Compartilhar</span>
+                      <span className="sm:hidden">Compartilhar</span>
                     </Button>
                   </div>
                 </div>
@@ -309,6 +366,63 @@ export default function MundoNathPage() {
           <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">Nenhum vídeo encontrado</p>
             <p className="text-sm text-muted-foreground mt-2">Tente ajustar os filtros de busca</p>
+          </div>
+        )}
+
+        {/* Modal de Vídeo */}
+        {selectedVideo && (
+          <div
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+            onClick={closeVideoModal}
+          >
+            <div
+              className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg sm:text-xl font-semibold">
+                    {viralVideos.find(v => v.id === selectedVideo)?.title}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={closeVideoModal}
+                    className="h-8 w-8 p-0"
+                  >
+                    ✕
+                  </Button>
+                </div>
+
+                {viralVideos.find(v => v.id === selectedVideo)?.embedUrl ? (
+                  <div className="relative w-full aspect-video mb-4">
+                    <iframe
+                      src={viralVideos.find(v => v.id === selectedVideo)?.embedUrl}
+                      className="absolute inset-0 w-full h-full rounded-lg"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Video className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">
+                      Vídeo disponível em {viralVideos.find(v => v.id === selectedVideo)?.platform}
+                    </p>
+                    <Button
+                      onClick={() => {
+                        const video = viralVideos.find(v => v.id === selectedVideo)
+                        if (video?.url) {
+                          window.open(video.url, '_blank', 'noopener,noreferrer')
+                        }
+                      }}
+                    >
+                      Abrir {viralVideos.find(v => v.id === selectedVideo)?.platform}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>

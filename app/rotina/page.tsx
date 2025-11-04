@@ -89,27 +89,36 @@ export default function RotinaPage() {
         {/* Legendas de Categorias */}
         <Card className="p-4">
           <h3 className="font-semibold mb-3 text-sm text-muted-foreground">Categorias</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
             {categorias.map((cat) => {
               const Icon = cat.icon
               return (
-                <div key={cat.tipo} className={`flex items-center gap-2 p-3 rounded-lg border ${cat.color}`}>
-                  <Icon className="h-5 w-5" />
-                  <span className="text-sm font-medium">{cat.label}</span>
-                </div>
+                <button
+                  key={cat.tipo}
+                  type="button"
+                  className={`flex items-center justify-center gap-2 p-3 sm:p-4 rounded-lg border transition-all hover:scale-105 active:scale-95 ${cat.color}`}
+                  onClick={() => {
+                    // Filtrar por categoria
+                    const atividadesFiltradas = atividadesPadrao.filter(a => a.tipo === cat.tipo)
+                    console.log(`Filtrar por ${cat.label}:`, atividadesFiltradas)
+                  }}
+                >
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm font-medium truncate">{cat.label}</span>
+                </button>
               )
             })}
           </div>
         </Card>
 
         {/* Seletor de Dias */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {diasSemana.map((dia) => (
             <Button
               key={dia}
               variant={diaSelecionado === dia ? "default" : "outline"}
               onClick={() => setDiaSelecionado(dia)}
-              className="min-w-[100px]"
+              className="min-w-[85px] sm:min-w-[100px] text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-2.5 flex-shrink-0"
             >
               {dia}
             </Button>
@@ -157,9 +166,9 @@ export default function RotinaPage() {
                       <span className="font-medium text-sm">{atividade.horario}</span>
                     </div>
 
-                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getColor(atividade.tipo)}`}>
-                      <Icon className="h-4 w-4" />
-                      <span className="text-sm font-medium capitalize">{atividade.tipo}</span>
+                    <div className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full ${getColor(atividade.tipo)}`}>
+                      <Icon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm font-medium capitalize truncate">{atividade.tipo}</span>
                     </div>
 
                     <div className="flex-1">
@@ -191,15 +200,32 @@ export default function RotinaPage() {
           </Button>
         </Card>
 
-        {/* Dicas Rápidas */}
-        <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">
-          <div className="flex items-start gap-4">
-            <Baby className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-            <div>
-              <h3 className="font-semibold text-lg mb-2">Dica de Rotina</h3>
-              <p className="text-muted-foreground">
+        {/* Dicas Rápidas - Melhorada com mobile-first */}
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/10">
+          <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+            <div className="flex-shrink-0">
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Baby className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-base sm:text-lg mb-2 text-foreground">Dica de Rotina</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                 Mantenha consistência nos horários de sono e alimentação. Isso ajuda o bebê a se sentir mais seguro e facilita a organização do seu dia.
               </p>
+              <div className="mt-4 pt-4 border-t border-primary/10">
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="text-xs sm:text-sm px-2 sm:px-3 py-1">
+                    💡 Consistência
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs sm:text-sm px-2 sm:px-3 py-1">
+                    ⏰ Horários
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs sm:text-sm px-2 sm:px-3 py-1">
+                    🎯 Organização
+                  </Badge>
+                </div>
+              </div>
             </div>
           </div>
         </Card>
