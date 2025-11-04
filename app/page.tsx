@@ -1,14 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
-import { generateMetadata } from "@/lib/metadata"
-
-export const metadata = generateMetadata({
-  title: 'Nossa Maternidade - Seu espaço de apoio maternal',
-  description: 'Seu espaço seguro para apoio emocional, organização da rotina e autocuidado na jornada da maternidade',
-  route: '/',
-  image: '/og-image-default.png',
-})
 
 export default function HomePage() {
   return (
