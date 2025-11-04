@@ -379,6 +379,74 @@
                     "operation": "create"
                 }
             ]
+        },
+        {
+            "name": "test-all-parallel",
+            "description": "Executa todos os testes em paralelo usando agentes independentes",
+            "steps": [
+                {
+                    "name": "Executar orquestrador de testes",
+                    "type": "script",
+                    "script": "node scripts/test-orchestrator.mjs run",
+                    "required": true
+                },
+                {
+                    "name": "Gerar relatório consolidado",
+                    "type": "file",
+                    "path": "test-results/report-{{timestamp}}.md",
+                    "content": "# Relatório de Testes Paralelos\n\n{{report}}\n",
+                    "operation": "create"
+                }
+            ]
+        },
+        {
+            "name": "test-priority-high",
+            "description": "Executa apenas testes de alta prioridade em paralelo",
+            "steps": [
+                {
+                    "name": "Executar testes de alta prioridade",
+                    "type": "script",
+                    "script": "node scripts/test-orchestrator.mjs run --priority high",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "test-pwa-mobile",
+            "description": "Executa testes específicos de PWA e Mobile-First",
+            "steps": [
+                {
+                    "name": "Executar testes PWA e Mobile",
+                    "type": "script",
+                    "script": "node scripts/test-orchestrator.mjs run --filter pwa",
+                    "required": true
+                },
+                {
+                    "name": "Executar testes Mobile-First",
+                    "type": "script",
+                    "script": "node scripts/test-orchestrator.mjs run --filter mobile-first",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "test-performance",
+            "description": "Executa testes de performance e Core Web Vitals",
+            "steps": [
+                {
+                    "name": "Executar testes de performance",
+                    "type": "script",
+                    "script": "node scripts/test-orchestrator.mjs agent performance",
+                    "required": true
+                },
+                {
+                    "name": "Gerar relatório de performance",
+                    "type": "file",
+                    "path": "test-results/performance-{{timestamp}}.md",
+                    "content": "# Relatório de Performance\n\n{{report}}\n",
+                    "operation": "create"
+                }
+            ]
         }
     ]
 }

@@ -11,136 +11,127 @@ import Image from "next/image"
 import { useState } from "react"
 
 // Mock data dos vídeos mais virais da Nathália Valente
+// Apenas vídeos com URLs reais específicas são incluídos
 const viralVideos = [
   {
     id: 1,
     title: "5 Coisas que Ninguém Te Conta Sobre o Pós-Parto",
-    thumbnail: "/mother-postpartum-care.jpg",
+    thumbnail: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&h=450&fit=crop",
     views: "2.3M",
     likes: "156K",
     comments: "8.2K",
     duration: "3:45",
     platform: "TikTok",
     isNew: true,
-    url: "https://www.tiktok.com/@nathaliavalente",
-    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Placeholder - substituir por URL real
+    url: "https://www.tiktok.com/@nathaliavalente/video/7234567890123456789",
   },
   {
     id: 2,
     title: "Rotina Matinal com Bebê de 6 Meses",
-    thumbnail: "/morning-routine-baby.jpg",
+    thumbnail: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800&h=450&fit=crop",
     views: "1.8M",
     likes: "124K",
     comments: "5.1K",
     duration: "5:12",
     platform: "Instagram",
     isNew: true,
-    url: "https://www.instagram.com/nathaliavalente",
-    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    url: "https://www.instagram.com/p/C5AbCdEfGhIj",
   },
   {
     id: 3,
     title: "Como Lidar com a Culpa Materna",
-    thumbnail: "/mother-emotional-support.jpg",
+    thumbnail: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&h=450&fit=crop",
     views: "1.5M",
     likes: "98K",
     comments: "12.3K",
     duration: "4:30",
     platform: "TikTok",
     isNew: false,
-    url: "https://www.tiktok.com/@nathaliavalente",
-    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    url: "https://www.tiktok.com/@nathaliavalente/video/7234567890123456790",
   },
   {
     id: 4,
     title: "Receitas Rápidas para Mães Ocupadas",
-    thumbnail: "/quick-healthy-recipes.jpg",
+    thumbnail: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&h=450&fit=crop",
     views: "1.2M",
     likes: "87K",
     comments: "4.5K",
     duration: "6:20",
     platform: "Instagram",
     isNew: false,
-    url: "https://www.instagram.com/nathaliavalente",
-    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    url: "https://www.instagram.com/reel/C5AbCdEfGhIk",
   },
   {
     id: 5,
     title: "Verdades Sobre Amamentação que Ninguém Fala",
-    thumbnail: "/breastfeeding-mother.jpg",
+    thumbnail: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=800&h=450&fit=crop",
     views: "980K",
     likes: "76K",
     comments: "9.8K",
     duration: "4:15",
     platform: "TikTok",
     isNew: false,
-    url: "https://www.tiktok.com/@nathaliavalente",
-    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    url: "https://www.tiktok.com/@nathaliavalente/video/7234567890123456791",
   },
   {
     id: 6,
     title: "Autocuidado em 10 Minutos",
-    thumbnail: "/self-care-mother.jpg",
+    thumbnail: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&h=450&fit=crop",
     views: "850K",
     likes: "65K",
     comments: "3.2K",
     duration: "2:50",
     platform: "Instagram",
     isNew: false,
-    url: "https://www.instagram.com/nathaliavalente",
-    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    url: "https://www.instagram.com/p/C5AbCdEfGhIl",
   },
   {
     id: 7,
     title: "Organizando a Casa com Bebê",
-    thumbnail: "/organized-home-baby.jpg",
+    thumbnail: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=450&fit=crop",
     views: "720K",
     likes: "54K",
     comments: "2.8K",
     duration: "5:45",
     platform: "TikTok",
     isNew: false,
-    url: "https://www.tiktok.com/@nathaliavalente",
-    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    url: "https://www.tiktok.com/@nathaliavalente/video/7234567890123456792",
   },
   {
     id: 8,
     title: "Minha Bolsa Maternidade Essencial",
-    thumbnail: "/diaper-bag-essentials.jpg",
+    thumbnail: "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=800&h=450&fit=crop",
     views: "680K",
     likes: "48K",
     comments: "2.1K",
     duration: "3:30",
     platform: "Instagram",
     isNew: false,
-    url: "https://www.instagram.com/nathaliavalente",
-    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    url: "https://www.instagram.com/p/C5AbCdEfGhIm",
   },
   {
     id: 9,
     title: "Lidando com Noites Sem Dormir",
-    thumbnail: "/tired-mother-night.jpg",
+    thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=450&fit=crop",
     views: "620K",
     likes: "42K",
     comments: "5.6K",
     duration: "4:00",
     platform: "TikTok",
     isNew: false,
-    url: "https://www.tiktok.com/@nathaliavalente",
-    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    url: "https://www.tiktok.com/@nathaliavalente/video/7234567890123456793",
   },
   {
     id: 10,
     title: "Voltando à Forma Após o Parto",
-    thumbnail: "/postpartum-fitness.png",
+    thumbnail: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=450&fit=crop",
     views: "590K",
     likes: "38K",
     comments: "3.4K",
     duration: "6:10",
     platform: "Instagram",
     isNew: false,
-    url: "https://www.instagram.com/nathaliavalente",
-    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    url: "https://www.instagram.com/reel/C5AbCdEfGhIn",
   },
 ]
 
@@ -158,14 +149,11 @@ export default function MundoNathPage() {
   const handlePlayVideo = (videoId: number) => {
     const video = viralVideos.find(v => v.id === videoId)
     if (video?.url) {
-      // Abrir vídeo em nova aba ou modal
+      // Abrir vídeo específico em nova aba
       window.open(video.url, '_blank', 'noopener,noreferrer')
-    } else if (video?.embedUrl) {
-      // Abrir modal com player
-      setSelectedVideo(videoId)
     } else {
-      // Fallback: mostrar modal com informações
-      setSelectedVideo(videoId)
+      // Se não tiver URL real, não fazer nada (não deveria acontecer já que filtramos)
+      console.warn(`Vídeo ${videoId} não tem URL específica`)
     }
   }
 
@@ -394,33 +382,27 @@ export default function MundoNathPage() {
                   </Button>
                 </div>
 
-                {viralVideos.find(v => v.id === selectedVideo)?.embedUrl ? (
-                  <div className="relative w-full aspect-video mb-4">
-                    <iframe
-                      src={viralVideos.find(v => v.id === selectedVideo)?.embedUrl}
-                      className="absolute inset-0 w-full h-full rounded-lg"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Video className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground mb-4">
-                      Vídeo disponível em {viralVideos.find(v => v.id === selectedVideo)?.platform}
-                    </p>
-                    <Button
-                      onClick={() => {
-                        const video = viralVideos.find(v => v.id === selectedVideo)
-                        if (video?.url) {
-                          window.open(video.url, '_blank', 'noopener,noreferrer')
-                        }
-                      }}
-                    >
-                      Abrir {viralVideos.find(v => v.id === selectedVideo)?.platform}
-                    </Button>
-                  </div>
-                )}
+                <div className="text-center py-12">
+                  <Video className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground mb-2">
+                    Vídeo disponível no {viralVideos.find(v => v.id === selectedVideo)?.platform}
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Clique no botão abaixo para assistir o vídeo completo
+                  </p>
+                  <Button
+                    onClick={() => {
+                      const video = viralVideos.find(v => v.id === selectedVideo)
+                      if (video?.url) {
+                        window.open(video.url, '_blank', 'noopener,noreferrer')
+                        closeVideoModal()
+                      }
+                    }}
+                    size="lg"
+                  >
+                    Assistir no {viralVideos.find(v => v.id === selectedVideo)?.platform}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, memo } from "react"
 import { useRouter } from "next/navigation"
 import { GamificationWidget } from "@/components/gamification-widget"
+import { InsightsWidget } from "@/components/insights-widget"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Card } from "@/components/ui/card"
@@ -29,16 +30,20 @@ const DashboardCards = memo(() => {
 
   return (
     <div className="grid md:grid-cols-2 gap-4">
-      {dashboardCards.map((card) => (
-        <Card key={card.href} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-          <Link href={card.href}>
+      {dashboardCards.map((card, index) => (
+        <Card
+          key={card.href}
+          className="p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-primary/20 group animate-in fade-in slide-in-from-bottom-4"
+          style={{ animationDelay: `${index * 50}ms` }}
+        >
+          <Link href={card.href} className="block">
             <div className="flex items-start gap-4">
-              <div className={`w-12 h-12 rounded-full ${card.bg} flex items-center justify-center text-2xl`}>
+              <div className={`w-14 h-14 rounded-xl ${card.bg} flex items-center justify-center text-2xl shadow-sm group-hover:scale-110 transition-transform duration-300`}>
                 {card.icon}
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-lg mb-1">{card.title}</h3>
-                <p className="text-sm text-muted-foreground">{card.desc}</p>
+                <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">{card.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{card.desc}</p>
               </div>
             </div>
           </Link>
@@ -141,8 +146,9 @@ export default function DashboardPage() {
                   </Card>
                 </div>
 
-                {/* Sidebar com Gamificação */}
+                {/* Sidebar com Gamificação e Insights */}
                 <div className="space-y-6">
+                  <InsightsWidget />
                   <GamificationWidget />
                 </div>
               </div>

@@ -6,7 +6,18 @@
       "Bash(npm install:*)",
       "Bash(npm run build:*)",
       "Bash(npm audit:*)",
-      "Bash(code --version)"
+      "Bash(code --version)",
+      "Bash(powershell -ExecutionPolicy Bypass -File scripts/orchestrator.ps1 status)",
+      "Bash(node scripts/orchestrator.mjs:*)",
+      "Bash(npm run orchestrate:workflows:*)",
+      "Bash(Test-Path \"node_modules\")",
+      "mcp__ide__getDiagnostics",
+      "Bash(npm run dev:*)",
+      "Bash(Test-Path \"netlify.toml\")",
+      "Bash(npx netlify --version)",
+      "Bash(npx netlify status:*)",
+      "Bash(npx netlify:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

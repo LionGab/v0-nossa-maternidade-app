@@ -42,16 +42,16 @@ async function handleRecommendations(req: NextRequest) {
 
     if (!openai) {
       return NextResponse.json(
-        { 
+        {
           error: "Recomendações não disponíveis",
           message: "Configure OPENAI_API_KEY para habilitar esta funcionalidade."
-        }, 
+        },
         { status: 503 }
       )
     }
 
     // Buscar histórico do usuário
-    const { data: profile } = await supabase.from("user_profiles").select("*").eq("user_id", user.id).single()
+    const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
     const { data: analyses } = await supabase
       .from("sentiment_analysis")
@@ -60,23 +60,69 @@ async function handleRecommendations(req: NextRequest) {
       .order("created_at", { ascending: false })
       .limit(5)
 
-    // Usar GPT-4 para gerar recomendações personalizadas
+    // Coletar informações do perfil do bebê
+    let babyProfile = null
+    try {
+      const { data: babyData } = await supabase
+        .from("baby_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single()
+      babyProfile = babyData
+    } catch (error) {
+      logger.debug("Baby profile fetch failed for recommendations", { userId: user.id, error })
+    }
+
+    // Usar GPT-4 para gerar recomendações personalizadas e especializadas
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
       messages: [
         {
           role: "system",
-          content: `Você é uma especialista em maternidade. Gere recomendações personalizadas de ${category} baseadas no perfil e histórico emocional da mãe.`,
+          content: `Você é uma especialista em maternidade criada pela influenciadora Nathália Valente. Você tem conhecimento profundo em:
+
+ÁREAS DE ESPECIALIZAÇÃO:
+- Puerpério e pós-parto (física e emocional)
+- Desenvolvimento infantil (0-24 meses)
+- Amamentação e alimentação complementar
+- Sono do bebê e rotinas
+- Cuidados maternos (físicos, emocionais, mentais)
+- Autocuidado materno e bem-estar
+- Gestão de rotina e organização doméstica
+- Desafios comuns da maternidade
+
+PRINCÍPIOS:
+- Base recomendações em evidências científicas
+- Seja específica e qualificada (evite genérico)
+- Adapte ao contexto da mãe
+- Priorize saúde física e mental da mãe
+- Seja prática e acionável
+- Sempre mencione quando consultar profissional
+
+Gere recomendações ESPECIALIZADAS de ${category} baseadas no perfil completo da mãe.`,
         },
         {
           role: "user",
-          content: `Perfil: ${JSON.stringify(profile)}
+          content: `Perfil da mãe: ${JSON.stringify(profile)}
 Histórico emocional: ${JSON.stringify(analyses)}
+${babyProfile ? `Perfil do bebê: ${JSON.stringify(babyProfile)}` : ""}
 
-Gere 5 recomendações específicas e práticas de ${category}. Responda em JSON com array de objetos: { title, description, duration, difficulty, benefits }`,
+Categoria: ${category}
+
+Gere 5 recomendações ESPECÍFICAS, QUALIFICADAS e PRÁTICAS de ${category}. Cada recomendação deve ser:
+- Específica e detalhada (não genérica)
+- Adaptada ao contexto da mãe quando informações disponíveis
+- Baseada em evidências científicas
+- Prática e acionável
+- Com benefícios claros e específicos
+
+Responda em JSON com array de objetos: { title, description, duration, difficulty, benefits }`,
         },
       ],
       response_format: { type: "json_object" },
+      temperature: 0.7,
     })
 
     const recommendations = JSON.parse(completion.choices[0].message.content || "{}")
@@ -86,11 +132,18 @@ Gere 5 recomendações específicas e práticas de ${category}. Responda em JSON
     if (genAI) {
       try {
         const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
-        const geminiPrompt = `Enriqueça estas recomendações com dicas práticas e adaptações:
+        const geminiPrompt = `Você é uma especialista em maternidade. Enriqueça estas recomendações com informações práticas e especializadas:
+
 ${JSON.stringify(recommendations)}
 
-Adicione para cada item: tips (array de dicas), adaptations (como adaptar para diferentes situações), warnings (avisos importantes).
-Responda em JSON mantendo a estrutura original e adicionando os novos campos.`
+Para cada recomendação, adicione:
+- tips (array de 3-5 dicas práticas e específicas)
+- adaptations (como adaptar para diferentes situações: idade do bebê, situação emocional, etc)
+- warnings (avisos importantes quando relevante - ex: quando consultar profissional, precauções)
+- when_to_use (quando esta recomendação é mais apropriada)
+
+Mantenha a estrutura original e adicione os novos campos. Seja específica e qualificada, não genérica.
+Responda APENAS em JSON válido (sem markdown, sem texto adicional).`
 
         const geminiResult = await geminiModel.generateContent(geminiPrompt)
         const geminiText = geminiResult.response.text()

@@ -11,6 +11,7 @@ import { BottomNavigation } from "@/components/bottom-navigation"
 import { clientLogger } from "@/lib/logger-client"
 import { ChefHat, Clock, Flame, Sparkles, Users } from "lucide-react"
 import { useState } from "react"
+import Image from "next/image"
 
 const moodOptions = [
   { value: "energizada", label: "😊 Energizada e motivada", color: "bg-green-100 text-green-800" },
@@ -122,7 +123,7 @@ export default function ReceitasPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5 pb-20 md:pb-6">
       <PageHeader
         title="Receitas do Coração"
         description="Receitas personalizadas com IA"
@@ -132,9 +133,9 @@ export default function ReceitasPage() {
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Formulário */}
-          <Card className="p-6 space-y-6">
+          <Card className="p-6 space-y-6 shadow-lg border-2 border-border/50 hover:shadow-xl transition-shadow duration-300 animate-in fade-in slide-in-from-left-4">
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-800 text-sm">{error}</div>
+              <div className="p-4 bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 rounded-xl text-red-800 dark:text-red-200 text-sm shadow-sm animate-in fade-in slide-in-from-top-2">{error}</div>
             )}
 
             <div className="space-y-4">
@@ -180,7 +181,12 @@ export default function ReceitasPage() {
                 />
               </div>
 
-              <Button onClick={generateRecipes} disabled={isLoading} className="w-full h-12 text-base" size="lg">
+              <Button
+                onClick={generateRecipes}
+                disabled={isLoading}
+                className="w-full h-12 text-base rounded-xl shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                size="lg"
+              >
                 {isLoading ? (
                   <>
                     <Sparkles className="h-5 w-5 mr-2 animate-spin" />
@@ -199,74 +205,118 @@ export default function ReceitasPage() {
           {/* Receitas Geradas */}
           <div className="space-y-4">
             {recipes.length === 0 && !isLoading && (
-              <Card className="p-12 text-center">
-                <ChefHat className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground text-lg">
-                  Preencha o formulário ao lado para receber receitas personalizadas
+              <Card className="p-12 text-center border-2 border-dashed border-border/50 bg-muted/30 animate-in fade-in slide-in-from-right-4">
+                <ChefHat className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <p className="text-muted-foreground text-lg leading-relaxed">
+                  Preencha o formulário ao lado para receber receitas personalizadas 💕
                 </p>
               </Card>
             )}
 
             {recipes.map((recipe, index) => (
-              <Card key={index} className="p-6 space-y-4 hover:shadow-lg transition-shadow">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">{recipe.name}</h3>
-                    <p className="text-sm text-muted-foreground">{recipe.description}</p>
+              <Card
+                key={index}
+                className="overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-2 border-border/50 bg-card/50 backdrop-blur-sm animate-in fade-in slide-in-from-right-4"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                {/* Imagem da Receita */}
+                {recipe.image && (
+                  <div className="relative w-full h-48 sm:h-64 overflow-hidden bg-muted">
+                    <Image
+                      src={recipe.image}
+                      alt={recipe.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      priority={index === 0}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <Badge className="bg-primary/90 text-primary-foreground border border-primary/20 shadow-lg">
+                        {recipe.category}
+                      </Badge>
+                    </div>
                   </div>
-                  <Badge className="bg-primary/10 text-primary">{recipe.category}</Badge>
-                </div>
+                )}
 
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
+                <div className="p-6 space-y-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold text-foreground mb-2 leading-tight">{recipe.name}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{recipe.description}</p>
+                    </div>
+                    {!recipe.image && (
+                      <Badge className="bg-primary/10 text-primary border border-primary/20 shadow-sm shrink-0">
+                        {recipe.category}
+                      </Badge>
+                    )}
+                  </div>
+
+                <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                  <span className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 rounded-lg border border-border/50">
+                    <Clock className="h-4 w-4 text-primary" />
                     {recipe.prepTime}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
+                  <span className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 rounded-lg border border-border/50">
+                    <Users className="h-4 w-4 text-primary" />
                     {recipe.servings}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <Flame className="h-4 w-4" />
+                  <span className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 rounded-lg border border-border/50">
+                    <Flame className="h-4 w-4 text-primary" />
                     {recipe.difficulty}
                   </span>
                 </div>
 
-                <div className="space-y-3">
-                  <div>
-                    <h4 className="font-semibold mb-2">Ingredientes:</h4>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                <div className="space-y-4">
+                  <div className="p-4 bg-muted/30 rounded-xl border border-border/50">
+                    <h4 className="font-semibold mb-3 text-foreground flex items-center gap-2">
+                      <ChefHat className="h-4 w-4 text-primary" />
+                      Ingredientes:
+                    </h4>
+                    <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground leading-relaxed">
                       {recipe.ingredients.map((ing: string, i: number) => (
-                        <li key={i}>{ing}</li>
+                        <li key={i} className="pl-2">{ing}</li>
                       ))}
                     </ul>
                   </div>
 
-                  <div>
-                    <h4 className="font-semibold mb-2">Modo de Preparo:</h4>
-                    <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                  <div className="p-4 bg-muted/30 rounded-xl border border-border/50">
+                    <h4 className="font-semibold mb-3 text-foreground flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-primary" />
+                      Modo de Preparo:
+                    </h4>
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground leading-relaxed">
                       {recipe.instructions.map((step: string, i: number) => (
-                        <li key={i}>{step}</li>
+                        <li key={i} className="pl-2">{step}</li>
                       ))}
                     </ol>
                   </div>
 
                   {recipe.nutritionalBenefit && (
-                    <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
-                      <p className="text-sm text-green-800 dark:text-green-200">
-                        <strong>Benefício:</strong> {recipe.nutritionalBenefit}
+                    <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-xl border-2 border-green-200 dark:border-green-800 shadow-sm animate-in fade-in slide-in-from-bottom-2">
+                      <p className="text-sm text-green-800 dark:text-green-200 leading-relaxed">
+                        <strong className="font-semibold">💚 Benefício Nutricional:</strong> {recipe.nutritionalBenefit}
+                      </p>
+                    </div>
+                  )}
+
+                  {recipe.tip && (
+                    <div className="p-4 bg-primary/5 rounded-xl border border-primary/20 shadow-sm">
+                      <p className="text-sm text-foreground leading-relaxed">
+                        <strong className="font-semibold text-primary">💡 Dica:</strong> {recipe.tip}
                       </p>
                     </div>
                   )}
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="w-full bg-transparent"
-                  onClick={() => handleSaveRecipe(index)}
-                >
-                  Salvar Receita
-                </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full bg-transparent hover:bg-primary/5 hover:border-primary/30 rounded-xl transition-all duration-300"
+                    onClick={() => handleSaveRecipe(index)}
+                  >
+                    💾 Salvar Receita
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>

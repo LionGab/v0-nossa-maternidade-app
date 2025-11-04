@@ -5,8 +5,8 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
+import { existsSync } from 'fs';
+import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -59,6 +59,31 @@ const COMMANDS = {
     description: 'Executa workflow',
     usage: 'claude-cursor workflow <nome>',
     action: runWorkflow,
+  },
+  'test:all': {
+    description: 'Executa todos os testes em paralelo',
+    usage: 'claude-cursor test:all',
+    action: runAllTests,
+  },
+  'test:priority': {
+    description: 'Executa testes de alta prioridade',
+    usage: 'claude-cursor test:priority',
+    action: runPriorityTests,
+  },
+  'test:pwa': {
+    description: 'Executa testes de PWA',
+    usage: 'claude-cursor test:pwa',
+    action: runPWATests,
+  },
+  'test:mobile': {
+    description: 'Executa testes mobile-first',
+    usage: 'claude-cursor test:mobile',
+    action: runMobileTests,
+  },
+  'test:performance': {
+    description: 'Executa testes de performance',
+    usage: 'claude-cursor test:performance',
+    action: runPerformanceTests,
   },
 };
 
@@ -308,6 +333,101 @@ async function runWorkflow(args) {
     });
   } catch (error) {
     console.error('❌ Erro ao executar workflow:', error.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Executa todos os testes em paralelo
+ */
+async function runAllTests(args) {
+  console.log('🧪 Executando todos os testes em paralelo...\n');
+
+  try {
+    execSync('node scripts/test-orchestrator.mjs run', {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf-8',
+      stdio: 'inherit',
+    });
+    console.log('\n✅ Todos os testes concluídos!');
+  } catch (error) {
+    console.error('❌ Erro ao executar testes:', error.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Executa testes de alta prioridade
+ */
+async function runPriorityTests(args) {
+  console.log('🧪 Executando testes de alta prioridade...\n');
+
+  try {
+    execSync('node scripts/test-orchestrator.mjs run --priority high', {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf-8',
+      stdio: 'inherit',
+    });
+    console.log('\n✅ Testes de alta prioridade concluídos!');
+  } catch (error) {
+    console.error('❌ Erro ao executar testes:', error.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Executa testes de PWA
+ */
+async function runPWATests(args) {
+  console.log('🧪 Executando testes de PWA...\n');
+
+  try {
+    execSync('node scripts/test-orchestrator.mjs run --filter pwa', {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf-8',
+      stdio: 'inherit',
+    });
+    console.log('\n✅ Testes de PWA concluídos!');
+  } catch (error) {
+    console.error('❌ Erro ao executar testes:', error.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Executa testes mobile-first
+ */
+async function runMobileTests(args) {
+  console.log('🧪 Executando testes mobile-first...\n');
+
+  try {
+    execSync('node scripts/test-orchestrator.mjs run --filter mobile-first', {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf-8',
+      stdio: 'inherit',
+    });
+    console.log('\n✅ Testes mobile-first concluídos!');
+  } catch (error) {
+    console.error('❌ Erro ao executar testes:', error.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Executa testes de performance
+ */
+async function runPerformanceTests(args) {
+  console.log('🧪 Executando testes de performance...\n');
+
+  try {
+    execSync('node scripts/test-orchestrator.mjs agent performance', {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf-8',
+      stdio: 'inherit',
+    });
+    console.log('\n✅ Testes de performance concluídos!');
+  } catch (error) {
+    console.error('❌ Erro ao executar testes:', error.message);
     process.exit(1);
   }
 }
