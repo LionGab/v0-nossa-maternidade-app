@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Textarea } from "@/components/ui/textarea"
+import { PageHeader } from "@/components/page-header"
+import { BottomNavigation } from "@/components/bottom-navigation"
 import { clientLogger } from "@/lib/logger-client"
 import { ChefHat, Clock, Flame, Sparkles, Users } from "lucide-react"
 import { useState } from "react"
@@ -35,44 +37,98 @@ export default function ReceitasPage() {
     setIsLoading(true)
     setError(null)
 
+    // Criar AbortController para timeout
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 segundos timeout
+
     try {
       const response = await fetch("/api/generate-recipes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ mood, preferences, ingredients }),
+        signal: controller.signal,
       })
 
+      clearTimeout(timeoutId)
+
+      // Verificar se a resposta foi recebida
       if (!response.ok) {
-        throw new Error("Erro ao gerar receitas")
+        // Tentar ler mensagem de erro da API
+        let errorMessage = "Erro ao gerar receitas"
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorData.message || errorMessage
+        } catch {
+          // Se não conseguir ler JSON, usar status
+          errorMessage = `Erro ${response.status}: ${response.statusText || "Erro ao gerar receitas"}`
+        }
+
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()
-      setRecipes(data.recipes || [])
+
+      // Validar se receitas foram retornadas
+      if (!data.recipes || !Array.isArray(data.recipes) || data.recipes.length === 0) {
+        throw new Error("Nenhuma receita foi gerada. Tente novamente com ingredientes diferentes.")
+      }
+
+      setRecipes(data.recipes)
     } catch (error) {
+      const errorObj = error as Error
+
+      // Detectar tipo de erro específico
+      let errorMessage = "Erro ao gerar receitas. Tente novamente."
+
+      if (errorObj.name === 'AbortError' || errorObj.message.includes('timeout')) {
+        errorMessage = "A requisição demorou muito. Verifique sua conexão e tente novamente."
+      } else if (
+        errorObj.message.includes('Failed to fetch') ||
+        errorObj.message.includes('ERR_INTERNET_DISCONNECTED') ||
+        errorObj.message.includes('network error') ||
+        errorObj.message.includes('NetworkError')
+      ) {
+        errorMessage = "Erro de conexão. Verifique sua internet e tente novamente."
+      } else if (errorObj.message.includes('401') || errorObj.message.includes('Não autorizado')) {
+        errorMessage = "Você precisa estar logada para gerar receitas. Faça login e tente novamente."
+      } else if (errorObj.message.includes('429') || errorObj.message.includes('rate limit')) {
+        errorMessage = "Muitas requisições. Aguarde alguns segundos e tente novamente."
+      } else if (errorObj.message) {
+        // Usar mensagem de erro da API se disponível
+        errorMessage = errorObj.message
+      }
+
       clientLogger.error("Receitas: Erro ao gerar receitas", error, {
         mood,
         hasPreferences: !!preferences,
         hasIngredients: !!ingredients,
+        errorType: errorObj.name,
+        errorMessage: errorObj.message,
       })
-      setError("Erro ao gerar receitas. Tente novamente.")
+
+      setError(errorMessage)
     } finally {
+      clearTimeout(timeoutId)
       setIsLoading(false)
     }
   }
 
+  const handleSaveRecipe = (recipeIndex: number) => {
+    // TODO: Implementar salvamento de receita
+    console.log("Salvar receita:", recipeIndex)
+    alert(`Receita salva! Em breve: salvar na sua lista de receitas favoritas.`)
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-6">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-3">
-            <ChefHat className="h-12 w-12 text-primary" />
-            <h1 className="text-4xl font-serif font-bold text-foreground">Receitas do Coração</h1>
-          </div>
-          <p className="text-lg text-warm max-w-2xl mx-auto">
-            Receitas personalizadas baseadas no seu estado emocional e ingredientes disponíveis
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+      <PageHeader
+        title="Receitas do Coração"
+        description="Receitas personalizadas com IA"
+        icon={<ChefHat className="h-5 w-5" />}
+      />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6 md:space-y-8">
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Formulário */}
@@ -204,7 +260,11 @@ export default function ReceitasPage() {
                   )}
                 </div>
 
-                <Button variant="outline" className="w-full bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full bg-transparent"
+                  onClick={() => handleSaveRecipe(index)}
+                >
                   Salvar Receita
                 </Button>
               </Card>
@@ -212,6 +272,7 @@ export default function ReceitasPage() {
           </div>
         </div>
       </div>
+      <BottomNavigation />
     </div>
   )
 }

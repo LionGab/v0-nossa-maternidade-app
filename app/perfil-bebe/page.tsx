@@ -1,15 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card } from "@/components/ui/card"
+// Forçar renderização dinâmica para evitar erro durante build
+export const dynamic = 'force-dynamic'
+
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Baby, Calendar, Heart, Ruler, Weight, Edit, Loader2, AlertCircle } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+import { PageHeader } from "@/components/page-header"
+import { BottomNavigation } from "@/components/bottom-navigation"
 import { clientLogger } from "@/lib/logger-client"
+import { createClient } from "@/lib/supabase/client"
+import { AlertCircle, Baby, Calendar, Edit, Heart, Loader2, Ruler, Weight } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 interface BabyProfile {
   id?: string
@@ -36,10 +41,11 @@ export default function PerfilBebePage() {
     gender: "feminino",
   })
 
-  const supabase = createClient()
-
   useEffect(() => {
-    loadBabyProfile()
+    // Verificar se as variáveis de ambiente estão disponíveis antes de criar o cliente
+    if (typeof window !== 'undefined') {
+      loadBabyProfile()
+    }
   }, [])
 
   const loadBabyProfile = async () => {
@@ -47,6 +53,8 @@ export default function PerfilBebePage() {
       setLoading(true)
       setError(null)
 
+      // Criar cliente apenas no client-side
+      const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
@@ -111,6 +119,8 @@ export default function PerfilBebePage() {
       setSaving(true)
       setError(null)
 
+      // Criar cliente apenas no client-side
+      const supabase = createClient()
       const profileData = {
         user_id: userId,
         name: babyData.name,
@@ -184,17 +194,31 @@ export default function PerfilBebePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Baby className="h-10 w-10 text-primary" />
-            <div>
-              <h1 className="text-4xl font-serif font-bold text-foreground">Perfil do Bebê</h1>
-              <p className="text-lg text-warm mt-1">Acompanhe o crescimento e desenvolvimento</p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+      <PageHeader
+        title="Perfil do Bebê"
+        description="Acompanhe o crescimento e desenvolvimento"
+        icon={<Baby className="h-5 w-5" />}
+      />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+        {/* Botão Editar - Mobile-first */}
+        <div className="flex justify-end md:hidden">
+          <Button
+            variant={editing ? "default" : "outline"}
+            onClick={() => editing ? handleSave() : setEditing(true)}
+            disabled={saving || !babyData.name || !babyData.birth_date}
+            size="sm"
+          >
+            {saving ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Edit className="h-4 w-4 mr-2" />
+            )}
+            {saving ? "Salvando..." : editing ? "Salvar" : "Editar"}
+          </Button>
+        </div>
+        {/* Botão Editar - Desktop */}
+        <div className="hidden md:flex justify-end">
           <Button
             variant={editing ? "default" : "outline"}
             onClick={() => editing ? handleSave() : setEditing(true)}
@@ -297,11 +321,10 @@ export default function PerfilBebePage() {
             {milestones.map((milestone) => (
               <div
                 key={milestone.id}
-                className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
-                  milestone.concluido
-                    ? "bg-green-50 border-green-200"
-                    : "bg-background"
-                }`}
+                className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${milestone.concluido
+                  ? "bg-green-50 border-green-200"
+                  : "bg-background"
+                  }`}
               >
                 <input
                   type="checkbox"
@@ -337,7 +360,14 @@ export default function PerfilBebePage() {
               </div>
               <Badge>15/12/2024</Badge>
             </div>
-            <Button variant="outline" className="w-full">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                // TODO: Implementar modal de agendamento
+                alert("Em breve: agendar consulta diretamente pelo app!")
+              }}
+            >
               Agendar Nova Consulta
             </Button>
           </div>
@@ -356,6 +386,7 @@ export default function PerfilBebePage() {
           </div>
         </Card>
       </div>
+      <BottomNavigation />
     </div>
   )
 }

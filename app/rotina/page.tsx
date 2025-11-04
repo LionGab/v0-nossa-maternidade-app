@@ -5,12 +5,14 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
+import { PageHeader } from "@/components/page-header"
+import { BottomNavigation } from "@/components/bottom-navigation"
 import { Calendar, Clock, Baby, Heart, Coffee, Moon, Sun, Utensils, Play } from "lucide-react"
 
 const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"]
 
 const horarios = [
-  "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", 
+  "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
   "12:00", "13:00", "14:00", "15:00", "16:00", "17:00",
   "18:00", "19:00", "20:00", "21:00", "22:00"
 ]
@@ -46,7 +48,7 @@ export default function RotinaPage() {
   const [diaSelecionado, setDiaSelecionado] = useState("Segunda")
 
   const toggleAtividade = (id: string) => {
-    setAtividades(atividades.map(at => 
+    setAtividades(atividades.map(at =>
       at.id === id ? { ...at, concluida: !at.concluida } : at
     ))
   }
@@ -64,19 +66,25 @@ export default function RotinaPage() {
     return categoria?.color || "bg-gray-100 text-gray-800"
   }
 
+  const handleAddActivity = () => {
+    // TODO: Implementar modal de adicionar atividade
+    alert("Em breve: adicionar nova atividade à rotina!")
+  }
+
+  const handleEditActivity = (id: string) => {
+    // TODO: Implementar edição de atividade
+    console.log("Editar atividade:", id)
+    alert(`Em breve: editar atividade ${id}!`)
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <Calendar className="h-10 w-10 text-primary" />
-            <div>
-              <h1 className="text-4xl font-serif font-bold text-foreground">Rotina Semanal</h1>
-              <p className="text-lg text-warm mt-1">Organize suas atividades e as do seu bebê</p>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+      <PageHeader
+        title="Rotina Semanal"
+        description="Organize suas atividades e as do seu bebê"
+        icon={<Calendar className="h-5 w-5" />}
+      />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
         {/* Legendas de Categorias */}
         <Card className="p-4">
@@ -122,7 +130,7 @@ export default function RotinaPage() {
               <div className="text-center py-12">
                 <Coffee className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-muted-foreground text-lg">Nenhuma atividade programada para este dia</p>
-                <Button variant="outline" className="mt-4">
+                <Button variant="outline" className="mt-4" onClick={handleAddActivity}>
                   Adicionar Atividade
                 </Button>
               </div>
@@ -133,8 +141,8 @@ export default function RotinaPage() {
                   <div
                     key={atividade.id}
                     className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
-                      atividade.concluida 
-                        ? "bg-muted/50 opacity-70" 
+                      atividade.concluida
+                        ? "bg-muted/50 opacity-70"
                         : "bg-background hover:shadow-md"
                     }`}
                   >
@@ -143,7 +151,7 @@ export default function RotinaPage() {
                       onCheckedChange={() => toggleAtividade(atividade.id)}
                       className="h-5 w-5"
                     />
-                    
+
                     <div className="flex items-center gap-2 min-w-[80px]">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium text-sm">{atividade.horario}</span>
@@ -160,7 +168,11 @@ export default function RotinaPage() {
                       </p>
                     </div>
 
-                    <Button variant="ghost" size="sm">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEditActivity(atividade.id)}
+                    >
                       Editar
                     </Button>
                   </div>
@@ -169,7 +181,11 @@ export default function RotinaPage() {
             )}
           </div>
 
-          <Button className="w-full mt-6" variant="outline">
+          <Button
+            className="w-full mt-6"
+            variant="outline"
+            onClick={handleAddActivity}
+          >
             <span className="text-lg mr-2">+</span>
             Adicionar Nova Atividade
           </Button>
@@ -188,6 +204,7 @@ export default function RotinaPage() {
           </div>
         </Card>
       </div>
+      <BottomNavigation />
     </div>
   )
 }

@@ -1,12 +1,14 @@
 "use client"
 
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Play, Heart, MessageCircle, Share2, Search, TrendingUp } from "lucide-react"
+import { PageHeader } from "@/components/page-header"
+import { BottomNavigation } from "@/components/bottom-navigation"
+import { Heart, MessageCircle, Play, Search, Share2, TrendingUp, Video } from "lucide-react"
 import Image from "next/image"
+import { useState } from "react"
 
 // Mock data dos vídeos mais virais da Nathália Valente
 const viralVideos = [
@@ -132,28 +134,48 @@ export default function MundoNathPage() {
     return matchesSearch && matchesPlatform
   })
 
+  const handlePlayVideo = (videoId: number) => {
+    // TODO: Implementar player de vídeo
+    console.log("Reproduzir vídeo:", videoId)
+    alert(`Reproduzindo vídeo ${videoId}. Em breve: player integrado!`)
+  }
+
+  const handleSaveVideo = (videoId: number) => {
+    // TODO: Implementar salvamento de vídeo
+    console.log("Salvar vídeo:", videoId)
+    alert(`Vídeo ${videoId} salvo! Em breve: salvar na sua lista.`)
+  }
+
+  const handleShareVideo = async (videoId: number, title: string) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          text: `Confira este vídeo da Nathália Valente: ${title}`,
+          url: window.location.href,
+        })
+      } catch (err) {
+        console.log("Erro ao compartilhar:", err)
+      }
+    } else {
+      // Fallback: copiar para clipboard
+      navigator.clipboard.writeText(window.location.href)
+      alert("Link copiado para a área de transferência!")
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="Nathália Valente"
-              width={80}
-              height={80}
-              className="rounded-full ring-4 ring-primary/20"
-            />
-            <div>
-              <h1 className="text-4xl font-serif font-bold text-foreground">Mundo Nath</h1>
-              <p className="text-lg text-warm mt-1">Conteúdos exclusivos da Nathália Valente</p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+      <PageHeader
+        title="Mundo Nath"
+        description="Conteúdos exclusivos da Nathália Valente"
+        icon={<Video className="h-5 w-5" />}
+      />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 md:space-y-8">
 
           <div className="flex items-center gap-4 p-4 bg-primary/5 rounded-xl border border-primary/10">
-            <TrendingUp className="h-6 w-6 text-primary" />
-            <div>
+            <TrendingUp className="h-6 w-6 text-primary flex-shrink-0" />
+            <div className="min-w-0 flex-1">
               <p className="font-semibold text-foreground">Top 10 Vídeos Mais Virais</p>
               <p className="text-sm text-muted-foreground">
                 Conteúdos que impactaram milhões de mães no TikTok e Instagram
@@ -165,30 +187,33 @@ export default function MundoNathPage() {
         {/* Filtros e Busca */}
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar vídeos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-12"
+              className="pl-10 w-full"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
               variant={selectedPlatform === "all" ? "default" : "outline"}
               onClick={() => setSelectedPlatform("all")}
+              className="flex-1 sm:flex-initial"
             >
               Todos
             </Button>
             <Button
               variant={selectedPlatform === "TikTok" ? "default" : "outline"}
               onClick={() => setSelectedPlatform("TikTok")}
+              className="flex-1 sm:flex-initial"
             >
               TikTok
             </Button>
             <Button
               variant={selectedPlatform === "Instagram" ? "default" : "outline"}
               onClick={() => setSelectedPlatform("Instagram")}
+              className="flex-1 sm:flex-initial"
             >
               Instagram
             </Button>
@@ -196,71 +221,100 @@ export default function MundoNathPage() {
         </div>
 
         {/* Grid de Vídeos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredVideos.map((video) => (
-            <Card key={video.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300">
-              <div className="relative aspect-video bg-muted">
-                <Image src={video.thumbnail || "/placeholder.svg"} alt={video.title} fill className="object-cover" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Button size="lg" className="rounded-full">
-                    <Play className="h-6 w-6 mr-2" />
-                    Assistir
-                  </Button>
-                </div>
-                <div className="absolute top-3 left-3 flex gap-2">
-                  {video.isNew && <Badge className="bg-primary text-primary-foreground">Novo</Badge>}
-                  <Badge variant="secondary" className="bg-black/60 text-white">
-                    {video.duration}
+        {filteredVideos.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {filteredVideos.map((video) => (
+              <Card
+                key={video.id}
+                className="overflow-hidden group hover:shadow-xl transition-all duration-300 flex flex-col"
+              >
+                {/* Container da imagem com position relative e aspect-video para garantir visibilidade */}
+                <div className="relative w-full aspect-video bg-muted overflow-hidden">
+                  <Image
+                    src={video.thumbnail || "/placeholder.svg"}
+                    alt={video.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover"
+                    priority={video.id <= 3}
+                  />
+                  {/* Overlay no hover/touch */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 md:group-hover:opacity-100 active:opacity-100 transition-opacity flex items-center justify-center z-10">
+                    <Button
+                      size="lg"
+                      className="rounded-full"
+                      onClick={() => handlePlayVideo(video.id)}
+                    >
+                      <Play className="h-6 w-6 mr-2" />
+                      Assistir
+                    </Button>
+                  </div>
+                  {/* Badges no topo */}
+                  <div className="absolute top-3 left-3 flex gap-2 z-20">
+                    {video.isNew && <Badge className="bg-primary text-primary-foreground">Novo</Badge>}
+                    <Badge variant="secondary" className="bg-black/60 text-white backdrop-blur-sm">
+                      {video.duration}
+                    </Badge>
+                  </div>
+                  <Badge
+                    variant="secondary"
+                    className="absolute top-3 right-3 bg-black/60 text-white backdrop-blur-sm z-20"
+                  >
+                    {video.platform}
                   </Badge>
                 </div>
-                <Badge variant="secondary" className="absolute top-3 right-3 bg-black/60 text-white">
-                  {video.platform}
-                </Badge>
-              </div>
 
-              <div className="p-4 space-y-3">
-                <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors">
-                  {video.title}
-                </h3>
-
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <div className="flex items-center gap-4">
-                    <span className="flex items-center gap-1">
+                {/* Conteúdo do card */}
+                <div className="p-4 space-y-3 flex-1 flex flex-col">
+                  <h3 className="font-semibold text-base sm:text-lg line-clamp-2 group-hover:text-primary transition-colors flex-shrink-0">
+                    {video.title}
+                  </h3>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                    <div className="flex items-center gap-1">
                       <Play className="h-4 w-4" />
-                      {video.views}
-                    </span>
-                    <span className="flex items-center gap-1">
+                      <span>{video.views}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
                       <Heart className="h-4 w-4" />
-                      {video.likes}
-                    </span>
-                    <span className="flex items-center gap-1">
+                      <span>{video.likes}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
                       <MessageCircle className="h-4 w-4" />
-                      {video.comments}
-                    </span>
+                      <span>{video.comments}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 pt-2 border-t">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleSaveVideo(video.id)}
+                    >
+                      <Heart className="h-4 w-4 mr-2" />
+                      Salvar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleShareVideo(video.id, video.title)}
+                    >
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Compartilhar
+                    </Button>
                   </div>
                 </div>
-
-                <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                    <Heart className="h-4 w-4 mr-1" />
-                    Salvar
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                    <Share2 className="h-4 w-4 mr-1" />
-                    Compartilhar
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        {filteredVideos.length === 0 && (
+              </Card>
+            ))}
+          </div>
+        ) : (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">Nenhum vídeo encontrado com esses filtros.</p>
+            <p className="text-muted-foreground text-lg">Nenhum vídeo encontrado</p>
+            <p className="text-sm text-muted-foreground mt-2">Tente ajustar os filtros de busca</p>
           </div>
         )}
       </div>
+      <BottomNavigation />
     </div>
   )
 }
