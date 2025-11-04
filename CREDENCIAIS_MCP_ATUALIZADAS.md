@@ -86,12 +86,14 @@ BRAVE_API_KEY=sua_chave_brave_aqui
 ## 📝 Credenciais já configuradas no projeto
 
 ### **Perplexity** (já tem)
-- **API_KEY**: `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`
+- **API_KEY**: `pplx-***` (configurado no `.env.local`)
 - **Uso**: Via `fetch` MCP durante automação noturna
+- **⚠️ IMPORTANTE:** Credenciais não devem ser expostas em arquivos de documentação
 
 ### **Google AI (Gemini)** (já tem)
-- **API_KEY**: `AIzaSyC9YVWRmnGyGu4c9y7g-mNkkipDqb5JBZg`
+- **API_KEY**: `AIza***` (configurado no `.env.local`)
 - **Uso**: Já integrado no projeto via Google AI SDK
+- **⚠️ IMPORTANTE:** Credenciais não devem ser expostas em arquivos de documentação
 
 ---
 

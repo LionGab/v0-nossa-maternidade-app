@@ -8,14 +8,16 @@
 - **SERVICE_ROLE_KEY**: Configurado no `mcp.json`
 
 ### ✅ **Perplexity** (Fornecido)
-- **API_KEY**: `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`
+- **API_KEY**: `pplx-***` (configurado no `.env.local`)
 - **Status**: ✅ Configurado no projeto
 - **Uso**: Pesquisa e notícias maternais
+- **⚠️ IMPORTANTE:** Credenciais não devem ser expostas em arquivos de documentação
 
 ### ✅ **Google AI (Gemini)** (Fornecido)
-- **API_KEY**: `AIzaSyC9YVWRmnGyGu4c9y7g-mNkkipDqb5JBZg`
+- **API_KEY**: `AIza***` (configurado no `.env.local`)
 - **Status**: ✅ Configurado no projeto
 - **Uso**: Análise contextual e enriquecimento
+- **⚠️ IMPORTANTE:** Credenciais não devem ser expostas em arquivos de documentação
 
 ---
 

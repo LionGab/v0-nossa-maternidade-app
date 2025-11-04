@@ -19,7 +19,11 @@
       "Bash(npx netlify:*)",
       "Bash(git add:*)",
       "Bash(dir:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(ffmpeg:*)",
+      "Bash(Select-String -Pattern \"frame=|error|Error\")",
+      "Bash(powershell -Command \"if (-not (Test-Path ''C:\\Users\\Usuario\\Downloads\\frames_video1'')) { New-Item -ItemType Directory -Path ''C:\\Users\\Usuario\\Downloads\\frames_video1'' -Force | Out-Null }; if (-not (Test-Path ''C:\\Users\\Usuario\\Downloads\\frames_video2'')) { New-Item -ItemType Directory -Path ''C:\\Users\\Usuario\\Downloads\\frames_video2'' -Force | Out-Null }; Get-Command ffmpeg -ErrorAction SilentlyContinue\")",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []
