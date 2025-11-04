@@ -1,8 +1,8 @@
-import type React from "react"
-import type { Metadata, Viewport } from "next"
-import "./globals.css"
 import { SWRProvider } from "@/components/providers/swr-provider"
+import type { Metadata, Viewport } from "next"
+import type React from "react"
 import { Toaster } from "sonner"
+import "./globals.css"
 
 export const metadata: Metadata = {
   title: "Nossa Maternidade - Seu espaço de apoio maternal",
