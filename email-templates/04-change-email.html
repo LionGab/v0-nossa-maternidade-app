@@ -1,0 +1,118 @@
+<!--
+  📧 TEMPLATE: Alterar Endereço de Email
+  Usado quando: Usuária solicita mudança de email
+  Variável Supabase: {{ .ConfirmationURL }} e {{ .NewEmail }}
+-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Confirme seu novo email - Nossa Maternidade</title>
+    <!--[if mso]>
+    <style type="text/css">
+        table {border-collapse:collapse;border-spacing:0;margin:0;}
+        div, td {padding:0;}
+        div {margin:0 !important;}
+    </style>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #FAF9F6; line-height: 1.6;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #FAF9F6;">
+        <tr>
+            <td style="padding: 40px 20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #E89A72 0%, #F2B896 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #FFFFFF; font-size: 28px; font-weight: 600; letter-spacing: -0.5px;">
+                                📧 Novo Email
+                            </h1>
+                            <p style="margin: 12px 0 0; color: #FFFFFF; font-size: 16px; opacity: 0.95;">
+                                Vamos atualizar seu cadastro
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Conteúdo -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="margin: 0 0 20px; color: #2C2C2C; font-size: 17px; line-height: 1.7;">
+                                Olá! 💌
+                            </p>
+                            <p style="margin: 0 0 20px; color: #2C2C2C; font-size: 17px; line-height: 1.7;">
+                                Recebemos uma solicitação para alterar o email da sua conta no <strong>Nossa Maternidade</strong>.
+                            </p>
+
+                            <!-- Novo email em destaque -->
+                            <div style="background-color: #FAF9F6; border: 2px solid #E89A72; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
+                                <p style="margin: 0 0 8px; color: #6B6560; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Seu novo email será:
+                                </p>
+                                <p style="margin: 0; color: #2C2C2C; font-size: 19px; font-weight: 600; word-break: break-all;">
+                                    {{ .NewEmail }}
+                                </p>
+                            </div>
+
+                            <p style="margin: 20px 0 30px; color: #2C2C2C; font-size: 17px; line-height: 1.7;">
+                                Para confirmar esta alteração, clique no botão abaixo:
+                            </p>
+
+                            <!-- Botão -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="text-align: center; padding: 10px 0 30px;">
+                                        <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 16px 32px; background-color: #E89A72; color: #FFFFFF; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 16px; letter-spacing: 0.3px; box-shadow: 0 2px 8px rgba(232, 154, 114, 0.3);">
+                                            Confirmar novo email ✅
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Link alternativo -->
+                            <p style="margin: 0 0 10px; color: #6B6560; font-size: 15px; text-align: center;">
+                                Ou copie e cole este link:
+                            </p>
+                            <p style="margin: 0 0 30px; color: #6B6560; font-size: 13px; word-break: break-all; text-align: center; padding: 0 10px;">
+                                {{ .ConfirmationURL }}
+                            </p>
+
+                            <!-- Aviso importante -->
+                            <div style="background-color: #FFF0E8; border-left: 4px solid #E07A5F; padding: 20px; border-radius: 8px; margin: 30px 0;">
+                                <p style="margin: 0 0 12px; color: #2C2C2C; font-size: 15px; line-height: 1.6;">
+                                    <strong style="color: #E07A5F;">⚠️ Importante:</strong>
+                                </p>
+                                <ul style="margin: 0; padding-left: 20px; color: #2C2C2C; font-size: 15px; line-height: 1.6;">
+                                    <li style="margin-bottom: 8px;">Este link expira em 24 horas</li>
+                                    <li style="margin-bottom: 8px;">Após confirmar, use o novo email para fazer login</li>
+                                    <li>Você receberá uma notificação no email antigo também</li>
+                                </ul>
+                            </div>
+
+                            <p style="margin: 30px 0 0; color: #6B6560; font-size: 15px; line-height: 1.6;">
+                                Qualquer dúvida, estamos aqui! 💚<br>
+                                <strong style="color: #E89A72;">Equipe Nossa Maternidade</strong>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #FAF9F6; padding: 30px; text-align: center; border-top: 1px solid #E5E5E5;">
+                            <p style="margin: 0 0 10px; color: #A8A8A8; font-size: 13px;">
+                                Se você não solicitou esta alteração, entre em contato conosco imediatamente. Alguém pode estar tentando acessar sua conta.
+                            </p>
+                            <p style="margin: 0; color: #A8A8A8; font-size: 13px;">
+                                © 2025 Nossa Maternidade. Todos os direitos reservados.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
