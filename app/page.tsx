@@ -1,6 +1,6 @@
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import Link from "next/link"
 
 export default function HomePage() {
   return (
@@ -72,7 +72,9 @@ export default function HomePage() {
           </div>
 
           <div className="p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-md card-hover border border-border/50">
-            <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mb-6 text-3xl">✨</div>
+            <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mb-6 text-3xl">
+              ✨
+            </div>
             <h3 className="text-xl font-semibold mb-3 text-foreground">Conteúdo Exclusivo</h3>
             <p className="text-warm text-base leading-relaxed">
               Acesso a dicas, receitas e estratégias da Nathalia Valente para sua jornada
@@ -98,7 +100,7 @@ export default function HomePage() {
 
             <div className="text-center space-y-3">
               <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mx-auto text-2xl">
-                👥
+                💚
               </div>
               <h3 className="font-semibold text-lg">Comunidade Acolhedora</h3>
               <p className="text-sm text-warm">Milhares de mães compartilhando experiências</p>
