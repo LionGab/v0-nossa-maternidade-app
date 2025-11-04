@@ -1,6 +1,36 @@
 # 🔒 Correções de Segurança - copilot-executor.ps1
 
-## ⚡ Quick Start
+## 🚀 Quick Start
+
+### **Validação Rápida (30 segundos)**
+
+```powershell
+# 1. Teste básico - deve FUNCIONAR
+.\scripts\copilot-executor.ps1 -Prompt "analyze app/page.tsx"
+
+# 2. Teste de segurança - deve BLOQUEAR
+.\scripts\copilot-executor.ps1 -Prompt "delete app/test.ts"
+
+# 3. Verificar status
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "✅ Segurança OK" -ForegroundColor Green
+} else {
+    Write-Host "❌ Bloqueio funcionou" -ForegroundColor Red
+}
+```
+
+### **Uso Típico**
+
+```powershell
+# Análise com JSON output
+$result = .\scripts\copilot-executor.ps1 `
+    -Prompt "suggest improvements for components/Button.tsx" `
+    -JsonOutput | ConvertFrom-Json
+
+if ($result.success) {
+    $result.output | Write-Host
+}
+```
 
 **Antes de usar, leia:**
 - ✅ Sistema é **somente leitura** - não modifica arquivos
@@ -8,13 +38,31 @@
 - ✅ Fail-fast: para imediatamente se detectar violação
 - ⚠️ **Limitações:** Validação de prompt não é 100% garantida (veja seção de limitações)
 
-**Uso seguro:**
-```powershell
-# ✅ PERMITIDO: Análise de código
-.\scripts\copilot-executor.ps1 -Prompt "analyze app/page.tsx for issues"
+---
 
-# ❌ BLOQUEADO: Comandos perigosos
-.\scripts\copilot-executor.ps1 -Prompt "delete app/file.ts"  # ERRO: Comando perigoso
+## 📋 Checklist de Validação Rápida
+
+Use este checklist antes de cada execução crítica:
+
+- [ ] ✅ GitHub CLI instalado (`gh --version`)
+- [ ] ✅ Copilot CLI configurado (`gh copilot --version`)
+- [ ] ✅ Prompt não contém comandos de escrita
+- [ ] ✅ Paths estão em diretórios permitidos
+- [ ] ✅ Timeout apropriado configurado (padrão: 300s)
+- [ ] ✅ Output será revisado antes de aplicar
+
+```powershell
+# Validação automática
+$checks = @{
+    "GitHub CLI" = { gh --version 2>&1 | Out-Null; $? }
+    "Copilot CLI" = { gh copilot --version 2>&1 | Out-Null; $? }
+    "Script existe" = { Test-Path ".\scripts\copilot-executor.ps1" }
+}
+
+$checks.GetEnumerator() | ForEach-Object {
+    $status = if (& $_.Value) { "✅" } else { "❌" }
+    Write-Host "$status $($_.Key)"
+}
 ```
 
 ---

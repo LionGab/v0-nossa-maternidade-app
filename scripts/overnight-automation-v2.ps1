@@ -304,7 +304,23 @@ else {
             $copilotScript = Join-Path $PSScriptRoot "copilot-executor.ps1"
 
             if (Test-Path $copilotScript) {
-                $copilotPrompt = "Analise o código deste projeto e identifique: 1) Problemas de qualidade (bugs, code smells) 2) Oportunidades de melhoria 3) Problemas de segurança 4) Violações de boas práticas 5) Sugestões de refatoração"
+                # Carregar prompt otimizado do arquivo
+                $promptFile = Join-Path $PSScriptRoot "prompts" "overnight-analysis-copilot.md"
+                if (Test-Path $promptFile) {
+                    $promptContent = Get-Content $promptFile -Raw -Encoding UTF8
+                    # Extrair apenas o prompt (entre ```)
+                    if ($promptContent -match '```[\s\S]*?```') {
+                        $copilotPrompt = $matches[0] -replace '```', '' -replace '```', '' -replace '^[\s\r\n]*', '' -replace '[\s\r\n]*$', ''
+                    }
+                    else {
+                        # Fallback para prompt simples se não encontrar o formato
+                        $copilotPrompt = "Analise o código deste projeto e identifique: 1) Problemas de qualidade (bugs, code smells) 2) Oportunidades de melhoria 3) Problemas de segurança 4) Violações de boas práticas 5) Sugestões de refatoração. Retorne APENAS JSON válido no formato especificado."
+                    }
+                }
+                else {
+                    # Fallback para prompt simples
+                    $copilotPrompt = "Analise o código deste projeto e identifique: 1) Problemas de qualidade (bugs, code smells) 2) Oportunidades de melhoria 3) Problemas de segurança 4) Violações de boas práticas 5) Sugestões de refatoração. Retorne APENAS JSON válido no formato especificado."
+                }
 
                 $copilotOutputPath = Join-Path $ReportDir "copilot" "analysis-$TimeStamp.json"
                 $copilotOutputDir = Split-Path $copilotOutputPath -Parent
@@ -553,6 +569,22 @@ Write-Log "Log completo em: $LogFile"
 $resultPath = Join-Path $ReportDir "execution-result-$TimeStamp.json"
 $Result.duration = $TotalDuration.TotalSeconds
 $Result | ConvertTo-Json -Depth 10 | Out-File -FilePath $resultPath -Encoding UTF8
+Write-Log "Resultado salvo em: $resultPath"
+
+# Exit code
+if ($Result.overallStatus -eq "success") {
+    Write-Log "✅ Automação concluída com sucesso!" "SUCCESS"
+    exit 0
+}
+elseif ($Result.overallStatus -eq "partial") {
+    Write-Log "⚠️ Automação concluída com avisos" "WARN"
+    exit 1
+}
+else {
+    Write-Log "❌ Automação concluída com erros" "ERROR"
+    exit 1
+}
+
 Write-Log "Resultado salvo em: $resultPath"
 
 # Exit code

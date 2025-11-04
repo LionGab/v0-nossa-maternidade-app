@@ -17,7 +17,7 @@ $ProjectRoot = Join-Path $PSScriptRoot ".."
 $StartTime = Get-Date
 
 # CAMADA 1 - Validação de Path (segurança)
-function Validate-Path {
+function Test-PathInRepository {
     param([string]$Path)
 
     try {
@@ -49,7 +49,7 @@ function Validate-Path {
 $AllowedDirectories = @('app', 'components', 'lib', 'hooks', 'scripts')
 
 # Função para validar se path está em diretório permitido
-function Validate-AllowedDirectory {
+function Test-AllowedDirectory {
     param([string]$Path)
 
     $relativePath = $Path.Replace($ProjectRoot, '').TrimStart('\', '/')
@@ -64,7 +64,7 @@ function Validate-AllowedDirectory {
 }
 
 # Função para extrair paths do prompt e validar
-function Validate-PathsInPrompt {
+function Test-PathsInPrompt {
     param([string]$PromptText)
 
     # Padrões para encontrar paths no prompt
@@ -76,18 +76,18 @@ function Validate-PathsInPrompt {
     )
 
     foreach ($pattern in $pathPatterns) {
-        $matches = [regex]::Matches($PromptText, $pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+        $pathMatches = [regex]::Matches($PromptText, $pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
 
-        foreach ($match in $matches) {
+        foreach ($match in $pathMatches) {
             $foundPath = $match.Groups[1].Value.Trim('"', "'", '`')
 
             # Validar path
-            if (-not (Validate-Path -Path $foundPath)) {
+            if (-not (Test-PathInRepository -Path $foundPath)) {
                 return $false
             }
 
             # Validar diretório permitido
-            if (-not (Validate-AllowedDirectory -Path $foundPath)) {
+            if (-not (Test-AllowedDirectory -Path $foundPath)) {
                 return $false
             }
         }
@@ -122,7 +122,7 @@ function Write-Log {
 
 # Validar GitHub CLI
 try {
-    $ghCheck = gh --version 2>&1
+    $null = gh --version 2>&1
     if ($LASTEXITCODE -ne 0) {
         throw "GitHub CLI não encontrado"
     }
@@ -139,7 +139,7 @@ catch {
 
 # Validar Copilot CLI
 try {
-    $copilotCheck = gh copilot --version 2>&1
+    $null = gh copilot --version 2>&1
     if ($LASTEXITCODE -ne 0) {
         throw "Copilot CLI não configurado"
     }
@@ -159,7 +159,7 @@ Write-Log "Prompt: $Prompt" "INFO"
 
 # CAMADA 4 - Adicionar instruções de segurança ao prompt
 # NOTA: Estas instruções são reforço, mas a segurança real vem das camadas 1-3
-$SecurePrompt = @"
+$securePromptText = @"
 Você é um analisador de código SOMENTE LEITURA.
 
 REGRAS DE SEGURANÇA OBRIGATÓRIAS (TECNICAMENTE ENFORCABLES):
@@ -179,7 +179,7 @@ Todas as tentativas de modificação serão bloqueadas por validações técnica
 
 # CAMADA 1 - Validar paths no prompt ANTES de executar
 Write-Log "Validando paths no prompt..." "INFO"
-if (-not (Validate-PathsInPrompt -PromptText $Prompt)) {
+if (-not (Test-PathsInPrompt -PromptText $Prompt)) {
     $Result.error = "ERRO DE SEGURANCA: Prompt contem paths invalidos ou fora de diretorios permitidos"
     Write-Log $Result.error "ERROR"
 
@@ -222,7 +222,7 @@ function Test-DangerousCommand {
     # Exemplo: "wri" + "te" = "write"
     $concatenatedPatterns = @(
         '\b(wri\s*\+\s*te|del\s*\+\s*ete|rm\s*\+\s*dir)\b',
-        '\w+\s*\+\s*[\'"](te|ete|dir|lete)[\'"]'
+        '\w+\s*\+\s*["''](te|ete|dir|lete)["'']'
     )
 
     foreach ($pattern in $concatenatedPatterns) {
@@ -235,8 +235,9 @@ function Test-DangerousCommand {
     return $false
 }
 
-# Validar prompt original e prompt seguro
-if ((Test-DangerousCommand -Text $Prompt) -or (Test-DangerousCommand -Text $SecurePrompt)) {
+# Validar prompt original
+$promptValid = Test-DangerousCommand -Text $Prompt
+if ($promptValid) {
     $Result.error = "ERRO DE SEGURANCA: Prompt contem comandos perigosos"
     Write-Log $Result.error "ERROR"
 
@@ -257,7 +258,7 @@ $job = Start-Job -ScriptBlock {
         output   = $output
         exitCode = $LASTEXITCODE
     }
-} -ArgumentList $SecurePrompt
+} -ArgumentList $securePromptText
 
 # Aguardar com timeout
 $completed = $job | Wait-Job -Timeout $TimeoutSeconds
@@ -285,9 +286,77 @@ $Result.executionTime = (Get-Date) - $StartTime
 
 # Processar output
 if ($jobResult.exitCode -eq 0) {
-    $Result.success = $true
-    $Result.output = $jobResult.output | Out-String
+    $rawOutput = $jobResult.output | Out-String
 
+    # Validar JSON (se o output parece ser JSON)
+    $jsonValid = $false
+    $parsedJson = $null
+
+    try {
+        # Tentar extrair JSON do output (pode ter markdown antes/depois)
+        $jsonPattern = '\{[\s\S]*?\}'
+        $jsonMatch = [regex]::Match($rawOutput, $jsonPattern, [System.Text.RegularExpressions.RegexOptions]::Singleline)
+        if ($jsonMatch.Success) {
+            $jsonContent = $jsonMatch.Groups[0].Value
+            $parsedJson = $jsonContent | ConvertFrom-Json -ErrorAction Stop
+            $jsonValid = $true
+        }
+        else {
+            # Tentar parsear o output inteiro como JSON
+            $parsedJson = $rawOutput | ConvertFrom-Json -ErrorAction Stop
+            $jsonValid = $true
+        }
+    }
+    catch {
+        # Não é JSON válido, mas continuar com output raw
+        $jsonValid = $false
+    }
+
+    # Validar schema se for JSON
+    if ($jsonValid -and $parsedJson) {
+        $schemaValid = $true
+        $schemaErrors = @()
+
+        # Verificar estrutura básica
+        if (-not $parsedJson.analysis) {
+            $schemaValid = $false
+            $schemaErrors += "Campo 'analysis' faltando"
+        }
+        else {
+            # Verificar campos obrigatórios em analysis
+            $requiredFields = @('quality_issues', 'security_issues', 'best_practices_violations', 'improvements', 'testing_issues')
+            foreach ($field in $requiredFields) {
+                if (-not $parsedJson.analysis.PSObject.Properties.Name -contains $field) {
+                    $schemaValid = $false
+                    $schemaErrors += "Campo 'analysis.$field' faltando"
+                }
+            }
+        }
+
+        if (-not $parsedJson.summary) {
+            $schemaValid = $false
+            $schemaErrors += "Campo 'summary' faltando"
+        }
+
+        if ($schemaValid) {
+            Write-Log "JSON válido e schema correto" "SUCCESS"
+            $Result.output = $parsedJson | ConvertTo-Json -Depth 10
+            $Result.outputValidated = $true
+        }
+        else {
+            Write-Log "JSON inválido: $($schemaErrors -join ', ')" "WARN"
+            $Result.output = $rawOutput
+            $Result.outputValidated = $false
+            $Result.schemaErrors = $schemaErrors
+        }
+    }
+    else {
+        Write-Log "Output não é JSON válido, salvando como texto" "WARN"
+        $Result.output = $rawOutput
+        $Result.outputValidated = $false
+    }
+
+    $Result.success = $true
     Write-Log "Comando executado com sucesso" "SUCCESS"
     Write-Log "Tempo de execução: $($Result.executionTime.TotalSeconds)s" "INFO"
 }
