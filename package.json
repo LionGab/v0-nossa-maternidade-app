@@ -13,7 +13,12 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "optimize:images": "node scripts/optimize-images.mjs"
+    "optimize:images": "node scripts/optimize-images.mjs",
+    "orchestrate": "node scripts/claude-cursor.mjs",
+    "orchestrate:status": "powershell -ExecutionPolicy Bypass -File scripts/orchestrator.ps1 status",
+    "orchestrate:workflows": "powershell -ExecutionPolicy Bypass -File scripts/orchestrator.ps1 workflows",
+    "orchestrate:validate": "node scripts/orchestrator.mjs validate",
+    "setup:workflows": "node scripts/orchestrator.mjs validate"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "latest",
