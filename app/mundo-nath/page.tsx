@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Heart, MessageCircle, Play, Search, Share2, TrendingUp, Video } from "lucide-react"
+import { Heart, MessageCircle, Play, Search, Share2, TrendingUp, Video, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
+import { toast } from "sonner"
 
 // Mock data dos vídeos mais virais da Nathália Valente
 // Apenas vídeos com URLs reais específicas são incluídos
@@ -139,6 +140,7 @@ export default function MundoNathPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedPlatform, setSelectedPlatform] = useState<"all" | "TikTok" | "Instagram">("all")
   const [selectedVideo, setSelectedVideo] = useState<number | null>(null)
+  const [savingVideoId, setSavingVideoId] = useState<number | null>(null)
 
   const filteredVideos = viralVideos.filter((video) => {
     const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -161,10 +163,58 @@ export default function MundoNathPage() {
     setSelectedVideo(null)
   }
 
-  const handleSaveVideo = (videoId: number) => {
-    // TODO: Implementar salvamento de vídeo
-    console.log("Salvar vídeo:", videoId)
-    alert(`Vídeo ${videoId} salvo! Em breve: salvar na sua lista.`)
+  const handleSaveVideo = async (videoId: number, event?: React.MouseEvent) => {
+    // Prevenir propagação do evento de clique do card
+    if (event) {
+      event.stopPropagation()
+    }
+
+    const video = viralVideos.find((v) => v.id === videoId)
+    if (!video) return
+
+    setSavingVideoId(videoId)
+
+    try {
+      const response = await fetch("/api/videos/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          videoId: video.id,
+          videoTitle: video.title,
+          videoDescription: null,
+          videoUrl: video.url,
+          videoThumbnailUrl: video.thumbnail,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao salvar vídeo")
+      }
+
+      if (data.saved) {
+        toast.success("Vídeo já estava salvo! 💚", {
+          description: video.title,
+          duration: 3000,
+        })
+      } else {
+        toast.success("Vídeo salvo com sucesso! 💚", {
+          description: `"${video.title}" foi adicionado à sua coleção`,
+          duration: 4000,
+        })
+      }
+    } catch (error) {
+      console.error("Error saving video:", error)
+      toast.error("Erro ao salvar vídeo", {
+        description: error instanceof Error ? error.message : "Tente novamente mais tarde",
+        duration: 5000,
+      })
+    } finally {
+      setSavingVideoId(null)
+    }
   }
 
   const handleShareVideo = async (videoId: number, title: string) => {
@@ -325,12 +375,21 @@ export default function MundoNathPage() {
                       className="flex-1 text-xs sm:text-sm px-2 sm:px-4"
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleSaveVideo(video.id)
+                        handleSaveVideo(video.id, e)
                       }}
+                      disabled={savingVideoId === video.id}
                     >
-                      <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                      <span className="hidden sm:inline">Salvar</span>
-                      <span className="sm:hidden">Salvar</span>
+                      {savingVideoId === video.id ? (
+                        <>
+                          <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 animate-spin" />
+                          <span>Salvando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                          <span>Salvar</span>
+                        </>
+                      )}
                     </Button>
                     <Button
                       variant="outline"

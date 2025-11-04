@@ -1,21 +1,28 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { Card } from "@/components/ui/card"
+import { BottomNavigation } from "@/components/bottom-navigation"
+import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { PageHeader } from "@/components/page-header"
-import { BottomNavigation } from "@/components/bottom-navigation"
-import { Sparkles, Send, Loader2, Heart, Brain, Smile } from "lucide-react"
-import { Avatar } from "@/components/ui/avatar"
 import { clientLogger } from "@/lib/logger-client"
+import { Brain, Heart, Loader2, Send, Sparkles, Search, TrendingUp, BookOpen } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 type Message = {
   id: string
   role: "user" | "assistant"
   content: string
   timestamp: Date
+  provider?: string
+  queryType?: string
+  metadata?: {
+    reason?: string
+    responseTime?: number
+    tokens?: number
+    cost?: number
+    metricId?: string
+  }
 }
 
 const suggestedQuestions = [
@@ -83,12 +90,12 @@ export default function ChatPage() {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 20000)
 
-      const response = await fetch("/api/multi-ai/chat", {
+      const response = await fetch("/api/ai/smart-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: apiMessages,
-          useEmpatheticMode: false
+          preferredMode: "auto",
         }),
         signal: controller.signal,
       })
@@ -96,41 +103,22 @@ export default function ChatPage() {
       clearTimeout(timeoutId)
 
       if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(errorText || "Erro ao enviar mensagem")
+        const errorData = await response.json().catch(() => ({ error: "Erro desconhecido" }))
+        throw new Error(errorData.error || "Erro ao enviar mensagem")
       }
 
-      // A API retorna um stream, não JSON
-      const reader = response.body?.getReader()
-      if (!reader) {
-        throw new Error("Resposta vazia do servidor")
-      }
+      // A API smart-chat retorna JSON
+      const data = await response.json()
 
-      const decoder = new TextDecoder()
-      let assistantMessageContent = ""
-      const messageId = (Date.now() + 1).toString()
-
-      // Iniciar streaming visual
-      setStreamingMessageId(messageId)
-      setStreamingMessage("")
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const chunk = decoder.decode(value, { stream: true })
-        assistantMessageContent += chunk
-
-        // Atualizar mensagem em tempo real para streaming visual
-        setStreamingMessage(assistantMessageContent)
-      }
-
-      // Finalizar: adicionar mensagem completa e limpar streaming
       const assistantMessage: Message = {
-        id: messageId,
+        id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: assistantMessageContent || "Desculpe, não consegui processar sua mensagem. Tente novamente.",
+        content: data.answer || "Desculpe, não consegui processar sua mensagem. Tente novamente.",
         timestamp: new Date(),
+        // Adicionar metadata do provider
+        provider: data.provider,
+        queryType: data.queryType,
+        metadata: data.metadata,
       }
 
       setStreamingMessage(null)
@@ -171,6 +159,25 @@ export default function ChatPage() {
     sendMessage(question)
   }
 
+  const handleFeedback = async (metricId: string, rating: 1 | 0) => {
+    try {
+      const response = await fetch("/api/ai/analytics/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          metricId,
+          rating: rating === 1 ? 5 : 1, // 5 = útil, 1 = não útil
+        }),
+      })
+
+      if (response.ok) {
+        clientLogger.info("Feedback enviado", { metricId, rating })
+      }
+    } catch (error) {
+      clientLogger.error("Erro ao enviar feedback", error)
+    }
+  }
+
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-background via-background to-secondary/5 pb-20 md:pb-0">
       <PageHeader
@@ -194,21 +201,55 @@ export default function ChatPage() {
               )}
 
               <div
-                className={`max-w-[75%] rounded-2xl p-4 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300 ${
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground shadow-primary/20"
-                    : "bg-muted/80 backdrop-blur-sm border border-border/50"
-                }`}
+                className={`max-w-[75%] rounded-2xl p-4 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300 ${message.role === "user"
+                  ? "bg-primary text-primary-foreground shadow-primary/20"
+                  : "bg-muted/80 backdrop-blur-sm border border-border/50"
+                  }`}
               >
+                {message.role === "assistant" && message.provider && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="outline" className="text-xs">
+                      {message.provider === "claude" && <Brain className="h-3 w-3 mr-1" />}
+                      {message.provider === "gpt4" && <Sparkles className="h-3 w-3 mr-1" />}
+                      {message.provider === "gemini" && <Search className="h-3 w-3 mr-1" />}
+                      {message.provider === "grok" && <TrendingUp className="h-3 w-3 mr-1" />}
+                      {message.provider === "perplexity" && <BookOpen className="h-3 w-3 mr-1" />}
+                      {message.provider === "claude" && "Claude"}
+                      {message.provider === "gpt4" && "GPT-4"}
+                      {message.provider === "gemini" && "Gemini"}
+                      {message.provider === "grok" && "Grok"}
+                      {message.provider === "perplexity" && "Perplexity"}
+                    </Badge>
+                  </div>
+                )}
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                <p className={`text-xs mt-2 opacity-70 ${
-                  message.role === "user" ? "text-primary-foreground/70" : "text-muted-foreground"
-                }`}>
-                  {message.timestamp.toLocaleTimeString("pt-BR", {
-                    hour: "2-digit",
-                    minute: "2-digit"
-                  })}
-                </p>
+                <div className="flex items-center justify-between mt-2">
+                  <p className={`text-xs opacity-70 ${message.role === "user" ? "text-primary-foreground/70" : "text-muted-foreground"
+                    }`}>
+                    {message.timestamp.toLocaleTimeString("pt-BR", {
+                      hour: "2-digit",
+                      minute: "2-digit"
+                    })}
+                  </p>
+                  {message.role === "assistant" && message.metadata?.metricId && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleFeedback(message.metadata!.metricId!, 1)}
+                        className="text-xs text-muted-foreground hover:text-primary"
+                        title="Útil"
+                      >
+                        👍
+                      </button>
+                      <button
+                        onClick={() => handleFeedback(message.metadata!.metricId!, 0)}
+                        className="text-xs text-muted-foreground hover:text-destructive"
+                        title="Não útil"
+                      >
+                        👎
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {message.role === "user" && (

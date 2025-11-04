@@ -125,6 +125,7 @@
     "eslint": "^9.17.0",
     "eslint-config-next": "^16.0.1",
     "jsdom": "^25.0.1",
+    "supabase": "^2.54.11",
     "vitest": "^3.1.9"
   },
   "description": "Esta aplicação está **100% configurada, testada e documentada** para deploy imediato em produção.",

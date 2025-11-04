@@ -304,8 +304,12 @@ else {
             $copilotScript = Join-Path $PSScriptRoot "copilot-executor.ps1"
 
             if (Test-Path $copilotScript) {
-                # Carregar prompt otimizado do arquivo
-                $promptFile = Join-Path $PSScriptRoot "prompts" "overnight-analysis-copilot.md"
+                # Carregar prompt otimizado do arquivo (prioriza versão completa)
+                $promptFile = Join-Path $PSScriptRoot "prompts" "copilot-analysis-prompt.md"
+                if (-not (Test-Path $promptFile)) {
+                    # Fallback para versão mais simples
+                    $promptFile = Join-Path $PSScriptRoot "prompts" "overnight-analysis-copilot.md"
+                }
                 if (Test-Path $promptFile) {
                     $promptContent = Get-Content $promptFile -Raw -Encoding UTF8
                     # Extrair apenas o prompt (entre ```)

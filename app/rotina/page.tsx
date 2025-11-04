@@ -68,13 +68,12 @@ export default function RotinaPage() {
 
   const handleAddActivity = () => {
     // TODO: Implementar modal de adicionar atividade
-    alert("Em breve: adicionar nova atividade à rotina!")
+    // Temporariamente desabilitado para evitar frustração
   }
 
   const handleEditActivity = (id: string) => {
     // TODO: Implementar edição de atividade
-    console.log("Editar atividade:", id)
-    alert(`Em breve: editar atividade ${id}!`)
+    // Temporariamente desabilitado para evitar frustração
   }
 
   return (
@@ -181,6 +180,9 @@ export default function RotinaPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEditActivity(atividade.id)}
+                      disabled
+                      className="opacity-50 cursor-not-allowed"
+                      title="Em breve: editar atividade"
                     >
                       Editar
                     </Button>
@@ -194,6 +196,8 @@ export default function RotinaPage() {
             className="w-full mt-6"
             variant="outline"
             onClick={handleAddActivity}
+            disabled
+            title="Em breve: adicionar nova atividade"
           >
             <span className="text-lg mr-2">+</span>
             Adicionar Nova Atividade

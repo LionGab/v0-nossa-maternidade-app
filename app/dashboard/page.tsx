@@ -17,15 +17,15 @@ import { clientLogger } from "@/lib/logger-client"
 const DashboardCards = memo(() => {
   const dashboardCards = useMemo(() => [
     { href: "/mundo-nath", icon: "🎥", title: "Mundo Nath", desc: "Vídeos virais e conteúdo exclusivo da Nathália", bg: "bg-primary/10" },
-    { href: "/receitas", icon: "👨‍🍳", title: "Receitas do Coração", desc: "Receitas personalizadas com IA", bg: "bg-secondary/10" },
-    { href: "/maternidade-hoje", icon: "📰", title: "Maternidade Hoje", desc: "Notícias e tendências atuais", bg: "bg-accent/10" },
-    { href: "/chat", icon: "✨", title: "NathIA", desc: "Sua assistente maternal com IA", bg: "bg-primary/10" },
-    { href: "/rotina", icon: "📅", title: "Rotina Semanal", desc: "Organize suas atividades", bg: "bg-blue-50" },
-    { href: "/autocuidado", icon: "💝", title: "Autocuidado", desc: "10 minutos para você", bg: "bg-pink-50" },
-    { href: "/brincadeiras", icon: "🎨", title: "Brincadeiras", desc: "Atividades sensoriais", bg: "bg-purple-50" },
-    { href: "/historias-sono", icon: "🌙", title: "Histórias de Sono", desc: "Para adormecer tranquilo", bg: "bg-indigo-50" },
-    { href: "/birras", icon: "🤗", title: "Lidando com Birras", desc: "Respostas empáticas", bg: "bg-orange-50" },
-    { href: "/perfil-bebe", icon: "👶", title: "Perfil do Bebê", desc: "Acompanhe o crescimento", bg: "bg-green-50" },
+    { href: "/receitas", icon: "👨‍🍳", title: "Receitas do Coração", desc: "Receitas personalizadas com IA", bg: "bg-accent/10" },
+    { href: "/maternidade-hoje", icon: "📰", title: "Maternidade Hoje", desc: "Notícias e tendências atuais", bg: "bg-secondary/10" },
+    { href: "/chat", icon: "✨", title: "NathAI", desc: "Sua assistente maternal com IA", bg: "bg-primary/10" },
+    { href: "/rotina", icon: "📅", title: "Rotina Semanal", desc: "Organize suas atividades", bg: "bg-[hsl(var(--info))]/10" },
+    { href: "/autocuidado", icon: "💝", title: "Autocuidado", desc: "10 minutos para você", bg: "bg-primary/10" },
+    { href: "/brincadeiras", icon: "🎨", title: "Brincadeiras", desc: "Atividades sensoriais", bg: "bg-accent/10" },
+    { href: "/historias-sono", icon: "🌙", title: "Histórias de Sono", desc: "Para adormecer tranquilo", bg: "bg-[hsl(var(--emotion-cansada))]/10" },
+    { href: "/birras", icon: "🤗", title: "Lidando com Birras", desc: "Respostas empáticas", bg: "bg-[hsl(var(--emotion-estressada))]/10" },
+    { href: "/perfil-bebe", icon: "👶", title: "Perfil do Bebê", desc: "Acompanhe o crescimento", bg: "bg-[hsl(var(--emotion-feliz))]/10" },
   ], [])
 
   return (

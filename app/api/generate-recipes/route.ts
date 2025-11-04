@@ -6,6 +6,8 @@ import { recipeRequestSchema } from "@/lib/validations/schemas"
 import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
 import { logger } from "@/lib/logger"
 import { sanitizeString } from "@/lib/sanitize"
+import { getCachedResponse, setCachedResponse } from "@/lib/ai/cache"
+import { createHash } from "crypto"
 
 export { OPTIONS } // CORS preflight
 
@@ -42,6 +44,37 @@ async function generateRecipesHandler(request: NextRequest) {
     const sanitizedMood = sanitizeString(mood)
     const sanitizedPreferences = sanitizeString(preferences)
     const sanitizedIngredients = sanitizeString(ingredients)
+
+    // Gerar chave de cache baseada nos parâmetros da requisição
+    const cacheKey = createHash("sha256")
+      .update(JSON.stringify({ mood: sanitizedMood, preferences: sanitizedPreferences, ingredients: sanitizedIngredients }))
+      .digest("hex")
+
+    // Verificar cache antes de gerar receitas
+    const supabaseForCache = await createClient()
+    const { data: cachedData } = await supabaseForCache
+      .from("api_cache")
+      .select("cache_data")
+      .eq("cache_key", `recipes_${cacheKey}`)
+      .gt("expires_at", new Date().toISOString())
+      .single()
+
+    if (cachedData?.cache_data) {
+      logger.info("Recipe cache hit", {
+        userId: user.id,
+        cacheKey: `recipes_${cacheKey}`,
+      })
+
+      const duration = Date.now() - startTime
+      return NextResponse.json(
+        {
+          recipes: cachedData.cache_data,
+          cached: true,
+          duration,
+        },
+        { status: 200 },
+      )
+    }
 
     // Coletar informações do perfil do bebê para receitas adequadas
     let babyProfile = null
@@ -194,6 +227,27 @@ Retorne APENAS JSON array: [{"name":"","description":"","category":"","prepTime"
           image: imageUrl,
         }
       })
+
+      // Salvar no cache para próximas requisições idênticas (24h)
+      const expiresAt = new Date()
+      expiresAt.setHours(expiresAt.getHours() + 24)
+
+      try {
+        await supabaseForCache
+          .from("api_cache")
+          .upsert({
+            cache_key: `recipes_${cacheKey}`,
+            cache_data: recipes,
+            endpoint: "/api/generate-recipes",
+            expires_at: expiresAt.toISOString(),
+          })
+      } catch (cacheError) {
+        // Falha no cache não deve bloquear a resposta
+        logger.warn("Failed to cache recipes", {
+          userId: user.id,
+          error: cacheError instanceof Error ? cacheError.message : String(cacheError),
+        })
+      }
     } catch (error) {
       logger.error("Failed to parse recipes JSON", error as Error, { text: text.substring(0, 200) })
       recipes = []

@@ -4,58 +4,134 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    /* Cores Principais - Acolhimento Maternal */
+    --background: 30 15% 98%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 346 77% 50%;
+
+    /* Primary - Rosa Suave Maternal (mais acolhedor) */
+    --primary: 346 55% 65%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 346 77% 50%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
+
+    /* Accent - Pêssego Suave (diferente do primary) */
+    --accent: 25 45% 75%;
+    --accent-foreground: 25 35% 25%;
+
+    /* Secondary - Sage Suave (mais visível) */
+    --secondary: 150 25% 85%;
+    --secondary-foreground: 150 30% 20%;
+
+    /* Muted - Creme Suave (melhor contraste) */
+    --muted: 30 10% 95%;
+    --muted-foreground: 30 15% 40%;
+
+    /* Borders e Inputs - Bege Suave */
+    --border: 30 10% 90%;
+    --input: 30 10% 92%;
+
+    /* Ring - Rosa Suave (consistente com primary) */
+    --ring: 346 55% 65%;
+
+    /* Destructive - Vermelho Suave (menos agressivo) */
+    --destructive: 10 60% 65%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 346 77% 50%;
+
+    /* Radius */
     --radius: 0.75rem;
-    --chart-1: 346 77% 50%;
-    --chart-2: 173 80% 40%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+
+    /* Charts - Cores Suaves e Harmoniosas */
+    --chart-1: 346 55% 65%;
+    --chart-2: 25 45% 75%;
+    --chart-3: 150 30% 65%;
+    --chart-4: 200 40% 70%;
+    --chart-5: 45 50% 70%;
+
+    /* Sistema de Cores por Estado Emocional */
+    --emotion-cansada: 200 40% 75%;
+    --emotion-cansada-foreground: 200 50% 25%;
+    --emotion-energizada: 45 60% 70%;
+    --emotion-energizada-foreground: 45 70% 25%;
+    --emotion-estressada: 10 50% 75%;
+    --emotion-estressada-foreground: 10 60% 25%;
+    --emotion-feliz: 120 40% 75%;
+    --emotion-feliz-foreground: 120 50% 25%;
+    --emotion-triste: 240 30% 80%;
+    --emotion-triste-foreground: 240 40% 25%;
+
+    /* Cores Semânticas Suaves */
+    --success: 150 40% 60%;
+    --success-foreground: 0 0% 100%;
+    --warning: 45 60% 65%;
+    --warning-foreground: 45 70% 25%;
+    --info: 200 50% 70%;
+    --info-foreground: 200 60% 25%;
   }
 
   .dark {
+    /* Dark Mode - Mantém suavidade mas com contraste adequado */
     --background: 222.2 84% 4.9%;
     --foreground: 0 0% 100%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 0 0% 100%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 0 0% 100%;
-    --primary: 346 77% 50%;
+
+    /* Primary - Rosa Suave (mais claro no dark mode) */
+    --primary: 346 55% 70%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 0 0% 100%;
+
+    /* Accent - Pêssego Suave */
+    --accent: 25 45% 70%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Secondary - Sage Escuro */
+    --secondary: 150 25% 25%;
+    --secondary-foreground: 150 30% 85%;
+
+    /* Muted - Escuro Suave */
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 346 77% 50%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
+
+    /* Borders e Inputs */
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 346 77% 50%;
-    --chart-1: 346 77% 50%;
-    --chart-2: 173 80% 40%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+
+    /* Ring */
+    --ring: 346 55% 70%;
+
+    /* Destructive */
+    --destructive: 10 60% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Charts - Ajustados para dark mode */
+    --chart-1: 346 55% 70%;
+    --chart-2: 25 45% 70%;
+    --chart-3: 150 30% 60%;
+    --chart-4: 200 40% 65%;
+    --chart-5: 45 50% 65%;
+
+    /* Estados Emocionais - Dark Mode */
+    --emotion-cansada: 200 40% 60%;
+    --emotion-cansada-foreground: 0 0% 100%;
+    --emotion-energizada: 45 60% 65%;
+    --emotion-energizada-foreground: 45 70% 20%;
+    --emotion-estressada: 10 50% 70%;
+    --emotion-estressada-foreground: 0 0% 100%;
+    --emotion-feliz: 120 40% 65%;
+    --emotion-feliz-foreground: 0 0% 100%;
+    --emotion-triste: 240 30% 70%;
+    --emotion-triste-foreground: 0 0% 100%;
+
+    /* Semânticas - Dark Mode */
+    --success: 150 40% 55%;
+    --success-foreground: 0 0% 100%;
+    --warning: 45 60% 60%;
+    --warning-foreground: 45 70% 20%;
+    --info: 200 50% 65%;
+    --info-foreground: 0 0% 100%;
   }
 }
 
@@ -63,6 +139,7 @@
   * {
     border-color: hsl(var(--border));
   }
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -107,6 +184,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -117,6 +195,7 @@
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -128,6 +207,7 @@
     opacity: 0;
     transform: translateX(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -139,6 +219,7 @@
     opacity: 0;
     transform: translateX(16px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -150,19 +231,20 @@
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Gradientes elegantes */
+/* Gradientes elegantes - Suaves e Acolhedores */
 .gradient-primary {
-  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--accent) / 0.1) 100%);
 }
 
 .gradient-card {
-  background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--secondary)) 100%);
+  background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--secondary) / 0.5) 100%);
 }
 
 /* Glass morphism effect */
@@ -226,6 +308,7 @@
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
@@ -233,11 +316,9 @@
 
 .shimmer {
   animation: shimmer 2s infinite;
-  background: linear-gradient(
-    to right,
-    transparent 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%);
   background-size: 1000px 100%;
 }

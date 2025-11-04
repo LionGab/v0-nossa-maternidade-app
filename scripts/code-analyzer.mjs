@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 /**
- * 🔍 Code Analyzer - Análise de Código usando Anthropic SDK
- * Analisa código do projeto usando Claude via Anthropic API
+ * 🔍 Code Analyzer - Versão Máxima Eficiência v3.0
+ * Análise segura de código usando Anthropic SDK
+ * Foco: Segurança crítica + Código mínimo necessário
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-import { readFileSync, readdirSync, statSync } from 'fs';
+import { readFileSync, readdirSync, statSync, existsSync, writeFileSync, mkdirSync, realpathSync } from 'fs';
 import { join, extname, relative } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -13,266 +14,218 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Configuração
+// ===== CONFIGURAÇÃO =====
 const PROJECT_ROOT = join(__dirname, '..');
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const MAX_FILES = 20; // Limitar arquivos para não exceder token limits
-const SUPPORTED_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs'];
+const ALLOWED_DIRS = ['app', 'components', 'lib', 'hooks', 'scripts'];
+const MAX_FILES = 15;
+const MAX_CHARS_PER_FILE = 3000;
+const SUPPORTED_EXTS = ['.ts', '.tsx', '.js', '.jsx', '.mjs'];
 
-// Diretórios permitidos (Camada 3 - Restrição de Diretórios)
-const ALLOWED_DIRECTORIES = [
-  'app',
-  'components',
-  'lib',
-  'hooks',
-  'scripts'
-];
-
-// Resultado estruturado
 const result = {
   timestamp: new Date().toISOString(),
   success: false,
   filesAnalyzed: 0,
-  analysis: [],
-  errors: [],
-  summary: null
+  analysis: null,
+  errors: []
 };
 
-/**
- * CAMADA 1 - Validação de Path (Segurança)
- * Garante que o path está dentro do repositório
- */
+// ===== SEGURANÇA: VALIDAÇÃO CRÍTICA =====
 function validatePath(filePath) {
-  const normalizedPath = join(filePath).replace(/\\/g, '/');
-  const normalizedRoot = join(PROJECT_ROOT).replace(/\\/g, '/');
-
-  if (!normalizedPath.startsWith(normalizedRoot)) {
-    throw new Error(`ERRO DE SEGURANÇA: Path está FORA do repositório! ${filePath}`);
+  if (!existsSync(filePath)) {
+    throw new Error(`Path não existe: ${filePath}`);
   }
 
-  // Verificar se está em diretório permitido (Camada 3)
-  const relativePath = relative(PROJECT_ROOT, filePath).replace(/\\/g, '/');
-  const pathParts = relativePath.split('/').filter(p => p);
-  const firstDir = pathParts[0];
+  // Resolver path real (previne symlink attacks e path traversal)
+  const realPath = realpathSync(filePath).replace(/\\/g, '/');
+  const realRoot = realpathSync(PROJECT_ROOT).replace(/\\/g, '/');
 
-  // Se está na raiz, não precisa validar (arquivos de configuração podem estar na raiz)
-  // Mas se tem diretório, deve estar na lista permitida
-  if (pathParts.length > 1 && firstDir && !ALLOWED_DIRECTORIES.includes(firstDir)) {
-    throw new Error(`ERRO DE SEGURANÇA: Path fora de diretórios permitidos! ${filePath} (primeiro dir: ${firstDir})`);
+  // Path traversal protection
+  if (!realPath.startsWith(realRoot + '/') && realPath !== realRoot) {
+    throw new Error(`SEGURANÇA: Path fora do repo! ${realPath}`);
+  }
+
+  // Directory whitelist
+  const rel = relative(PROJECT_ROOT, realPath).replace(/\\/g, '/');
+  const firstDir = rel.split('/')[0];
+
+  if (rel.includes('/') && firstDir && !ALLOWED_DIRS.includes(firstDir)) {
+    throw new Error(`SEGURANÇA: Diretório proibido: ${firstDir}`);
   }
 
   return true;
 }
 
-/**
- * Busca arquivos relevantes no projeto
- */
-function findRelevantFiles(dir, maxDepth = 3, currentDepth = 0) {
+// ===== BUSCA DE ARQUIVOS =====
+function findFiles(dir, depth = 0) {
+  if (depth > 3) return [];
+
   const files = [];
+  const entries = readdirSync(dir, { withFileTypes: true });
 
-  if (currentDepth >= maxDepth || files.length >= MAX_FILES) {
-    return files;
-  }
-
-  try {
-    const entries = readdirSync(dir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      // Ignorar node_modules, .git, etc
-      if (entry.name.startsWith('.') ||
-          entry.name === 'node_modules' ||
-          entry.name === 'dist' ||
-          entry.name === '.next' ||
-          entry.name === 'coverage') {
-        continue;
-      }
-
-      const fullPath = join(dir, entry.name);
-
-      // CAMADA 1 - Validar path antes de processar
-      try {
-        validatePath(fullPath);
-      } catch (error) {
-        result.errors.push(`Path bloqueado: ${error.message}`);
-        continue;
-      }
-
-      if (entry.isDirectory()) {
-        files.push(...findRelevantFiles(fullPath, maxDepth, currentDepth + 1));
-      } else if (entry.isFile()) {
-        const ext = extname(entry.name);
-        if (SUPPORTED_EXTENSIONS.includes(ext)) {
-          files.push(fullPath);
-        }
-      }
-
-      if (files.length >= MAX_FILES) break;
+  for (const entry of entries) {
+    if (entry.name.startsWith('.') ||
+        ['node_modules', 'dist', '.next', 'coverage'].includes(entry.name)) {
+      continue;
     }
-  } catch (error) {
-    result.errors.push(`Erro ao ler diretório ${dir}: ${error.message}`);
+
+    const fullPath = join(dir, entry.name);
+
+    try {
+      validatePath(fullPath);
+    } catch (error) {
+      result.errors.push(error.message);
+      continue;
+    }
+
+    if (entry.isDirectory()) {
+      files.push(...findFiles(fullPath, depth + 1));
+    } else if (SUPPORTED_EXTS.includes(extname(entry.name))) {
+      files.push(fullPath);
+    }
   }
 
   return files;
 }
 
-/**
- * Lê conteúdo de arquivo com encoding seguro
- * CAMADA 1 - Valida path antes de ler
- */
-function readFileSafe(filePath) {
-  try {
-    // Validar path antes de ler
-    validatePath(filePath);
-
-    return readFileSync(filePath, 'utf-8');
-  } catch (error) {
-    result.errors.push(`Erro ao ler arquivo ${filePath}: ${error.message}`);
-    return null;
-  }
-}
-
-/**
- * Analisa código usando Anthropic API
- */
-async function analyzeCode(anthropic, files) {
-  if (!ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY não configurada');
-  }
+// ===== ANÁLISE COM RETRY =====
+async function analyze(anthropic, files) {
+  // Priorizar por modificação recente (simples e eficaz)
+  const sorted = files
+    .map(f => ({ file: f, mtime: statSync(f).mtimeMs }))
+    .sort((a, b) => b.mtime - a.mtime)
+    .slice(0, MAX_FILES);
 
   // Preparar contexto
-  const fileContents = [];
-  for (const file of files.slice(0, MAX_FILES)) {
-    const content = readFileSafe(file);
-    if (content) {
-      const relativePath = relative(PROJECT_ROOT, file);
-      fileContents.push(`=== ${relativePath} ===\n${content.substring(0, 5000)}\n`);
-    }
-  }
+  const context = sorted
+    .map(({ file }) => {
+      try {
+        validatePath(file);
+        const content = readFileSync(file, 'utf-8').substring(0, MAX_CHARS_PER_FILE);
+        const rel = relative(PROJECT_ROOT, file);
+        return `=== ${rel} ===\n${content}\n`;
+      } catch (error) {
+        result.errors.push(`Erro ao ler ${file}: ${error.message}`);
+        return '';
+      }
+    })
+    .filter(c => c)
+    .join('\n\n');
 
-  const context = fileContents.join('\n\n');
+  result.filesAnalyzed = sorted.length;
 
-  // CAMADA 4 - Instruções de Segurança no Prompt
-  const prompt = `Você é um analisador de código SOMENTE LEITURA.
+  const prompt = `Você é um analisador SOMENTE LEITURA.
 
-REGRAS DE SEGURANÇA OBRIGATÓRIAS:
-- ❌ PROIBIDO modificar qualquer arquivo
-- ❌ PROIBIDO sugerir comandos de escrita (write, edit, delete)
-- ❌ PROIBIDO acessar paths fora do repositório
-- ❌ PROIBIDO executar comandos do sistema
-- ✅ APENAS análise e relatórios são permitidos
-- ✅ APENAS leitura de arquivos dentro do repositório
+REGRAS:
+- ❌ NÃO modificar arquivos
+- ❌ NÃO sugerir comandos write/edit/delete
+- ❌ NÃO acessar paths externos
+- ✅ APENAS análise
 
-Analise o código abaixo e identifique:
-1. Problemas de qualidade (bugs potenciais, code smells)
-2. Oportunidades de melhoria (performance, legibilidade)
-3. Problemas de segurança
-4. Violações de boas práticas
-5. Sugestões de refatoração (apenas sugestões, SEM modificar)
+Analise o código e identifique:
+1. Bugs e problemas de qualidade
+2. Vulnerabilidades de segurança
+3. Violações de boas práticas
+4. Oportunidades de melhoria
 
-Código para análise:
+Código:
 ${context}
 
-Forneça uma análise estruturada e priorizada. Lembre-se: APENAS ANÁLISE, SEM MODIFICAÇÕES.`;
+Forneça análise estruturada e priorizada.`;
 
-  try {
-    const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 4096,
-      messages: [
-        {
-          role: 'user',
-          content: prompt
-        }
-      ]
-    });
+  // Retry com exponential backoff
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      console.log(`[INFO] Tentativa ${attempt}/3...`);
 
-    return message.content[0].text;
-  } catch (error) {
-    throw new Error(`Erro na API Anthropic: ${error.message}`);
+      const message = await anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 4096,
+        messages: [{ role: 'user', content: prompt }]
+      });
+
+      // Validação básica mas crítica
+      if (!message.content?.[0]?.text) {
+        throw new Error('API retornou resposta vazia');
+      }
+
+      const text = message.content[0].text;
+
+      // Detectar violações de segurança
+      if (/write\s*\(|edit\s*\(|writeFileSync|unlinkSync/i.test(text)) {
+        throw new Error('VIOLAÇÃO: Resposta contém comandos proibidos');
+      }
+
+      return {
+        text,
+        usage: message.usage
+      };
+
+    } catch (error) {
+      console.error(`[ERROR] ${error.message}`);
+
+      // Não retry em auth errors
+      if (error.status === 401 || error.status === 403) throw error;
+
+      if (attempt < 3) {
+        const backoff = Math.pow(2, attempt) * 1000;
+        await new Promise(resolve => setTimeout(resolve, backoff));
+      } else {
+        throw error;
+      }
+    }
   }
 }
 
-/**
- * Função principal
- */
+// ===== MAIN =====
 async function main() {
-  console.log('🔍 Iniciando análise de código...\n');
+  console.log('[INFO] 🔍 Code Analyzer v3.0 (Máxima Eficiência) iniciando...');
 
-  // Validar API key
   if (!ANTHROPIC_API_KEY) {
-    console.error('❌ ANTHROPIC_API_KEY não configurada');
-    console.error('Configure a variável de ambiente: export ANTHROPIC_API_KEY=sk-...');
+    console.error('[ERROR] ANTHROPIC_API_KEY não configurada');
     process.exit(1);
   }
 
-  // Inicializar cliente Anthropic
-  const anthropic = new Anthropic({
-    apiKey: ANTHROPIC_API_KEY
-  });
-
-  // Buscar arquivos relevantes
-  console.log('📁 Buscando arquivos relevantes...');
-  const files = findRelevantFiles(PROJECT_ROOT);
-  console.log(`   Encontrados ${files.length} arquivos\n`);
+  const files = findFiles(PROJECT_ROOT);
+  console.log(`[INFO] Encontrados ${files.length} arquivos`);
 
   if (files.length === 0) {
-    console.error('❌ Nenhum arquivo encontrado para análise');
+    console.error('[ERROR] Nenhum arquivo encontrado');
     process.exit(1);
   }
 
-  result.filesAnalyzed = files.length;
+  const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
-  // Analisar código
-  console.log('🤖 Analisando código com Claude...');
   try {
-    const analysis = await analyzeCode(anthropic, files);
+    const { text, usage } = await analyze(anthropic, files);
 
     result.success = true;
-    result.analysis.push({
-      type: 'deep_analysis',
-      content: analysis,
-      timestamp: new Date().toISOString()
-    });
+    result.analysis = text;
+    result.usage = usage;
 
-    result.summary = {
-      totalFiles: files.length,
-      issuesFound: analysis.match(/\d+ (problema|issue|bug)/gi)?.length || 0,
-      recommendations: analysis.match(/\d+ (sugestão|recommendation|melhoria)/gi)?.length || 0
-    };
+    console.log('[INFO] ✅ Análise concluída');
+    console.log(`[INFO] Tokens: ${usage.input_tokens} in / ${usage.output_tokens} out`);
+    console.log(`[INFO] Custo: ~$${((usage.input_tokens * 3 + usage.output_tokens * 15) / 1000000).toFixed(4)}`);
 
-    console.log('✅ Análise concluída\n');
-    console.log('📊 Resumo:');
-    console.log(`   Arquivos analisados: ${result.summary.totalFiles}`);
-    console.log(`   Problemas encontrados: ${result.summary.issuesFound}`);
-    console.log(`   Recomendações: ${result.summary.recommendations}\n`);
   } catch (error) {
     result.success = false;
     result.errors.push(error.message);
-    console.error(`❌ Erro na análise: ${error.message}`);
+    console.error(`[ERROR] ${error.message}`);
     process.exit(1);
   }
 
-  // Output JSON
-  const outputPath = process.argv[2] || join(PROJECT_ROOT, 'reports', 'code-analyzer', `deep-analysis-${new Date().toISOString().split('T')[0]}.json`);
+  // Salvar
+  const outDir = join(PROJECT_ROOT, 'reports', 'code-analyzer');
+  mkdirSync(outDir, { recursive: true });
 
-  // Criar diretório se não existir
-  const outputDir = join(outputPath, '..');
-  try {
-    const { mkdirSync } = await import('fs');
-    mkdirSync(outputDir, { recursive: true });
-  } catch (e) {
-    // Diretório já existe
-  }
+  const outPath = join(outDir, `analysis-${new Date().toISOString().split('T')[0]}.json`);
+  writeFileSync(outPath, JSON.stringify(result, null, 2));
 
-  const { writeFileSync } = await import('fs');
-  writeFileSync(outputPath, JSON.stringify(result, null, 2), 'utf-8');
-  console.log(`💾 Relatório salvo em: ${outputPath}`);
-
-  // Output também para stdout
+  console.log(`[INFO] 💾 Salvo em: ${outPath}`);
   console.log('\n' + JSON.stringify(result, null, 2));
 }
 
 main().catch(error => {
-  console.error('❌ Erro fatal:', error);
+  console.error('[FATAL]', error);
   process.exit(1);
 });

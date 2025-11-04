@@ -1,6 +1,6 @@
 {
   // Configurações de automação do editor
-  "workbench.editor.enablePreview": true,
+  "workbench.editor.enablePreview": false,
   "workbench.editor.enablePreviewFromQuickOpen": false,
   "workbench.editor.enablePreviewFromCodeNavigation": false,
   "workbench.editor.closeOnFileDelete": true,

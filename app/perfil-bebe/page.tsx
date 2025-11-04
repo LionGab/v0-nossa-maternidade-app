@@ -365,8 +365,10 @@ export default function PerfilBebePage() {
               className="w-full"
               onClick={() => {
                 // TODO: Implementar modal de agendamento
-                alert("Em breve: agendar consulta diretamente pelo app!")
+                // Temporariamente desabilitado para evitar frustração
               }}
+              disabled
+              title="Em breve: agendar consulta diretamente pelo app!"
             >
               Agendar Nova Consulta
             </Button>

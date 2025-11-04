@@ -17,7 +17,9 @@
       "Bash(npx netlify --version)",
       "Bash(npx netlify status:*)",
       "Bash(npx netlify:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(dir:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

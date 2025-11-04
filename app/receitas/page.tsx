@@ -6,19 +6,43 @@ import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Textarea } from "@/components/ui/textarea"
+import { Skeleton } from "@/components/ui/skeleton"
 import { PageHeader } from "@/components/page-header"
 import { BottomNavigation } from "@/components/bottom-navigation"
 import { clientLogger } from "@/lib/logger-client"
-import { ChefHat, Clock, Flame, Sparkles, Users } from "lucide-react"
+import { ChefHat, Clock, Flame, Sparkles, Users, Heart } from "lucide-react"
 import { useState } from "react"
 import Image from "next/image"
+import { toast } from "sonner"
+
+import { getEmotionColors, type EmotionType } from "@/lib/emotion-colors"
 
 const moodOptions = [
-  { value: "energizada", label: "😊 Energizada e motivada", color: "bg-green-100 text-green-800" },
-  { value: "cansada", label: "😴 Cansada e sem energia", color: "bg-blue-100 text-blue-800" },
-  { value: "estressada", label: "😰 Estressada e ansiosa", color: "bg-orange-100 text-orange-800" },
-  { value: "feliz", label: "🥰 Feliz e relaxada", color: "bg-pink-100 text-pink-800" },
-  { value: "triste", label: "😢 Triste ou desanimada", color: "bg-purple-100 text-purple-800" },
+  {
+    value: "energizada",
+    label: "😊 Energizada e motivada",
+    emotion: "energizada" as EmotionType,
+  },
+  {
+    value: "cansada",
+    label: "😴 Cansada e sem energia",
+    emotion: "cansada" as EmotionType,
+  },
+  {
+    value: "estressada",
+    label: "😰 Estressada e ansiosa",
+    emotion: "estressada" as EmotionType,
+  },
+  {
+    value: "feliz",
+    label: "🥰 Feliz e relaxada",
+    emotion: "feliz" as EmotionType,
+  },
+  {
+    value: "triste",
+    label: "😢 Triste ou desanimada",
+    emotion: "triste" as EmotionType,
+  },
 ]
 
 export default function ReceitasPage() {
@@ -28,6 +52,7 @@ export default function ReceitasPage() {
   const [recipes, setRecipes] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [savingRecipe, setSavingRecipe] = useState<number | null>(null)
 
   const generateRecipes = async () => {
     if (!mood || !preferences || !ingredients) {
@@ -116,10 +141,57 @@ export default function ReceitasPage() {
     }
   }
 
-  const handleSaveRecipe = (recipeIndex: number) => {
-    // TODO: Implementar salvamento de receita
-    console.log("Salvar receita:", recipeIndex)
-    alert(`Receita salva! Em breve: salvar na sua lista de receitas favoritas.`)
+  const handleSaveRecipe = async (recipeIndex: number) => {
+    const recipe = recipes[recipeIndex]
+    if (!recipe) return
+
+    setSavingRecipe(recipeIndex)
+
+    try {
+      const response = await fetch("/api/recipes/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          recipeTitle: recipe.name,
+          recipeContent: recipe.description || "",
+          recipeIngredients: recipe.ingredients || [],
+          recipeInstructions: recipe.instructions || [],
+          mood: mood || null,
+          preferences: preferences || null,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao salvar receita")
+      }
+
+      if (data.saved) {
+        toast.success("Receita já estava salva!", {
+          description: recipe.name,
+          duration: 3000,
+        })
+      } else {
+        toast.success("Receita salva com sucesso! 💚", {
+          description: `"${recipe.name}" foi adicionada à sua coleção`,
+          duration: 4000,
+        })
+      }
+    } catch (error) {
+      clientLogger.error("Error saving recipe", error as Error, {
+        recipeIndex,
+        recipeName: recipe.name,
+      })
+      toast.error("Erro ao salvar receita", {
+        description: error instanceof Error ? error.message : "Tente novamente mais tarde",
+        duration: 5000,
+      })
+    } finally {
+      setSavingRecipe(null)
+    }
   }
 
   return (
@@ -135,23 +207,26 @@ export default function ReceitasPage() {
           {/* Formulário */}
           <Card className="p-6 space-y-6 shadow-lg border-2 border-border/50 hover:shadow-xl transition-shadow duration-300 animate-in fade-in slide-in-from-left-4">
             {error && (
-              <div className="p-4 bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 rounded-xl text-red-800 dark:text-red-200 text-sm shadow-sm animate-in fade-in slide-in-from-top-2">{error}</div>
+              <div className="p-4 bg-[hsl(var(--destructive))]/10 border-2 border-[hsl(var(--destructive))]/20 rounded-xl text-[hsl(var(--destructive))] dark:text-[hsl(var(--destructive-foreground))] text-sm shadow-sm animate-in fade-in slide-in-from-top-2">{error}</div>
             )}
 
             <div className="space-y-4">
               <div>
                 <Label className="text-base font-semibold mb-3 block">Como você está se sentindo hoje?</Label>
                 <RadioGroup value={mood} onValueChange={setMood} className="space-y-3">
-                  {moodOptions.map((option) => (
-                    <div key={option.value} className="flex items-center space-x-3">
-                      <RadioGroupItem value={option.value} id={option.value} />
-                      <Label htmlFor={option.value} className="cursor-pointer flex-1">
-                        <span className={`inline-block px-3 py-2 rounded-lg ${option.color} font-medium`}>
-                          {option.label}
-                        </span>
-                      </Label>
-                    </div>
-                  ))}
+                  {moodOptions.map((option) => {
+                    const emotionColors = getEmotionColors(option.emotion)
+                    return (
+                      <div key={option.value} className="flex items-center space-x-3">
+                        <RadioGroupItem value={option.value} id={option.value} />
+                        <Label htmlFor={option.value} className="cursor-pointer flex-1">
+                          <span className={`inline-block px-3 py-2 rounded-lg ${emotionColors.bg}/10 ${emotionColors.text} border ${emotionColors.border}/20 font-medium transition-all hover:shadow-sm`}>
+                            {option.label}
+                          </span>
+                        </Label>
+                      </div>
+                    )
+                  })}
                 </RadioGroup>
               </div>
 
@@ -204,6 +279,36 @@ export default function ReceitasPage() {
 
           {/* Receitas Geradas */}
           <div className="space-y-4">
+            {/* Skeleton Loader durante carregamento */}
+            {isLoading && (
+              <>
+                {[1, 2].map((i) => (
+                  <Card
+                    key={i}
+                    className="overflow-hidden border-2 border-border/50 bg-card/50 animate-in fade-in slide-in-from-right-4"
+                    style={{ animationDelay: `${i * 100}ms` }}
+                  >
+                    <Skeleton className="w-full h-48 sm:h-64" />
+                    <div className="p-6 space-y-4">
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-4 w-full" />
+                      <div className="flex gap-2">
+                        <Skeleton className="h-8 w-24" />
+                        <Skeleton className="h-8 w-24" />
+                        <Skeleton className="h-8 w-24" />
+                      </div>
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-5/6" />
+                        <Skeleton className="h-4 w-4/6" />
+                      </div>
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                  </Card>
+                ))}
+              </>
+            )}
+
             {recipes.length === 0 && !isLoading && (
               <Card className="p-12 text-center border-2 border-dashed border-border/50 bg-muted/30 animate-in fade-in slide-in-from-right-4">
                 <ChefHat className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
@@ -293,8 +398,8 @@ export default function ReceitasPage() {
                   </div>
 
                   {recipe.nutritionalBenefit && (
-                    <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-xl border-2 border-green-200 dark:border-green-800 shadow-sm animate-in fade-in slide-in-from-bottom-2">
-                      <p className="text-sm text-green-800 dark:text-green-200 leading-relaxed">
+                    <div className="p-4 bg-[hsl(var(--success))]/10 rounded-xl border-2 border-[hsl(var(--success))]/20 shadow-sm animate-in fade-in slide-in-from-bottom-2">
+                      <p className="text-sm text-[hsl(var(--success))] dark:text-[hsl(var(--success-foreground))] leading-relaxed">
                         <strong className="font-semibold">💚 Benefício Nutricional:</strong> {recipe.nutritionalBenefit}
                       </p>
                     </div>
@@ -313,8 +418,19 @@ export default function ReceitasPage() {
                     variant="outline"
                     className="w-full bg-transparent hover:bg-primary/5 hover:border-primary/30 rounded-xl transition-all duration-300"
                     onClick={() => handleSaveRecipe(index)}
+                    disabled={savingRecipe === index}
                   >
-                    💾 Salvar Receita
+                    {savingRecipe === index ? (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2 animate-spin" />
+                        Salvando...
+                      </>
+                    ) : (
+                      <>
+                        <Heart className="h-4 w-4 mr-2" />
+                        Salvar Receita
+                      </>
+                    )}
                   </Button>
                 </div>
               </Card>
