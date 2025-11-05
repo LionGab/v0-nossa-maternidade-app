@@ -195,7 +195,7 @@ export default function ReceitasPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5 pb-20 md:pb-6">
+    <div className="min-h-screen gradient-warm pb-20 md:pb-6">
       <PageHeader
         title="Receitas do Coração"
         description="Receitas personalizadas com IA"
@@ -205,9 +205,9 @@ export default function ReceitasPage() {
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Formulário */}
-          <Card className="p-6 space-y-6 shadow-lg border-2 border-border/50 hover:shadow-xl transition-shadow duration-300 animate-in fade-in slide-in-from-left-4">
+          <Card className="p-6 space-y-6 elevation-md border-2 border-border/50 animate-in fade-in slide-in-from-left-4">
             {error && (
-              <div className="p-4 bg-[hsl(var(--destructive))]/10 border-2 border-[hsl(var(--destructive))]/20 rounded-xl text-[hsl(var(--destructive))] dark:text-[hsl(var(--destructive-foreground))] text-sm shadow-sm animate-in fade-in slide-in-from-top-2">{error}</div>
+              <div className="p-4 bg-[hsl(var(--destructive))]/10 border-2 border-[hsl(var(--destructive))]/20 rounded-xl text-[hsl(var(--destructive))] dark:text-[hsl(var(--destructive-foreground))] text-sm elevation-xs animate-in fade-in slide-in-from-top-2">{error}</div>
             )}
 
             <div className="space-y-4">
@@ -220,7 +220,7 @@ export default function ReceitasPage() {
                       <div key={option.value} className="flex items-center space-x-3">
                         <RadioGroupItem value={option.value} id={option.value} />
                         <Label htmlFor={option.value} className="cursor-pointer flex-1">
-                          <span className={`inline-block px-3 py-2 rounded-lg ${emotionColors.bg}/10 ${emotionColors.text} border ${emotionColors.border}/20 font-medium transition-all hover:shadow-sm`}>
+                          <span className={`inline-block px-3 py-2 rounded-lg ${emotionColors.bg}/10 ${emotionColors.text} border ${emotionColors.border}/20 font-medium transition-all hover:elevation-xs hover:scale-105 touch-feedback`}>
                             {option.label}
                           </span>
                         </Label>

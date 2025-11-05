@@ -110,9 +110,9 @@ export default function DashboardPage() {
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <SidebarInset>
-          <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-0">
-            <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border/50 p-4">
-              <div className="flex items-center gap-4">
+          <div className="min-h-screen gradient-warm pb-20 md:pb-0">
+            <header className="sticky top-0 z-10 glass border-b border-border/50 p-4 elevation-md safe-area-top">
+              <div className="flex items-center gap-4 animate-in fade-in slide-in-from-top-2">
                 <SidebarTrigger />
                 <div>
                   <h1 className="text-2xl font-serif font-bold">Olá, {userName}! 💕</h1>
@@ -129,7 +129,7 @@ export default function DashboardPage() {
                   <DashboardCards />
 
                   {/* Sugestão do Dia */}
-                  <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">
+                  <Card className="p-6 gradient-primary border-primary/20 elevation-md animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: '300ms' }}>
                     <div className="flex items-start gap-4">
                       <span className="text-2xl flex-shrink-0 mt-1">✨</span>
                       <div className="flex-1">
@@ -138,7 +138,7 @@ export default function DashboardPage() {
                           Que tal dedicar 10 minutos hoje para um momento de autocuidado? Experimente uma respiração
                           profunda ou uma xícara de chá quentinho.
                         </p>
-                        <Button variant="outline">
+                        <Button variant="outline" className="hover-lift">
                           <Link href="/autocuidado">Ver Mais Sugestões</Link>
                         </Button>
                       </div>
@@ -147,7 +147,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Sidebar com Gamificação e Insights */}
-                <div className="space-y-6">
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4" style={{ animationDelay: '200ms' }}>
                   <InsightsWidget />
                   <GamificationWidget />
                 </div>
