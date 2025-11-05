@@ -225,6 +225,9 @@ REGRAS DE RESPOSTA:
     }
 
     // Usar GPT-4 para conversação geral e recomendações
+copilot/improve-slow-code-performance
+  // Usar modelo mais rápido (gpt-4o-mini) para respostas mais rápidas, mas com prompts especializados
+main
     const openai = getOpenAIClient()
     if (!openai) {
       return new Response(

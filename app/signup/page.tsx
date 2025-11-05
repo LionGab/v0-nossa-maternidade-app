@@ -2,17 +2,17 @@
 
 import type React from "react"
 
-import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { createClient } from "@/lib/supabase/client"
+import { Loader2 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import Image from "next/image"
 import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
@@ -88,8 +88,28 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-b from-rose-50 to-white">
-      <div className="w-full max-w-sm">
+    <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-b from-rose-50 to-white relative overflow-hidden">
+      {/* Ilustração decorativa de fundo */}
+      <div className="absolute top-20 right-20 w-52 h-52 opacity-10 hidden md:block">
+        <Image
+          src="/logo-family.png"
+          alt="Comece sua jornada"
+          width={208}
+          height={208}
+          className="object-contain"
+        />
+      </div>
+      <div className="absolute bottom-20 left-20 w-40 h-40 opacity-10 hidden md:block">
+        <Image
+          src="/logo-avatar.png"
+          alt="Bem-vinda"
+          width={160}
+          height={160}
+          className="object-contain"
+        />
+      </div>
+
+      <div className="w-full max-w-sm relative z-10">
         <div className="flex flex-col gap-6">
           <div className="flex justify-center mb-4">
             <Image

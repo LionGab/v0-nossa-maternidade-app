@@ -236,14 +236,14 @@ export default function MundoNathPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+    <div className="min-h-screen gradient-warm pb-20 md:pb-6">
       <PageHeader
         title="Mundo Nath"
         description="Conteúdos exclusivos da Nathália Valente"
         icon={<Video className="h-5 w-5" />}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 md:space-y-8">
-        <div className="flex items-center gap-4 p-4 bg-primary/5 rounded-xl border border-primary/10">
+        <div className="flex items-center gap-4 p-4 gradient-primary rounded-xl border border-primary/10 elevation-sm animate-in fade-in slide-in-from-top-2">
           <TrendingUp className="h-6 w-6 text-primary flex-shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-foreground">Top 10 Vídeos Mais Virais</p>
@@ -254,9 +254,9 @@ export default function MundoNathPage() {
         </div>
 
         {/* Filtros e Busca */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-bottom-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
               placeholder="Buscar vídeos..."
               value={searchQuery}
@@ -268,21 +268,21 @@ export default function MundoNathPage() {
             <Button
               variant={selectedPlatform === "all" ? "default" : "outline"}
               onClick={() => setSelectedPlatform("all")}
-              className="flex-1 sm:flex-initial"
+              className="flex-1 sm:flex-initial touch-feedback"
             >
               Todos
             </Button>
             <Button
               variant={selectedPlatform === "TikTok" ? "default" : "outline"}
               onClick={() => setSelectedPlatform("TikTok")}
-              className="flex-1 sm:flex-initial"
+              className="flex-1 sm:flex-initial touch-feedback"
             >
               TikTok
             </Button>
             <Button
               variant={selectedPlatform === "Instagram" ? "default" : "outline"}
               onClick={() => setSelectedPlatform("Instagram")}
-              className="flex-1 sm:flex-initial"
+              className="flex-1 sm:flex-initial touch-feedback"
             >
               Instagram
             </Button>
@@ -292,10 +292,11 @@ export default function MundoNathPage() {
         {/* Grid de Vídeos */}
         {filteredVideos.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-            {filteredVideos.map((video) => (
+            {filteredVideos.map((video, index) => (
               <Card
                 key={video.id}
-                className="overflow-hidden group hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer"
+                className="overflow-hidden group flex flex-col cursor-pointer animate-in fade-in slide-in-from-bottom-4"
+                style={{ animationDelay: `${index * 50}ms` }}
                 onClick={() => handlePlayVideo(video.id)}
               >
                 {/* Container da imagem com position relative e aspect-video para garantir visibilidade */}
@@ -317,14 +318,14 @@ export default function MundoNathPage() {
                     alt={video.title}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform group-hover:scale-105"
+                    className="object-cover transition-all group-hover:scale-105"
                     priority={video.id <= 3}
                   />
                   {/* Overlay sempre visível em mobile, hover em desktop */}
                   <div className="absolute inset-0 bg-black/40 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
                     <Button
                       size="lg"
-                      className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
+                      className="rounded-full elevation-lg hover-scale"
                       onClick={(e) => {
                         e.stopPropagation()
                         handlePlayVideo(video.id)
@@ -336,14 +337,14 @@ export default function MundoNathPage() {
                   </div>
                   {/* Badges no topo */}
                   <div className="absolute top-3 left-3 flex gap-2 z-20">
-                    {video.isNew && <Badge className="bg-primary text-primary-foreground">Novo</Badge>}
-                    <Badge variant="secondary" className="bg-black/60 text-white backdrop-blur-sm">
+                    {video.isNew && <Badge className="bg-primary text-primary-foreground elevation-sm">Novo</Badge>}
+                    <Badge variant="secondary" className="glass text-white">
                       {video.duration}
                     </Badge>
                   </div>
                   <Badge
                     variant="secondary"
-                    className="absolute top-3 right-3 bg-black/60 text-white backdrop-blur-sm z-20"
+                    className="absolute top-3 right-3 glass text-white z-20"
                   >
                     {video.platform}
                   </Badge>
@@ -372,7 +373,7 @@ export default function MundoNathPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1 text-xs sm:text-sm px-2 sm:px-4"
+                      className="flex-1 text-xs sm:text-sm px-2 sm:px-4 touch-feedback"
                       onClick={(e) => {
                         e.stopPropagation()
                         handleSaveVideo(video.id, e)
@@ -394,15 +395,14 @@ export default function MundoNathPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1 text-xs sm:text-sm px-2 sm:px-4"
+                      className="flex-1 text-xs sm:text-sm px-2 sm:px-4 touch-feedback"
                       onClick={(e) => {
                         e.stopPropagation()
                         handleShareVideo(video.id, video.title)
                       }}
                     >
                       <Share2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                      <span className="hidden sm:inline">Compartilhar</span>
-                      <span className="sm:hidden">Compartilhar</span>
+                      <span>Compartilhar</span>
                     </Button>
                   </div>
                 </div>
@@ -410,7 +410,7 @@ export default function MundoNathPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
+          <div className="text-center py-12 animate-in fade-in">
             <p className="text-muted-foreground text-lg">Nenhum vídeo encontrado</p>
             <p className="text-sm text-muted-foreground mt-2">Tente ajustar os filtros de busca</p>
           </div>
