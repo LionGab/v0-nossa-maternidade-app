@@ -83,9 +83,16 @@ export function getEnvConfig(): EnvConfig {
   const missingRequired = validateRequiredEnvVars()
 
   if (missingRequired.length > 0) {
-    logger.warn('Missing required environment variables', {
+    const errorMessage = `CRÍTICO: Variáveis de ambiente obrigatórias faltando: ${missingRequired.join(", ")}`
+    logger.error(errorMessage, {
       missing: missingRequired,
     })
+
+    // Em produção, lançar erro para evitar que app quebre silenciosamente
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(errorMessage)
+    }
+
     logger.warn('Some features may not work correctly')
   }
 

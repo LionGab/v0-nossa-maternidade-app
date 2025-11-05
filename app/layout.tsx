@@ -1,4 +1,5 @@
 import { SWRProvider } from "@/components/providers/swr-provider"
+import { ErrorBoundaryWrapper } from "@/components/error-boundary-wrapper"
 import type { Metadata } from "next"
 import type React from "react"
 import { Toaster } from "sonner"
@@ -23,10 +24,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-sans antialiased min-h-screen touch-manipulation">
-        <SWRProvider>
-          {children}
-          <Toaster position="top-center" richColors closeButton />
-        </SWRProvider>
+        <ErrorBoundaryWrapper>
+          <SWRProvider>
+            {children}
+            <Toaster position="top-center" richColors closeButton />
+          </SWRProvider>
+        </ErrorBoundaryWrapper>
       </body>
     </html>
   )

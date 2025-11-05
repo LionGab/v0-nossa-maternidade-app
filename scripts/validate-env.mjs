@@ -1,207 +1,170 @@
 #!/usr/bin/env node
-
 /**
- * Environment Variables Validation Script
- * Valida variáveis de ambiente obrigatórias e opcionais
+ * Script de Validação de Variáveis de Ambiente
+ * Verifica se todas as variáveis necessárias estão configuradas
  */
 
-import { readFileSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { readFileSync } from 'fs'
+import { join } from 'path'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const rootDir = join(__dirname, '..');
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+// Cores para output
+const colors = {
+  reset: '\x1b[0m',
+  green: '\x1b[32m',
+  red: '\x1b[31m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  cyan: '\x1b[36m',
+}
+
+function log(message, color = 'reset') {
+  console.log(`${colors[color]}${message}${colors.reset}`)
+}
 
 // Variáveis obrigatórias
-const REQUIRED_ENV_VARS = [
+const REQUIRED_VARS = [
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-];
+]
 
 // Variáveis opcionais (mas recomendadas)
-const OPTIONAL_ENV_VARS = [
+const OPTIONAL_VARS = [
+  'SUPABASE_SERVICE_ROLE_KEY',
   'ANTHROPIC_API_KEY',
   'OPENAI_API_KEY',
   'GOOGLE_AI_API_KEY',
-  'SUPABASE_SERVICE_ROLE_KEY',
-];
+  'PERPLEXITY_API_KEY',
+  'GROK_API_KEY',
+]
 
-// Padrões de validação
-const VALIDATION_PATTERNS = {
-  'NEXT_PUBLIC_SUPABASE_URL': /^https:\/\/[a-z0-9-]+\.supabase\.co$/,
-  'NEXT_PUBLIC_SUPABASE_ANON_KEY': /^eyJ[a-zA-Z0-9_-]+\.eyJ[a-zA-Z0-9_-]+\./,
-  'ANTHROPIC_API_KEY': /^sk-ant-[a-zA-Z0-9_-]+$/,
-  'OPENAI_API_KEY': /^sk-[a-zA-Z0-9_-]+$/,
-  'GOOGLE_AI_API_KEY': /^[a-zA-Z0-9_-]+$/,
-};
-
-// Colors for output
-const colors = {
-  reset: '\x1b[0m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  cyan: '\x1b[36m',
-};
-
-function log(message, color = 'reset') {
-  console.log(`${colors[color]}${message}${colors.reset}`);
-}
-
-function logSuccess(message) {
-  log(`✅ ${message}`, 'green');
-}
-
-function logError(message) {
-  log(`❌ ${message}`, 'red');
-}
-
-function logWarning(message) {
-  log(`⚠️  ${message}`, 'yellow');
-}
-
-function logInfo(message) {
-  log(`ℹ️  ${message}`, 'cyan');
-}
-
-/**
- * Valida se uma variável de ambiente está presente e tem formato correto
- */
-function validateEnvVar(varName, value, isRequired = false) {
-  const errors = [];
-  const warnings = [];
-
-  // Verificar se está presente
-  if (!value || value.trim() === '') {
-    if (isRequired) {
-      errors.push(`${varName} é obrigatória mas não está definida`);
-    } else {
-      warnings.push(`${varName} não está definida (opcional)`);
-    }
-    return { errors, warnings };
-  }
-
-  // Verificar formato se houver padrão
-  const pattern = VALIDATION_PATTERNS[varName];
-  if (pattern && !pattern.test(value)) {
-    errors.push(`${varName} tem formato inválido`);
-  }
-
-  // Verificar se não é placeholder
-  if (value.includes('placeholder') || value === 'placeholder') {
-    if (isRequired) {
-      errors.push(`${varName} está usando valor placeholder`);
-    } else {
-      warnings.push(`${varName} está usando valor placeholder`);
-    }
-  }
-
-  return { errors, warnings };
-}
-
-/**
- * Carrega variáveis de ambiente de arquivo .env.local se existir
- */
 function loadEnvFile() {
-  const envFile = join(rootDir, '.env.local');
-  if (existsSync(envFile)) {
-    try {
-      const content = readFileSync(envFile, 'utf-8');
-      const envVars = {};
+  try {
+    const envPath = join(__dirname, '..', '.env.local')
+    const content = readFileSync(envPath, 'utf-8')
+    const env = {}
 
-      content.split('\n').forEach((line) => {
-        const trimmed = line.trim();
-        if (trimmed && !trimmed.startsWith('#')) {
-          const [key, ...valueParts] = trimmed.split('=');
-          if (key && valueParts.length > 0) {
-            envVars[key.trim()] = valueParts.join('=').trim().replace(/^["']|["']$/g, '');
-          }
+    content.split('\n').forEach(line => {
+      const trimmed = line.trim()
+      if (trimmed && !trimmed.startsWith('#')) {
+        const [key, ...valueParts] = trimmed.split('=')
+        if (key && valueParts.length > 0) {
+          env[key.trim()] = valueParts.join('=').trim()
         }
-      });
+      }
+    })
 
-      // Carregar no process.env se não estiver definido
-      Object.entries(envVars).forEach(([key, value]) => {
-        if (!process.env[key]) {
-          process.env[key] = value;
-        }
-      });
-
-      return envVars;
-    } catch (error) {
-      logWarning(`Não foi possível ler .env.local: ${error.message}`);
-      return {};
-    }
+    return env
+  } catch (error) {
+    return {}
   }
-  return {};
 }
 
-/**
- * Validação principal
- */
-async function main() {
-  log('\n🔍 Validando variáveis de ambiente...', 'cyan');
+function validateUrl(url) {
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return false
+  }
+}
 
-  // Carregar .env.local se existir
-  const envFile = loadEnvFile();
+function validateApiKey(key, prefix) {
+  if (!key) return false
+  if (prefix && !key.startsWith(prefix)) {
+    return false
+  }
+  return key.length > 10 // Mínimo de caracteres
+}
 
-  const allErrors = [];
-  const allWarnings = [];
+function main() {
+  log('\n🔍 Validando Variáveis de Ambiente...\n', 'cyan')
+
+  const env = loadEnvFile()
+  const envVars = { ...process.env, ...env }
+
+  let hasErrors = false
+  let hasWarnings = false
 
   // Validar variáveis obrigatórias
-  log('\n📋 Variáveis obrigatórias:', 'cyan');
-  for (const varName of REQUIRED_ENV_VARS) {
-    const value = process.env[varName];
-    const { errors, warnings } = validateEnvVar(varName, value, true);
-    allErrors.push(...errors);
-    allWarnings.push(...warnings);
-
-    if (errors.length === 0) {
-      logSuccess(`${varName} está configurada`);
+  log('📋 Variáveis Obrigatórias:', 'blue')
+  for (const varName of REQUIRED_VARS) {
+    const value = envVars[varName]
+    if (!value) {
+      log(`  ❌ ${varName}: NÃO CONFIGURADA`, 'red')
+      hasErrors = true
     } else {
-      errors.forEach((err) => logError(err));
+      // Validações específicas
+      if (varName.includes('URL') && !validateUrl(value)) {
+        log(`  ⚠️  ${varName}: URL inválida`, 'yellow')
+        hasWarnings = true
+      } else {
+        log(`  ✅ ${varName}: Configurada`, 'green')
+      }
     }
   }
 
   // Validar variáveis opcionais
-  log('\n📋 Variáveis opcionais:', 'cyan');
-  for (const varName of OPTIONAL_ENV_VARS) {
-    const value = process.env[varName];
-    const { errors, warnings } = validateEnvVar(varName, value, false);
-    allErrors.push(...errors);
-    allWarnings.push(...warnings);
+  log('\n📋 Variáveis Opcionais (Recomendadas):', 'blue')
+  for (const varName of OPTIONAL_VARS) {
+    const value = envVars[varName]
+    if (!value) {
+      log(`  ⚠️  ${varName}: Não configurada (opcional)`, 'yellow')
+      hasWarnings = true
+    } else {
+      // Validações específicas
+      let isValid = true
+      if (varName.includes('API_KEY')) {
+        if (varName.includes('ANTHROPIC') && !validateApiKey(value, 'sk-ant-')) {
+          isValid = false
+        } else if (varName.includes('OPENAI') && !validateApiKey(value, 'sk-')) {
+          isValid = false
+        } else if (varName.includes('PERPLEXITY') && !validateApiKey(value, 'pplx-')) {
+          isValid = false
+        } else if (varName.includes('GOOGLE') && !validateApiKey(value, 'AIza')) {
+          isValid = false
+        } else if (!validateApiKey(value)) {
+          isValid = false
+        }
+      }
 
-    if (value && errors.length === 0) {
-      logSuccess(`${varName} está configurada`);
-    } else if (warnings.length > 0) {
-      warnings.forEach((warn) => logWarning(warn));
+      if (isValid) {
+        log(`  ✅ ${varName}: Configurada`, 'green')
+      } else {
+        log(`  ⚠️  ${varName}: Formato pode estar incorreto`, 'yellow')
+        hasWarnings = true
+      }
     }
   }
 
   // Resumo
-  log('\n📊 Resumo:', 'cyan');
-  log(`✅ Variáveis obrigatórias: ${REQUIRED_ENV_VARS.length - allErrors.length}/${REQUIRED_ENV_VARS.length}`);
-  log(`⚠️  Avisos: ${allWarnings.length}`);
-  log(`❌ Erros: ${allErrors.length}`);
+  log('\n📊 Resumo:', 'cyan')
+  const requiredCount = REQUIRED_VARS.filter(v => envVars[v]).length
+  const optionalCount = OPTIONAL_VARS.filter(v => envVars[v]).length
 
-  // Falhar se houver erros em variáveis obrigatórias
-  if (allErrors.length > 0) {
-    log('\n❌ Validação falhou!', 'red');
-    log('Por favor, configure as variáveis de ambiente obrigatórias.', 'red');
-    process.exit(1);
+  log(`  ✅ Variáveis obrigatórias: ${requiredCount}/${REQUIRED_VARS.length}`,
+    requiredCount === REQUIRED_VARS.length ? 'green' : 'red')
+  log(`  ✅ Variáveis opcionais: ${optionalCount}/${OPTIONAL_VARS.length}`,
+    optionalCount === OPTIONAL_VARS.length ? 'green' : 'yellow')
+
+  if (hasErrors) {
+    log('\n❌ ERROS ENCONTRADOS! Configure as variáveis obrigatórias.', 'red')
+    log('   Crie o arquivo .env.local com as variáveis necessárias.\n', 'yellow')
+    process.exit(1)
   }
 
-  if (allWarnings.length > 0) {
-    log('\n⚠️  Validação passou com avisos', 'yellow');
-    log('Algumas variáveis opcionais não estão configuradas.', 'yellow');
-    process.exit(0);
+  if (hasWarnings) {
+    log('\n⚠️  AVISOS: Algumas variáveis opcionais não estão configuradas.', 'yellow')
+    log('   Algumas funcionalidades podem não estar disponíveis.\n', 'yellow')
+  } else {
+    log('\n✅ Todas as variáveis estão configuradas corretamente!\n', 'green')
   }
 
-  log('\n✅ Validação passou!', 'green');
-  process.exit(0);
+  process.exit(0)
 }
 
-main().catch((error) => {
-  logError(`Erro fatal: ${error.message}`);
-  process.exit(1);
-});
+main()

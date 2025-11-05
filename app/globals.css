@@ -3,16 +3,18 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Cores Principais - Acolhimento Maternal */
-  --background: 30 15% 98%;
-  --foreground: 222.2 84% 4.9%;
+  /* Cores Principais - Acolhimento Maternal (baseado no site real: https://www.nossamaternidade.com.br/) */
+  /* Background: #fbfaf9 (rgb(251, 250, 249)) - Bege muito claro */
+  --background: 30 8% 98%;
+  /* Foreground: #020817 (rgb(2, 8, 23)) - Texto escuro */
+  --foreground: 220 35% 5%;
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 220 35% 5%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
+  --popover-foreground: 220 35% 5%;
 
-  /* Primary - Rosa Suave Maternal (mais acolhedor) */
-  --primary: 346 55% 65%;
+  /* Primary - Terracota Acolhedor (mantém cor acolhedora do design) */
+  --primary: 20 45% 55%;
   --primary-foreground: 0 0% 100%;
 
   /* Accent - Pêssego Suave (diferente do primary) */
@@ -25,14 +27,15 @@
 
   /* Muted - Creme Suave (melhor contraste) */
   --muted: 30 10% 95%;
-  --muted-foreground: 30 15% 40%;
+  /* Muted foreground - baseado no texto do site real com opacidade */
+  --muted-foreground: 220 35% 25%;
 
-  /* Borders e Inputs - Bege Suave */
-  --border: 30 10% 90%;
-  --input: 30 10% 92%;
+  /* Borders e Inputs - Bege Suave (#e8e6e3 - rgb(232, 230, 227)) */
+  --border: 30 8% 90%;
+  --input: 30 8% 92%;
 
-  /* Ring - Rosa Suave (consistente com primary) */
-  --ring: 346 55% 65%;
+  /* Ring - Terracota (consistente com primary) */
+  --ring: 20 45% 55%;
 
   /* Destructive - Vermelho Suave (menos agressivo) */
   --destructive: 10 60% 65%;
@@ -42,7 +45,7 @@
   --radius: 0.75rem;
 
   /* Charts - Cores Suaves e Harmoniosas */
-  --chart-1: 346 55% 65%;
+  --chart-1: 20 45% 55%;
   --chart-2: 25 45% 75%;
   --chart-3: 150 30% 65%;
   --chart-4: 200 40% 70%;

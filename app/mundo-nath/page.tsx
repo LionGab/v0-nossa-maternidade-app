@@ -226,7 +226,10 @@ export default function MundoNathPage() {
           url: window.location.href,
         })
       } catch (err) {
-        console.log("Erro ao compartilhar:", err)
+        // Erro ao compartilhar - silencioso para não poluir console
+        if (process.env.NODE_ENV === "development") {
+          console.error("Erro ao compartilhar:", err)
+        }
       }
     } else {
       // Fallback: copiar para clipboard

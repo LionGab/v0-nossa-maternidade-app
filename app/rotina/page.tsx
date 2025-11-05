@@ -99,7 +99,7 @@ export default function RotinaPage() {
                   onClick={() => {
                     // Filtrar por categoria
                     const atividadesFiltradas = atividadesPadrao.filter(a => a.tipo === cat.tipo)
-                    console.log(`Filtrar por ${cat.label}:`, atividadesFiltradas)
+                    // Filtro aplicado - atividades filtradas prontas para uso
                   }}
                 >
                   <Icon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
