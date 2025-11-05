@@ -3,11 +3,9 @@
  * Gerencia execução paralela, sequencial e orquestrada de agentes especializados
  */
 
-import { getApiKey, hasApiKey } from "@/lib/env"
+import { hasApiKey } from "@/lib/env"
 import { logger } from "@/lib/logger"
-import Anthropic from "@anthropic-ai/sdk"
-import { GoogleGenerativeAI } from "@google/generative-ai"
-import OpenAI from "openai"
+import { getAnthropicClient, getOpenAIClient, getGeminiClient } from "@/lib/ai/providers"
 import type {
     AgentCapabilities,
     AgentResult,
@@ -16,27 +14,6 @@ import type {
     MultiAgentRequest,
     MultiAgentResponse,
 } from "./types"
-
-// Inicialização condicional das APIs
-let anthropic: Anthropic | null = null
-let openai: OpenAI | null = null
-let genAI: GoogleGenerativeAI | null = null
-
-if (hasApiKey("anthropic")) {
-    anthropic = new Anthropic({
-        apiKey: getApiKey("anthropic")!,
-    })
-}
-
-if (hasApiKey("openai")) {
-    openai = new OpenAI({
-        apiKey: getApiKey("openai")!,
-    })
-}
-
-if (hasApiKey("google")) {
-    genAI = new GoogleGenerativeAI(getApiKey("google")!)
-}
 
 /**
  * Capacidades dos agentes especializados
@@ -276,31 +253,41 @@ async function callAI(prompt: string, agentType: AgentType): Promise<string> {
     // Agentes de documentação podem usar Gemini (boa performance)
     const documentationAgents: AgentType[] = ["documenter", "validator"]
 
-    if (criticalAgents.includes(agentType) && anthropic) {
-        const response = await anthropic.messages.create({
-            model: "claude-sonnet-4-20250514",
-            max_tokens: 4096,
-            messages: [{ role: "user", content: prompt }],
-        })
-        return response.content[0].type === "text" ? response.content[0].text : ""
+    if (criticalAgents.includes(agentType)) {
+        const anthropic = getAnthropicClient()
+        if (anthropic) {
+            const response = await anthropic.messages.create({
+                model: "claude-sonnet-4-20250514",
+                max_tokens: 4096,
+                messages: [{ role: "user", content: prompt }],
+            })
+            return response.content[0].type === "text" ? response.content[0].text : ""
+        }
     }
 
-    if (generationAgents.includes(agentType) && openai) {
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4-turbo-preview",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.3, // Menor temperatura para código mais consistente
-        })
-        return completion.choices[0]?.message?.content || ""
+    if (generationAgents.includes(agentType)) {
+        const openai = getOpenAIClient()
+        if (openai) {
+            const completion = await openai.chat.completions.create({
+                model: "gpt-4-turbo-preview",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.3, // Menor temperatura para código mais consistente
+            })
+            return completion.choices[0]?.message?.content || ""
+        }
     }
 
-    if (documentationAgents.includes(agentType) && genAI) {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
-        const result = await model.generateContent(prompt)
-        return result.response.text()
+    if (documentationAgents.includes(agentType)) {
+        const genAI = getGeminiClient()
+        if (genAI) {
+            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
+            const result = await model.generateContent(prompt)
+            return result.response.text()
+        }
     }
 
     // Fallback para primeira API disponível
+    const anthropic = getAnthropicClient()
     if (anthropic) {
         const response = await anthropic.messages.create({
             model: "claude-sonnet-4-20250514",
@@ -310,6 +297,7 @@ async function callAI(prompt: string, agentType: AgentType): Promise<string> {
         return response.content[0].type === "text" ? response.content[0].text : ""
     }
 
+    const openai = getOpenAIClient()
     if (openai) {
         const completion = await openai.chat.completions.create({
             model: "gpt-4-turbo-preview",
