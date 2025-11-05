@@ -65,7 +65,7 @@ export default function MaternidadeHojePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+    <div className="min-h-screen gradient-warm pb-20 md:pb-6">
       <PageHeader
         title="Maternidade Hoje"
         description="Notícias, tendências e informações atualizadas sobre maternidade"
