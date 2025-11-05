@@ -88,7 +88,10 @@ async function generateRecipesHandler(request: NextRequest) {
         .single()
       babyProfile = babyData
     } catch (error) {
-      logger.debug("Baby profile fetch failed for recipes", { userId: user.id, error })
+      logger.debug("Baby profile fetch failed for recipes", {
+        userId: user.id,
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
 
     // Usar prompt simplificado para resposta mais rápida (< 1 minuto)

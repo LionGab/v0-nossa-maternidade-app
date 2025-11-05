@@ -72,7 +72,10 @@ async function multiAIChatHandler(req: NextRequest) {
         .single()
       profile = profileData
     } catch (error) {
-      logger.debug("Profile fetch failed", { userId: user.id, error })
+      logger.debug("Profile fetch failed", {
+        userId: user.id,
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
 
     try {
@@ -85,7 +88,10 @@ async function multiAIChatHandler(req: NextRequest) {
         .single()
       latestAnalysis = analysisData
     } catch (error) {
-      logger.debug("Sentiment analysis fetch failed", { userId: user.id, error })
+      logger.debug("Sentiment analysis fetch failed", {
+        userId: user.id,
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
 
     // Coletar informações do perfil do bebê se disponível
@@ -100,7 +106,10 @@ async function multiAIChatHandler(req: NextRequest) {
         .single()
       babyProfile = babyData
     } catch (error) {
-      logger.debug("Baby profile fetch failed", { userId: user.id, error })
+      logger.debug("Baby profile fetch failed", {
+        userId: user.id,
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
 
     const context = `
@@ -224,10 +233,7 @@ REGRAS DE RESPOSTA:
       })
     }
 
-    // Usar GPT-4 para conversação geral e recomendações
-copilot/improve-slow-code-performance
-  // Usar modelo mais rápido (gpt-4o-mini) para respostas mais rápidas, mas com prompts especializados
-main
+    // Usar modelo mais rápido (gpt-4o-mini) para respostas mais rápidas, mas com prompts especializados
     const openai = getOpenAIClient()
     if (!openai) {
       return new Response(

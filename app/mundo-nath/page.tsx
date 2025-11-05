@@ -155,7 +155,9 @@ export default function MundoNathPage() {
       window.open(video.url, '_blank', 'noopener,noreferrer')
     } else {
       // Se não tiver URL real, não fazer nada (não deveria acontecer já que filtramos)
-      console.warn(`Vídeo ${videoId} não tem URL específica`)
+      if (process.env.NODE_ENV === "development") {
+        console.warn(`Vídeo ${videoId} não tem URL específica`)
+      }
     }
   }
 
@@ -207,7 +209,9 @@ export default function MundoNathPage() {
         })
       }
     } catch (error) {
-      console.error("Error saving video:", error)
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error saving video:", error)
+      }
       toast.error("Erro ao salvar vídeo", {
         description: error instanceof Error ? error.message : "Tente novamente mais tarde",
         duration: 5000,

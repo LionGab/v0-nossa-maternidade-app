@@ -66,7 +66,7 @@ npm run test:api-keys
 
 #### 4.1 Executar Migrations
 
-Acesse o Supabase Dashboard: https://bbcwitnbnosyfpjtzkr.supabase.co
+Acesse o Supabase Dashboard: https://mnszbkeuerjcevjvdqme.supabase.co
 
 1. Vá em **SQL Editor**
 2. Execute os scripts na seguinte ordem:

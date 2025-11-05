@@ -84,7 +84,7 @@ export function getEnvConfig(): EnvConfig {
 
   if (missingRequired.length > 0) {
     const errorMessage = `CRÍTICO: Variáveis de ambiente obrigatórias faltando: ${missingRequired.join(", ")}`
-    logger.error(errorMessage, {
+    logger.error(errorMessage, undefined, {
       missing: missingRequired,
     })
 

@@ -28,8 +28,6 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
-  // Turbopack configuration for Next.js 16
-  turbopack: {},
 }
 
 // Sentry é configurado via arquivos separados (sentry.client.config.ts, sentry.server.config.ts)

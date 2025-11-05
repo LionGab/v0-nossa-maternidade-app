@@ -72,7 +72,10 @@ async function handleRecommendations(req: NextRequest) {
         .single()
       babyProfile = babyData
     } catch (error) {
-      logger.debug("Baby profile fetch failed for recommendations", { userId: user.id, error })
+      logger.debug("Baby profile fetch failed for recommendations", {
+        userId: user.id,
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
 
     // Usar GPT-4 para gerar recomendações personalizadas e especializadas
