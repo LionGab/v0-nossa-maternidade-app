@@ -1,0 +1,53 @@
+name: Sync Environment Variables
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to sync'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+  schedule:
+    # Sync diário às 2h UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  sync-envs:
+    name: Sync Envs to ${{ github.event.inputs.environment || 'staging' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Sync to Vercel
+        run: |
+          npm install -g vercel
+          vercel env pull .env.${{ github.event.inputs.environment || 'staging' }} \
+            --environment=${{ github.event.inputs.environment || 'staging' }} \
+            --token=${{ secrets.VERCEL_TOKEN }} || echo "Vercel sync skipped"
+
+      - name: Sync to Supabase
+        run: |
+          npm install -g supabase
+          supabase secrets set \
+            --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} \
+            --env-file .env.${{ github.event.inputs.environment || 'staging' }} || echo "Supabase sync skipped"
+
+      - name: Validate envs
+        run: |
+          node scripts/validate-envs.js .env.${{ github.event.inputs.environment || 'staging' }}
+
+      - name: Create backup
+        run: |
+          mkdir -p .backups
+          cp .env.${{ github.event.inputs.environment || 'staging' }} \
+            .backups/env-backup-$(date +%Y%m%d-%H%M%S).${{ github.event.inputs.environment || 'staging' }} || echo "Backup skipped"

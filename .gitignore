@@ -29,3 +29,59 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.env
+
+# Expo/React Native (não necessário para Next.js)
+.expo/
+.expo-shared/
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# Metro bundler
+.metro/
+metro.config.js
+
+# EAS Build
+eas.json
+app.json
+
+# Detox
+.detoxrc.json
+.detox/
+node_modules/.cache/detox/
+
+# iOS
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+project.xcworkspace/
+xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData/
+*.hmap
+*.ipa
+*.xcuserstate
+ios/
+*.xcworkspace
+
+# Android
+*.iml
+.gradle/
+local.properties
+.navigation/
+captures/
+.externalNativeBuild
+.cxx/
+*.apk
+*.ap_
+*.aab
+android/

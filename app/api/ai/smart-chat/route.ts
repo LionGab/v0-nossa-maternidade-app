@@ -16,33 +16,9 @@ import { geminiProClient } from "@/lib/ai/providers/gemini-pro"
 import { getApiKey, hasApiKey } from "@/lib/env"
 import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
 import { logger } from "@/lib/logger"
-import Anthropic from "@anthropic-ai/sdk"
-import OpenAI from "openai"
-import { GoogleGenerativeAI } from "@google/generative-ai"
+import { getAnthropicClient, getOpenAIClient } from "@/lib/ai/providers"
 
 export { OPTIONS } // CORS preflight
-
-// Inicialização condicional das APIs
-let anthropic: Anthropic | null = null
-let openai: OpenAI | null = null
-let genAI: GoogleGenerativeAI | null = null
-
-if (hasApiKey("anthropic")) {
-    anthropic = new Anthropic({
-        apiKey: getApiKey("anthropic")!,
-    })
-}
-
-if (hasApiKey("openai")) {
-    openai = new OpenAI({
-        apiKey: getApiKey("openai")!,
-        timeout: 20000,
-    })
-}
-
-if (hasApiKey("google")) {
-    genAI = new GoogleGenerativeAI(getApiKey("google")!)
-}
 
 interface SmartChatRequest {
     messages: Array<{ role: "user" | "assistant"; content: string }>
@@ -163,7 +139,8 @@ async function handleSmartChat(req: NextRequest) {
         const responseStartTime = Date.now()
 
         switch (provider) {
-            case "claude":
+            case "claude": {
+                const anthropic = getAnthropicClient()
                 if (!anthropic) {
                     throw new Error("Claude API não configurada")
                 }
@@ -182,8 +159,10 @@ async function handleSmartChat(req: NextRequest) {
                 tokensUsed = (claudeResponse.usage?.input_tokens || 0) + (claudeResponse.usage?.output_tokens || 0)
                 costUsd = (tokensUsed / 1000) * 0.00025 // Claude Haiku: ~$0.25 por 1M tokens
                 break
+            }
 
-            case "gpt4":
+            case "gpt4": {
+                const openai = getOpenAIClient()
                 if (!openai) {
                     throw new Error("OpenAI API não configurada")
                 }
@@ -202,6 +181,7 @@ async function handleSmartChat(req: NextRequest) {
                 tokensUsed = (gptResponse.usage?.prompt_tokens || 0) + (gptResponse.usage?.completion_tokens || 0)
                 costUsd = (tokensUsed / 1000) * 0.01 // GPT-4 Turbo: ~$10 por 1M tokens
                 break
+            }
 
             case "gemini":
                 if (!geminiProClient.isAvailable()) {
@@ -324,4 +304,3 @@ async function handleSmartChat(req: NextRequest) {
 }
 
 export const POST = withRateLimit(handleSmartChat, RATE_LIMITS.HEAVY)
-

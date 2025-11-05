@@ -1,32 +1,14 @@
 import type { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import Anthropic from "@anthropic-ai/sdk"
-import OpenAI from "openai"
 import { chatRequestSchema } from "@/lib/validations/schemas"
-import { getApiKey, hasApiKey } from "@/lib/env"
+import { getApiKey } from "@/lib/env"
 import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
 import { logger } from "@/lib/logger"
 import { sanitizeMessages } from "@/lib/sanitize"
 import { validateContext, isResponseInContext } from "@/lib/guardrails"
+import { getAnthropicClient, getOpenAIClient } from "@/lib/ai/providers"
 
 export { OPTIONS } // CORS preflight
-
-// Inicialização condicional das APIs
-let anthropic: Anthropic | null = null
-let openai: OpenAI | null = null
-
-if (hasApiKey('anthropic')) {
-  anthropic = new Anthropic({
-    apiKey: getApiKey('anthropic')!,
-  })
-}
-
-if (hasApiKey('openai')) {
-  openai = new OpenAI({
-    apiKey: getApiKey('openai')!,
-    timeout: 20000, // Timeout de 20 segundos
-  })
-}
 
 async function multiAIChatHandler(req: NextRequest) {
   const startTime = Date.now()
@@ -141,6 +123,11 @@ ${babyProfile ? `
         )
       }
 
+      const anthropic = getAnthropicClient()
+      if (!anthropic) {
+        return new Response("Claude API não configurada", { status: 503 })
+      }
+
       const stream = await anthropic.messages.stream({
         model: "claude-3-5-haiku-20241022", // Modelo mais rápido
         max_tokens: 800, // Aumentar para respostas mais completas
@@ -242,6 +229,11 @@ REGRAS DE RESPOSTA:
     }
 
     // Usar modelo mais rápido (gpt-4o-mini) para respostas mais rápidas, mas com prompts especializados
+    const openai = getOpenAIClient()
+    if (!openai) {
+      return new Response("OpenAI API não configurada", { status: 503 })
+    }
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini", // Modelo mais rápido e eficiente
       max_tokens: 800, // Aumentar para respostas mais completas

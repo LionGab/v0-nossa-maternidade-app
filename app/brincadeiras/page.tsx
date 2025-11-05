@@ -108,7 +108,7 @@ const brincadeiras = [
 
 export default function BrincadeirasPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+    <div className="min-h-screen gradient-warm pb-20 md:pb-6">
       <PageHeader
         title="Brincadeiras Sensoriais"
         description="Atividades para estimular o desenvolvimento do bebê"

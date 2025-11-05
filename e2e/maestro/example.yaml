@@ -1,0 +1,18 @@
+# Exemplo de teste Maestro para E2E
+# Maestro é uma alternativa mais simples ao Detox
+# Instalação: curl -Ls https://get.maestro.mobile.dev | bash
+# Execução: maestro test ./e2e/maestro
+
+appId: com.nossamaternidade.app
+---
+# Teste básico de navegação
+- launchApp
+- assertVisible: "Nossa Maternidade"
+- tapOn: "Entrar"
+- assertVisible: "Login"
+- inputText: "usuario@exemplo.com"
+- tapOn: "Senha"
+- inputText: "senha123"
+- tapOn: "Entrar"
+- assertVisible: "Dashboard"
+
