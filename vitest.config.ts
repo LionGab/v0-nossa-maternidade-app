@@ -1,6 +1,6 @@
-import { defineConfig } from "vitest/config"
 import react from "@vitejs/plugin-react"
 import path from "path"
+import { defineConfig } from "vitest/config"
 
 export default defineConfig({
   plugins: [react()],
@@ -21,7 +21,8 @@ export default defineConfig({
     ],
     coverage: {
       provider: "v8",
-      reporter: ["text", "json", "html"],
+      reporter: ["text", "json", "json-summary", "html"],
+      reportsDirectory: "./coverage",
       exclude: [
         "node_modules/",
         ".next/",
@@ -32,6 +33,13 @@ export default defineConfig({
         "**/*.setup.*",
         "**/types.ts",
       ],
+      // Threshold mínimo de cobertura (pode ser aumentado gradualmente)
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 70,
+        statements: 70,
+      },
     },
   },
   resolve: {

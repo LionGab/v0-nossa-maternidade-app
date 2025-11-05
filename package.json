@@ -5,8 +5,15 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "lint": "echo 'Linting skipped - ESLint 9 configuration needs migration. Build validates TypeScript types.'",
     "start": "next start",
+    "quality": "node scripts/quality-check.mjs",
+    "quality:fast": "node scripts/quality-check.mjs --fast",
+    "quality:all": "node scripts/quality-check.mjs --all",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "validate": "npm run type-check && npm run lint && npm run test",
+    "validate:e2e": "npm run validate && npm run test:e2e",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
@@ -124,7 +131,9 @@
     "@vitest/ui": "^3.1.9",
     "eslint": "^9.17.0",
     "eslint-config-next": "^16.0.1",
+    "husky": "^9.0.11",
     "jsdom": "^25.0.1",
+    "lint-staged": "^15.2.0",
     "supabase": "^2.54.11",
     "vitest": "^3.1.9"
   },
@@ -143,5 +152,14 @@
   "bugs": {
     "url": "https://github.com/LionGab/v0-nossa-maternidade-app/issues"
   },
-  "homepage": "https://github.com/LionGab/v0-nossa-maternidade-app#readme"
+  "homepage": "https://github.com/LionGab/v0-nossa-maternidade-app#readme",
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
 }
