@@ -1,5 +1,4 @@
 import js from '@eslint/js';
-import nextPlugin from 'eslint-config-next';
 
 const eslintConfig = [
   js.configs.recommended,
