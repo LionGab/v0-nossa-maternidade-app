@@ -1,6 +1,8 @@
 // Configuração do Next.js com suporte opcional para Sentry
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Turbopack config (empty to silence the warning)
+  turbopack: {},
   // Otimizações de performance
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
