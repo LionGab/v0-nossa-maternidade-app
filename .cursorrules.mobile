@@ -1,0 +1,63 @@
+# Configuração MCPs para Cursor - React Native/Expo
+# Este arquivo documenta os MCPs configurados para este projeto mobile
+
+## MCPs Disponíveis
+
+### 1. Supabase MCP
+- Configuração: Verifique `cursor-mcp-config.json` ou configurações do Cursor
+- Credenciais: Usar variáveis de ambiente do arquivo `.env`
+  - `EXPO_PUBLIC_SUPABASE_URL` (ao invés de `NEXT_PUBLIC_SUPABASE_URL`)
+  - `EXPO_PUBLIC_SUPABASE_ANON_KEY` (ao invés de `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
+- Uso: Interagir com banco de dados Supabase no mobile
+
+### 2. Filesystem MCP
+- Configuração: Acesso ao sistema de arquivos do projeto
+- Uso: Navegar, ler e escrever arquivos do projeto
+
+### 3. Git MCP
+- Configuração: Integração com repositório Git
+- Uso: Ver histórico, branches, commits, diffs
+
+### 4. Brave Search MCP (Opcional)
+- Configuração: Requer API key do Brave Search
+- Uso: Pesquisas na web atualizadas
+
+## Configurações Específicas para React Native/Expo
+
+### Variáveis de Ambiente
+- Use `EXPO_PUBLIC_*` prefix para variáveis públicas (ao invés de `NEXT_PUBLIC_*`)
+- Variáveis privadas não precisam de prefixo mas não estarão disponíveis no cliente
+
+### Estrutura de Testes
+- **Unit Tests**: Vitest com `@testing-library/react-native`
+- **E2E Tests**: Detox ou Maestro (não Playwright)
+- **Config**: `vitest.config.mobile.ts` e `vitest.setup.mobile.ts`
+
+### Build e Deploy
+- **EAS Build**: Usar `eas build` para builds nativos
+- **CI/CD**: Workflow `.github/workflows/ci-cd.mobile.yml`
+- **Profiles**: `preview` (PRs) e `production` (main branch)
+
+### ESLint
+- Config: `eslint.config.mobile.mjs`
+- Extends: `expo` e `plugin:react-native/all`
+
+### TypeScript
+- Config: `tsconfig.mobile.json`
+- Extends: `expo/tsconfig.base`
+
+## Instruções de Configuração
+
+Para configurar os MCPs no Cursor:
+1. Abra as configurações do Cursor
+2. Procure por "MCP" ou "Model Context Protocol"
+3. Adicione os servidores MCP conforme `cursor-mcp-config.json`
+4. Reinicie o Cursor após configurar
+
+## Notas Importantes
+
+- **Não use** `@testing-library/react` - use `@testing-library/react-native`
+- **Não use** Playwright para E2E - use Detox ou Maestro
+- **Não use** Next.js configs - use Expo configs
+- **Prefira** StyleSheet do React Native ao invés de CSS modules
+- **Use** `expo-router` para navegação (se disponível)
