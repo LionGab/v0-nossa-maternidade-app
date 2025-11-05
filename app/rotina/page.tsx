@@ -77,7 +77,7 @@ export default function RotinaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+    <div className="min-h-screen gradient-warm pb-20 md:pb-6">
       <PageHeader
         title="Rotina Semanal"
         description="Organize suas atividades e as do seu bebê"
@@ -86,7 +86,7 @@ export default function RotinaPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
         {/* Legendas de Categorias */}
-        <Card className="p-4">
+        <Card className="p-4 elevation-sm animate-in fade-in slide-in-from-top-2">
           <h3 className="font-semibold mb-3 text-sm text-muted-foreground">Categorias</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
             {categorias.map((cat) => {
@@ -95,7 +95,7 @@ export default function RotinaPage() {
                 <button
                   key={cat.tipo}
                   type="button"
-                  className={`flex items-center justify-center gap-2 p-3 sm:p-4 rounded-lg border transition-all hover:scale-105 active:scale-95 ${cat.color}`}
+                  className={`flex items-center justify-center gap-2 p-3 sm:p-4 rounded-lg border transition-all touch-feedback hover:elevation-xs ${cat.color}`}
                   onClick={() => {
                     // Filtrar por categoria
                     const atividadesFiltradas = atividadesPadrao.filter(a => a.tipo === cat.tipo)
@@ -117,7 +117,7 @@ export default function RotinaPage() {
               key={dia}
               variant={diaSelecionado === dia ? "default" : "outline"}
               onClick={() => setDiaSelecionado(dia)}
-              className="min-w-[85px] sm:min-w-[100px] text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-2.5 flex-shrink-0"
+              className="min-w-[85px] sm:min-w-[100px] text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-2.5 flex-shrink-0 touch-feedback"
             >
               {dia}
             </Button>
