@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { BottomNavigation } from "@/components/bottom-navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { clientLogger } from "@/lib/logger-client"
 
@@ -114,9 +115,20 @@ export default function DashboardPage() {
             <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border/50 p-4">
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
-                <div>
-                  <h1 className="text-2xl font-serif font-bold">Olá, {userName}! 💕</h1>
-                  <p className="text-sm text-muted-foreground">Bem-vinda de volta à sua jornada</p>
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="hidden md:block w-16 h-16 relative">
+                    <Image
+                      src="/logo-avatar.png"
+                      alt="Bem-vinda"
+                      width={64}
+                      height={64}
+                      className="object-contain opacity-80"
+                    />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-serif font-bold">Olá, {userName}! 💕</h1>
+                    <p className="text-sm text-muted-foreground">Bem-vinda de volta à sua jornada</p>
+                  </div>
                 </div>
               </div>
             </header>

@@ -80,8 +80,28 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 maternal-gradient">
-      <div className="w-full max-w-md">
+    <div className="flex min-h-screen w-full items-center justify-center p-6 maternal-gradient relative overflow-hidden">
+      {/* Ilustração decorativa de fundo */}
+      <div className="absolute top-10 left-10 w-48 h-48 opacity-10 hidden md:block">
+        <Image
+          src="/logo-avatar.png"
+          alt="Bem-vinda"
+          width={192}
+          height={192}
+          className="object-contain"
+        />
+      </div>
+      <div className="absolute bottom-10 right-10 w-56 h-56 opacity-10 hidden md:block">
+        <Image
+          src="/logo-mother-baby.png"
+          alt="Maternidade"
+          width={224}
+          height={224}
+          className="object-contain"
+        />
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
         <div className="flex flex-col gap-8">
           <div className="flex justify-center">
             <Image

@@ -179,8 +179,28 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-b from-rose-50 to-white">
-      <div className="w-full max-w-2xl">
+    <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-b from-rose-50 to-white relative overflow-hidden">
+      {/* Ilustração decorativa de fundo */}
+      <div className="absolute top-10 right-10 w-40 h-40 opacity-10 hidden md:block">
+        <Image
+          src="/logo-mother-baby.png"
+          alt="Onboarding"
+          width={160}
+          height={160}
+          className="object-contain"
+        />
+      </div>
+      <div className="absolute bottom-10 left-10 w-36 h-36 opacity-10 hidden md:block">
+        <Image
+          src="/logo-family.png"
+          alt="Jornada"
+          width={144}
+          height={144}
+          className="object-contain"
+        />
+      </div>
+
+      <div className="w-full max-w-2xl relative z-10">
         <div className="flex flex-col gap-6">
           <div className="flex justify-center mb-4">
             <Image
