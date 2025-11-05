@@ -88,7 +88,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-b from-rose-50 to-white relative overflow-hidden">
+    <div className="flex min-h-screen w-full items-center justify-center p-6 bg-[#FEFBFB] relative overflow-hidden">
       {/* Ilustração decorativa de fundo */}
       <div className="absolute top-20 right-20 w-52 h-52 opacity-10 hidden md:block">
         <Image

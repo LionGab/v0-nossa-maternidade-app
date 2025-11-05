@@ -80,7 +80,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 maternal-gradient relative overflow-hidden">
+    <div className="flex min-h-screen w-full items-center justify-center p-6 bg-[#FEFBFB] relative overflow-hidden">
       {/* Ilustração decorativa de fundo */}
       <div className="absolute top-10 left-10 w-48 h-48 opacity-10 hidden md:block">
         <Image
