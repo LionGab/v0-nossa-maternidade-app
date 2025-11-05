@@ -180,6 +180,8 @@ npm run lint:fix          # Corrigir problemas ESLint automaticamente
 
 **Documentação completa:** Veja [docs/QUALITY.md](./docs/QUALITY.md) para guia detalhado.
 
+**Melhores práticas aplicadas:** Veja [docs/BEST_PRACTICES_APPLIED.md](./docs/BEST_PRACTICES_APPLIED.md) para configurações aplicadas.
+
 ---
 
 ## 🚀 Deploy

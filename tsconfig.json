@@ -50,6 +50,10 @@
     "vitest.setup.ts",
     "*.config.test.ts",
     "*.config.spec.ts",
-    "*.setup.ts"
+    "*.setup.ts",
+    "metro.config.js",
+    "app.json",
+    "eas.json",
+    "babel.config.js"
   ]
 }

@@ -18,6 +18,12 @@ export default defineConfig({
       "**/e2e/**", // Excluir testes E2E do Playwright
       "**/*.config.*",
       "**/*.setup.*",
+      // Expo/React Native files
+      "metro.config.js",
+      "app.json",
+      "eas.json",
+      "**/ios/**",
+      "**/android/**",
     ],
     coverage: {
       provider: "v8",

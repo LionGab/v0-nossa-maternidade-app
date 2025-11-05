@@ -59,6 +59,14 @@ const eslintConfig = [
       '**/*.config.ts',
       '**/playwright-report/**',
       '**/test-results/**',
+      // Expo/React Native files (não necessário para Next.js)
+      'metro.config.js',
+      'app.json',
+      'eas.json',
+      'babel.config.js',
+      '**/ios/**',
+      '**/android/**',
+      '**/.expo/**',
     ],
   },
 ];

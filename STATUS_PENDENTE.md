@@ -161,7 +161,7 @@ git commit -m "docs: adicionar documentação adicional"
 
 1. **Revisar mudanças** nos arquivos modificados
 2. **Organizar commits** por categoria (recomendado)
-3. **Fazer push** quando estiver pronto: `git push origin main`
+3. **Fazer push** quando estiver pronto: `gh`
 
 ---
 

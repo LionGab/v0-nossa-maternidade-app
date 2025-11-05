@@ -26,6 +26,18 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
+  // Webpack: ignorar arquivos Expo/React Native
+  webpack: (config, { isServer }) => {
+    // Ignorar arquivos Expo/React Native no build
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // Ignorar módulos Expo se tentarem ser importados
+      'expo-router': false,
+      'expo': false,
+      'react-native': false,
+    }
+    return config
+  },
 }
 
 // Sentry é configurado via arquivos separados (sentry.client.config.ts, sentry.server.config.ts)

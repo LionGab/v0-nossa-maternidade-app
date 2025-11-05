@@ -44,7 +44,9 @@
     "overnight:brutal": "powershell -ExecutionPolicy Bypass -File scripts/overnight-brutal-mode.ps1",
     "overnight:brutal:dry-run": "powershell -ExecutionPolicy Bypass -File scripts/overnight-brutal-mode.ps1 -DryRun",
     "claude:brutal": "powershell -ExecutionPolicy Bypass -File scripts/claude-code-brutal-analyzer.ps1",
-    "install:gh-cli": "powershell -ExecutionPolicy Bypass -File scripts/install-github-cli.ps1"
+    "install:gh-cli": "powershell -ExecutionPolicy Bypass -File scripts/install-github-cli.ps1",
+    "prepare": "husky install || echo 'Husky não instalado - execute: npm install'",
+    "postinstall": "node scripts/setup-husky.mjs || echo 'Setup Husky falhou - execute: npm install'"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "latest",
