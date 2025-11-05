@@ -1,6 +1,167 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Cores Principais - Acolhimento Maternal */
+  --background: 30 15% 98%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+
+  /* Primary - Rosa Suave Maternal (mais acolhedor) */
+  --primary: 346 55% 65%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Accent - Pêssego Suave (diferente do primary) */
+  --accent: 25 45% 75%;
+  --accent-foreground: 25 35% 25%;
+
+  /* Secondary - Sage Suave (mais visível) */
+  --secondary: 150 25% 85%;
+  --secondary-foreground: 150 30% 20%;
+
+  /* Muted - Creme Suave (melhor contraste) */
+  --muted: 30 10% 95%;
+  --muted-foreground: 30 15% 40%;
+
+  /* Borders e Inputs - Bege Suave */
+  --border: 30 10% 90%;
+  --input: 30 10% 92%;
+
+  /* Ring - Rosa Suave (consistente com primary) */
+  --ring: 346 55% 65%;
+
+  /* Destructive - Vermelho Suave (menos agressivo) */
+  --destructive: 10 60% 65%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Radius */
+  --radius: 0.75rem;
+
+  /* Charts - Cores Suaves e Harmoniosas */
+  --chart-1: 346 55% 65%;
+  --chart-2: 25 45% 75%;
+  --chart-3: 150 30% 65%;
+  --chart-4: 200 40% 70%;
+  --chart-5: 45 50% 70%;
+
+  /* Sistema de Cores por Estado Emocional */
+  --emotion-cansada: 200 40% 75%;
+  --emotion-cansada-foreground: 200 50% 25%;
+  --emotion-energizada: 45 60% 70%;
+  --emotion-energizada-foreground: 45 70% 25%;
+  --emotion-estressada: 10 50% 75%;
+  --emotion-estressada-foreground: 10 60% 25%;
+  --emotion-feliz: 120 40% 75%;
+  --emotion-feliz-foreground: 120 50% 25%;
+  --emotion-triste: 240 30% 80%;
+  --emotion-triste-foreground: 240 40% 25%;
+
+  /* Cores Semânticas Suaves */
+  --success: 150 40% 60%;
+  --success-foreground: 0 0% 100%;
+  --warning: 45 60% 65%;
+  --warning-foreground: 45 70% 25%;
+  --info: 200 50% 70%;
+  --info-foreground: 200 60% 25%;
+}
+
+.dark {
+  /* Dark Mode - Mantém suavidade mas com contraste adequado */
+  --background: 222.2 84% 4.9%;
+  --foreground: 0 0% 100%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 0 0% 100%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 0 0% 100%;
+
+  /* Primary - Rosa Suave (mais claro no dark mode) */
+  --primary: 346 55% 70%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Accent - Pêssego Suave */
+  --accent: 25 45% 70%;
+  --accent-foreground: 0 0% 100%;
+
+  /* Secondary - Sage Escuro */
+  --secondary: 150 25% 25%;
+  --secondary-foreground: 150 30% 85%;
+
+  /* Muted - Escuro Suave */
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  /* Borders e Inputs */
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+
+  /* Ring */
+  --ring: 346 55% 70%;
+
+  /* Destructive */
+  --destructive: 10 60% 55%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Charts - Ajustados para dark mode */
+  --chart-1: 346 55% 70%;
+  --chart-2: 25 45% 70%;
+  --chart-3: 150 30% 60%;
+  --chart-4: 200 40% 65%;
+  --chart-5: 45 50% 65%;
+
+  /* Estados Emocionais - Dark Mode */
+  --emotion-cansada: 200 40% 60%;
+  --emotion-cansada-foreground: 0 0% 100%;
+  --emotion-energizada: 45 60% 65%;
+  --emotion-energizada-foreground: 45 70% 20%;
+  --emotion-estressada: 10 50% 70%;
+  --emotion-estressada-foreground: 0 0% 100%;
+  --emotion-feliz: 120 40% 65%;
+  --emotion-feliz-foreground: 0 0% 100%;
+  --emotion-triste: 240 30% 70%;
+  --emotion-triste-foreground: 0 0% 100%;
+
+  /* Semânticas - Dark Mode */
+  --success: 150 40% 55%;
+  --success-foreground: 0 0% 100%;
+  --warning: 45 60% 60%;
+  --warning-foreground: 45 70% 20%;
+  --info: 200 50% 65%;
+  --info-foreground: 0 0% 100%;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 
 @layer base {
   :root {
@@ -164,17 +325,19 @@
     --elevation-lg: 0 10px 15px -3px rgb(0 0 0 / 0.6), 0 4px 6px -4px rgb(0 0 0 / 0.5);
     --elevation-xl: 0 20px 25px -5px rgb(0 0 0 / 0.7), 0 8px 10px -6px rgb(0 0 0 / 0.6);
   }
+main
 }
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    @apply border-border outline-ring/50;
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     /* Mobile-First: Font-size mínimo 16px para evitar zoom automático no iOS */
@@ -572,8 +735,9 @@
 
 /* 🎯 Hover Effects */
 .hover-lift {
-  transition: transform var(--duration-base) var(--easing-standard),
-              box-shadow var(--duration-base) var(--easing-standard);
+  transition:
+    transform 0.2s ease-out,
+    box-shadow 0.2s ease-out;
 }
 
 .hover-lift:hover {
@@ -622,6 +786,13 @@
 
 /* 💫 Loading States */
 .shimmer {
+ copilot/improve-slow-code-performance
+  animation: shimmer 2s infinite;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+
   animation: shimmer 2s infinite linear;
   background: linear-gradient(
     to right,

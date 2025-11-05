@@ -24,6 +24,8 @@ export default defineConfig({
       "eas.json",
       "**/ios/**",
       "**/android/**",
+      // Mobile-specific test files
+      "__tests__/example.test.tsx",
     ],
     coverage: {
       provider: "v8",

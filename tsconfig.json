@@ -1,10 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "target": "ES6",
     "skipLibCheck": true,
@@ -23,9 +19,7 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   },
   "include": [
@@ -47,7 +41,9 @@
     "__tests__",
     "playwright.config.ts",
     "vitest.config.ts",
+    "vitest.config.mobile.ts",
     "vitest.setup.ts",
+    "vitest.setup.mobile.ts",
     "*.config.test.ts",
     "*.config.spec.ts",
     "*.setup.ts",

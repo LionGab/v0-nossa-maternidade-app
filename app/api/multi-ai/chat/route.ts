@@ -29,8 +29,11 @@ async function multiAIChatHandler(req: NextRequest) {
     const validationResult = chatRequestSchema.safeParse(body)
     if (!validationResult.success) {
       return new Response(
-        JSON.stringify({ error: "Formato de mensagens inválido", details: validationResult.error.errors }),
-        { status: 400 },
+        JSON.stringify({
+          error: "Formato de mensagens inválido",
+          details: validationResult.error.errors,
+        }),
+        { status: 400 }
       )
     }
 
@@ -40,7 +43,7 @@ async function multiAIChatHandler(req: NextRequest) {
     const limitedMessages = messages.slice(-10)
 
     // Validar contexto da última mensagem do usuário
-    const lastUserMessage = limitedMessages.filter(m => m.role === 'user').pop()?.content || ''
+    const lastUserMessage = limitedMessages.filter((m) => m.role === "user").pop()?.content || ""
     const contextValidation = validateContext(lastUserMessage)
 
     // Se estiver fora do contexto, retornar redirecionamento
@@ -62,7 +65,11 @@ async function multiAIChatHandler(req: NextRequest) {
     let latestAnalysis = null
 
     try {
-      const { data: profileData } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single()
       profile = profileData
     } catch (error) {
       logger.debug("Profile fetch failed", { userId: user.id, error })
@@ -101,14 +108,18 @@ Contexto da usuária:
 - Nome: ${profile?.full_name || "Mãe"}
 - Última análise emocional: ${latestAnalysis?.analysis?.emotion || "não disponível"}
 - Nível de risco: ${latestAnalysis?.risk_level || "não avaliado"}
-${babyProfile ? `
+${
+  babyProfile
+    ? `
 - Perfil do bebê:
   * Nome: ${babyProfile.name || "bebê"}
   * Idade: ${babyProfile.age_months ? `${babyProfile.age_months} meses` : "não informado"}
   * Peso: ${babyProfile.weight ? `${babyProfile.weight}kg` : "não informado"}
   * Alimentação: ${babyProfile.feeding_type || "não informado"}
   * Desenvolvimento: ${babyProfile.development_stage || "não informado"}
-` : ""}
+`
+    : ""
+}
 `
 
     // Usar Claude para modo empático (melhor para suporte emocional)
@@ -118,9 +129,9 @@ ${babyProfile ? `
         return new Response(
           JSON.stringify({
             error: "Modo empático não disponível",
-            message: "A API do Anthropic não está configurada. Configure ANTHROPIC_API_KEY."
+            message: "A API do Anthropic não está configurada. Configure ANTHROPIC_API_KEY.",
           }),
-          { status: 503, headers: { 'Content-Type': 'application/json' } }
+          { status: 503, headers: { "Content-Type": "application/json" } }
         )
       }
 
@@ -214,15 +225,17 @@ REGRAS DE RESPOSTA:
     }
 
     // Usar GPT-4 para conversação geral e recomendações
-    // Usar modelo mais rápido (gpt-4o-mini) para respostas mais rápidas, mas com prompts especializados
+copilot/improve-slow-code-performance
+  // Usar modelo mais rápido (gpt-4o-mini) para respostas mais rápidas, mas com prompts especializados
+main
     const openai = getOpenAIClient()
     if (!openai) {
       return new Response(
         JSON.stringify({
           error: "Chat não disponível",
-          message: "A API da OpenAI não está configurada. Configure OPENAI_API_KEY."
+          message: "A API da OpenAI não está configurada. Configure OPENAI_API_KEY.",
         }),
-        { status: 503, headers: { 'Content-Type': 'application/json' } }
+        { status: 503, headers: { "Content-Type": "application/json" } }
       )
     }
 

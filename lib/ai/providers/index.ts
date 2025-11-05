@@ -30,7 +30,10 @@ export function getAnthropicClient(): Anthropic | null {
       logger.info("Anthropic Claude client initialized")
       return anthropicInstance
     } catch (error) {
-      logger.error("Failed to initialize Anthropic client", { error })
+      logger.error(
+        "Failed to initialize Anthropic client",
+        error instanceof Error ? error : new Error(String(error))
+      )
       return null
     }
   }
@@ -55,7 +58,10 @@ export function getOpenAIClient(): OpenAI | null {
       logger.info("OpenAI client initialized")
       return openaiInstance
     } catch (error) {
-      logger.error("Failed to initialize OpenAI client", { error })
+      logger.error(
+        "Failed to initialize OpenAI client",
+        error instanceof Error ? error : new Error(String(error))
+      )
       return null
     }
   }
@@ -77,7 +83,10 @@ export function getGeminiClient(): GoogleGenerativeAI | null {
       logger.info("Google Gemini client initialized")
       return geminiInstance
     } catch (error) {
-      logger.error("Failed to initialize Gemini client", { error })
+      logger.error(
+        "Failed to initialize Gemini client",
+        error instanceof Error ? error : new Error(String(error))
+      )
       return null
     }
   }
