@@ -18,20 +18,44 @@ npm install
 
 ### 2. Configurar Variáveis de Ambiente
 
-Copie `.env.example` para `.env.local` e preencha:
+Crie um arquivo `.env.local` na raiz do projeto com o seguinte conteúdo:
 
-```bash
-cp .env.example .env.local
+```env
+# SUPABASE (Obrigatório)
+NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-publica-aqui
+SUPABASE_SERVICE_ROLE_KEY=sua-chave-service-role-aqui
+
+# URLs da Aplicação
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/onboarding
+
+# APIs de IA (Opcional)
+ANTHROPIC_API_KEY=sk-ant-sua-chave-aqui
+OPENAI_API_KEY=sk-sua-chave-aqui
+GOOGLE_AI_API_KEY=sua-chave-gemini-aqui
+
+# Feature Flags
+NEXT_PUBLIC_ENABLE_AI_FEATURES=true
+NEXT_PUBLIC_ENABLE_GAMIFICATION=true
+NEXT_PUBLIC_ENABLE_ANALYTICS=false
+
+# Ambiente
+NODE_ENV=development
 ```
 
-**Variáveis Obrigatórias**:
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+**⚠️ IMPORTANTE:**
+- Substitua `seu-projeto.supabase.co` pela URL real do seu projeto Supabase
+- Substitua as chaves pelas suas credenciais reais
+- **NUNCA** commite o arquivo `.env.local` no Git!
 
-**Variáveis Opcionais** (para funcionalidades de IA):
-- `ANTHROPIC_API_KEY`
-- `OPENAI_API_KEY`
-- `GOOGLE_AI_API_KEY`
+**Como obter credenciais do Supabase:**
+1. Acesse: https://supabase.com/dashboard
+2. Clique no seu projeto (ou crie um novo)
+3. Vá em: **Settings** → **API**
+4. Copie: **Project URL** e **anon public** key
+
+**📚 Guia completo:** Veja [docs/SETUP_RAPIDO.md](./docs/SETUP_RAPIDO.md) para instruções detalhadas.
 
 ### 3. Executar Localmente
 
@@ -87,9 +111,11 @@ Abra [http://localhost:3000](http://localhost:3000)
 - **Lighthouse CI** para performance
 
 ### ✅ Documentação
-- 📚 [DOCUMENTATION.md](./DOCUMENTATION.md) - Arquitetura completa
-- 🚀 [DEPLOY_PRODUCTION.md](./DEPLOY_PRODUCTION.md) - Guia de deploy
-- 📝 `.env.example` - Todas as variáveis explicadas
+- 📚 [docs/INDEX.md](./docs/INDEX.md) - Índice completo de documentação
+- 🚀 [docs/DEPLOY_PRODUCTION.md](./docs/DEPLOY_PRODUCTION.md) - Guia de deploy
+- ⚡ [docs/SETUP_RAPIDO.md](./docs/SETUP_RAPIDO.md) - Setup rápido do MVP
+- 🔒 [docs/SECURITY.md](./docs/SECURITY.md) - Segurança e RLS
+- 📋 [docs/CONSOLIDACAO_PLANO.md](./docs/CONSOLIDACAO_PLANO.md) - Plano de consolidação
 - 📖 README.md (este arquivo)
 
 ---
@@ -131,6 +157,28 @@ npm run test:coverage     # Com coverage
 npm run test:e2e          # Executar E2E
 npm run test:e2e:ui       # Interface visual
 ```
+
+---
+
+## ✅ Qualidade
+
+### Scripts de Qualidade
+```bash
+npm run quality           # Validação completa (type-check, lint, tests)
+npm run quality:fast      # Validação rápida (pula E2E)
+npm run quality:all       # Validação completa (inclui E2E)
+npm run validate          # Validações críticas (type-check + lint + tests)
+npm run validate:e2e     # Validações críticas + E2E
+```
+
+### Validações Individuais
+```bash
+npm run type-check        # Verificar tipos TypeScript
+npm run lint              # Executar ESLint
+npm run lint:fix          # Corrigir problemas ESLint automaticamente
+```
+
+**Documentação completa:** Veja [docs/QUALITY.md](./docs/QUALITY.md) para guia detalhado.
 
 ---
 
