@@ -113,6 +113,7 @@ ${babyProfile ? `
 
     // Usar Claude para modo empático (melhor para suporte emocional)
     if (shouldUseEmpatheticMode) {
+      const anthropic = getAnthropicClient()
       if (!anthropic) {
         return new Response(
           JSON.stringify({
@@ -121,11 +122,6 @@ ${babyProfile ? `
           }),
           { status: 503, headers: { 'Content-Type': 'application/json' } }
         )
-      }
-
-      const anthropic = getAnthropicClient()
-      if (!anthropic) {
-        return new Response("Claude API não configurada", { status: 503 })
       }
 
       const stream = await anthropic.messages.stream({
@@ -218,6 +214,8 @@ REGRAS DE RESPOSTA:
     }
 
     // Usar GPT-4 para conversação geral e recomendações
+    // Usar modelo mais rápido (gpt-4o-mini) para respostas mais rápidas, mas com prompts especializados
+    const openai = getOpenAIClient()
     if (!openai) {
       return new Response(
         JSON.stringify({
@@ -226,12 +224,6 @@ REGRAS DE RESPOSTA:
         }),
         { status: 503, headers: { 'Content-Type': 'application/json' } }
       )
-    }
-
-    // Usar modelo mais rápido (gpt-4o-mini) para respostas mais rápidas, mas com prompts especializados
-    const openai = getOpenAIClient()
-    if (!openai) {
-      return new Response("OpenAI API não configurada", { status: 503 })
     }
 
     const completion = await openai.chat.completions.create({
