@@ -832,7 +832,7 @@
 
   /* 💫 Loading States */
   .shimmer {
-    animation: shimmer 2s infinite linear;
+    animation: shimmer 2s linear infinite;
     background: linear-gradient(to right,
       transparent 0%,
       hsl(var(--primary) / 0.1) 50%,
