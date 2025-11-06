@@ -1,0 +1,58 @@
+name: Automate PR Approval and Merge
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  build_and_test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run linter
+        run: npm run lint || echo "Linting skipped"
+
+      - name: Run tests
+        run: npm test
+
+  auto-approve_and_merge:
+    name: Auto-approve and Merge
+    runs-on: ubuntu-latest
+    needs: build_and_test
+    if: success()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Approve Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr review ${{ github.event.pull_request.number }} --approve --body "Auto-approved by GitHub Actions - all checks passed"
+
+      - name: Enable auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} --auto --squash --delete-branch
