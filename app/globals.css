@@ -165,8 +165,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+}
 
-  @layer base {
+@layer base {
     :root {
       /* 🎨 Paleta Acolhedora Mobile-First - Terracota, Sage, Lavanda */
       --background: 30 15% 98%;
@@ -342,11 +343,9 @@
       --elevation-lg: 0 10px 15px -3px rgb(0 0 0 / 0.6), 0 4px 6px -4px rgb(0 0 0 / 0.5);
       --elevation-xl: 0 20px 25px -5px rgb(0 0 0 / 0.7), 0 8px 10px -6px rgb(0 0 0 / 0.6);
     }
-
-    main
   }
 
-  @layer base {
+@layer base {
     * {
       @apply border-border outline-ring/50;
     }
@@ -833,46 +832,41 @@
 
   /* 💫 Loading States */
   .shimmer {
-    copilot/improve-slow-code-performance animation: shimmer 2s infinite;
+    animation: shimmer 2s linear infinite;
     background: linear-gradient(to right,
-        transparent 0%,
-        rgba(255, 255, 255, 0.1) 50%,
+      transparent 0%,
+      hsl(var(--primary) / 0.1) 50%,
+      transparent 100%);
+    background-size: 1000px 100%;
+  }
 
-        animation: shimmer 2s infinite linear;
-        background: linear-gradient(to right,
-          transparent 0%,
-          hsl(var(--primary) / 0.1) 50%,
-          transparent 100%);
-        background-size: 1000px 100%;
+  .pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* 🎯 Focus Ring - Acessibilidade */
+  .focus-ring {
+    outline: none;
+    transition: box-shadow var(--duration-fast) var(--easing-standard);
+  }
+
+  .focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--ring) / 0.5);
+  }
+
+  /* 📱 Mobile-Specific Utilities */
+  @media (max-width: 768px) {
+    .mobile-full-width {
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
     }
 
-    .pulse {
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    .mobile-sticky-bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
     }
-
-    /* 🎯 Focus Ring - Acessibilidade */
-    .focus-ring {
-      outline: none;
-      transition: box-shadow var(--duration-fast) var(--easing-standard);
-    }
-
-    .focus-ring:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 3px hsl(var(--ring) / 0.5);
-    }
-
-    /* 📱 Mobile-Specific Utilities */
-    @media (max-width: 768px) {
-      .mobile-full-width {
-        width: 100vw;
-        margin-left: calc(-50vw + 50%);
-      }
-
-      .mobile-sticky-bottom {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 50;
-      }
-    }
+  }
