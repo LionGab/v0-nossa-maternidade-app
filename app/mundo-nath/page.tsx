@@ -250,7 +250,12 @@ export default function MundoNathPage() {
         icon={<Video className="h-5 w-5" />}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 md:space-y-8">
+ copilot/perform-deep-audit
+        {/* Top 10 Banner */}
+        <div className="flex items-center gap-4 p-4 bg-primary/5 rounded-xl border border-primary/10">
+
         <div className="flex items-center gap-4 p-4 gradient-primary rounded-xl border border-primary/10 elevation-sm animate-in fade-in slide-in-from-top-2">
+ main
           <TrendingUp className="h-6 w-6 text-primary flex-shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-foreground">Top 10 Vídeos Mais Virais</p>
