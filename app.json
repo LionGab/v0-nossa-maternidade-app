@@ -1,0 +1,100 @@
+{
+  "expo": {
+    "name": "Nossa Maternidade",
+    "slug": "nossa-maternidade",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nossamaternidade.app",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSUserTrackingUsageDescription": "Este app usa dados para melhorar sua experiência.",
+        "NSPhotoLibraryUsageDescription": "Este app precisa acessar suas fotos para permitir upload de imagens."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.nossamaternidade.app",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "static",
+      "name": "Nossa Maternidade",
+      "shortName": "NossaMaternidade",
+      "lang": "pt-BR",
+      "scope": "/",
+      "themeColor": "#ffffff",
+      "backgroundColor": "#ffffff",
+      "display": "standalone",
+      "orientation": "portrait",
+      "startUrl": "/",
+      "description": "Plataforma completa para gestantes e mães",
+      "dir": "ltr",
+      "categories": ["health", "lifestyle", "education"],
+      "screenshots": [
+        {
+          "src": "./assets/screenshot-web.png",
+          "type": "image/png",
+          "sizes": "1280x720"
+        }
+      ],
+      "relatedApplications": [],
+      "preferRelatedApplications": false
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "origin": "*"
+        }
+      ],
+      [
+        "expo-constants",
+        {
+          "flavor": "default"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "your-project-id-here"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/your-project-id"
+    },
+    "scheme": "nossa-maternidade",
+    "privacy": "public"
+  }
+}
+

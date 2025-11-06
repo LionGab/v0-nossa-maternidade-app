@@ -16,6 +16,8 @@ export type EnvConfig = {
     anthropic?: string
     openai?: string
     google?: string
+    perplexity?: string
+    grok?: string
   }
   app: {
     url: string
@@ -39,6 +41,8 @@ const OPTIONAL_ENV_VARS = [
   'ANTHROPIC_API_KEY',
   'OPENAI_API_KEY',
   'GOOGLE_AI_API_KEY',
+  'PERPLEXITY_API_KEY',
+  'GROK_API_KEY',
   'SUPABASE_SERVICE_ROLE_KEY',
 ] as const
 
@@ -79,9 +83,16 @@ export function getEnvConfig(): EnvConfig {
   const missingRequired = validateRequiredEnvVars()
 
   if (missingRequired.length > 0) {
-    logger.warn('Missing required environment variables', {
+    const errorMessage = `CRÍTICO: Variáveis de ambiente obrigatórias faltando: ${missingRequired.join(", ")}`
+    logger.error(errorMessage, undefined, {
       missing: missingRequired,
     })
+
+    // Em produção, lançar erro para evitar que app quebre silenciosamente
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(errorMessage)
+    }
+
     logger.warn('Some features may not work correctly')
   }
 
@@ -102,6 +113,8 @@ export function getEnvConfig(): EnvConfig {
       anthropic: process.env.ANTHROPIC_API_KEY,
       openai: process.env.OPENAI_API_KEY,
       google: process.env.GOOGLE_AI_API_KEY,
+      perplexity: process.env.PERPLEXITY_API_KEY,
+      grok: process.env.GROK_API_KEY,
     },
     app: {
       url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
@@ -118,7 +131,7 @@ export function getEnvConfig(): EnvConfig {
 /**
  * Verifica se uma API key específica está disponível
  */
-export function hasApiKey(service: 'anthropic' | 'openai' | 'google'): boolean {
+export function hasApiKey(service: 'anthropic' | 'openai' | 'google' | 'perplexity' | 'grok'): boolean {
   const config = getEnvConfig()
   return !!config.ai[service]
 }
@@ -126,7 +139,7 @@ export function hasApiKey(service: 'anthropic' | 'openai' | 'google'): boolean {
 /**
  * Obtém uma API key com fallback seguro
  */
-export function getApiKey(service: 'anthropic' | 'openai' | 'google'): string | null {
+export function getApiKey(service: 'anthropic' | 'openai' | 'google' | 'perplexity' | 'grok'): string | null {
   const config = getEnvConfig()
   return config.ai[service] || null
 }
@@ -154,6 +167,9 @@ if (isDevelopment()) {
     supabase: env.supabase.url ? 'configured' : 'missing',
     anthropic: env.ai.anthropic ? 'configured' : 'missing',
     openai: env.ai.openai ? 'configured' : 'missing',
+    google: env.ai.google ? 'configured' : 'missing',
+    perplexity: env.ai.perplexity ? 'configured' : 'missing',
+    grok: env.ai.grok ? 'configured' : 'missing',
     features: {
       ai: env.features.aiEnabled,
       gamification: env.features.gamificationEnabled,

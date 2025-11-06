@@ -15,10 +15,12 @@ interface PageHeaderProps {
 }
 
 /**
- * Header mobile-first para páginas
- * - Botão voltar funcional
+ * Header mobile-first para páginas - Design System Enhanced
+ * - Botão voltar funcional com touch feedback
  * - Botão home sempre visível em mobile
- * - Layout responsivo
+ * - Layout responsivo com safe area
+ * - Glass morphism e elevação moderna
+ * - WCAG 2.1 AA compliant (touch targets 44x44px)
  */
 export function PageHeader({
   title,
@@ -41,19 +43,19 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        "sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border/50",
+        "sticky top-0 z-20 glass border-b border-border/50 elevation-md safe-area-top",
         "px-4 py-3 md:px-6 md:py-4",
         className
       )}
     >
       <div className="flex items-center gap-3 max-w-7xl mx-auto">
-        {/* Botão voltar - sempre visível em mobile */}
+        {/* Botão voltar - WCAG 2.1 AA compliant */}
         {showBack && (
           <Button
             variant="ghost"
             size="icon"
             onClick={handleBack}
-            className="h-10 w-10 touch-feedback shrink-0 md:hidden"
+            className="h-11 w-11 touch-feedback shrink-0 hover-scale"
             aria-label="Voltar"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -63,7 +65,7 @@ export function PageHeader({
         {/* Ícone e título */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {icon && (
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+            <div className="h-10 w-10 rounded-full bg-gradient-primary flex items-center justify-center shrink-0 text-primary elevation-xs">
               {icon}
             </div>
           )}
@@ -72,17 +74,17 @@ export function PageHeader({
               {title}
             </h1>
             {description && (
-              <p className="text-sm text-muted-foreground truncate">{description}</p>
+              <p className="text-sm text-muted-foreground truncate mt-0.5">{description}</p>
             )}
           </div>
         </div>
 
-        {/* Botão home - sempre visível em mobile */}
+        {/* Botão home - sempre visível com feedback */}
         <Button
           variant="ghost"
           size="icon"
           onClick={() => router.push("/dashboard")}
-          className="h-10 w-10 touch-feedback shrink-0"
+          className="h-11 w-11 touch-feedback shrink-0 hover-scale"
           aria-label="Ir para home"
         >
           <Home className="h-5 w-5" />

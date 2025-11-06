@@ -1,0 +1,47 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - img "Nossa Maternidade" [ref=e6]
+      - generic [ref=e7]:
+        - heading "Nossa Maternidade" [level=1] [ref=e8]
+        - paragraph [ref=e9]: Seu espaço seguro para apoio emocional, organização da rotina e autocuidado na jornada da maternidade
+      - generic [ref=e10]:
+        - link "Começar Minha Jornada" [ref=e11] [cursor=pointer]:
+          - /url: /signup
+        - link "Já Sou Membro" [ref=e12] [cursor=pointer]:
+          - /url: /login
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]: 💕
+        - heading "Apoio Emocional" [level=3] [ref=e17]
+        - paragraph [ref=e18]: Análise de sentimentos com IA e sugestões personalizadas para seu bem-estar emocional
+      - generic [ref=e19]:
+        - generic [ref=e20]: 📅
+        - heading "Rotina Organizada" [level=3] [ref=e21]
+        - paragraph [ref=e22]: Gerencie alimentação, sono e atividades do seu bebê com facilidade e tranquilidade
+      - generic [ref=e23]:
+        - generic [ref=e24]: ✨
+        - heading "Conteúdo Exclusivo" [level=3] [ref=e25]
+        - paragraph [ref=e26]: Acesso a dicas, receitas e estratégias da Nathalia Valente para sua jornada
+    - generic [ref=e28]:
+      - heading "Por que mães confiam em nós" [level=2] [ref=e29]
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]: 🛡️
+          - heading "Seguro e Privado" [level=3] [ref=e33]
+          - paragraph [ref=e34]: Seus dados protegidos com criptografia de ponta
+        - generic [ref=e35]:
+          - generic [ref=e36]: 👥
+          - heading "Comunidade Acolhedora" [level=3] [ref=e37]
+          - paragraph [ref=e38]: Milhares de mães compartilhando experiências
+        - generic [ref=e39]:
+          - generic [ref=e40]: 📚
+          - heading "Baseado em Evidências" [level=3] [ref=e41]
+          - paragraph [ref=e42]: Conteúdo validado por especialistas em maternidade
+  - button "Open Next.js Dev Tools" [ref=e48] [cursor=pointer]:
+    - img [ref=e49]
+  - alert [ref=e52]
+```

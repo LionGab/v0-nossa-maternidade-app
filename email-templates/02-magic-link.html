@@ -1,0 +1,102 @@
+<!--
+  📧 TEMPLATE: Link Mágico (Login sem senha)
+  Usado quando: Usuária solicita login via magic link
+  Variável Supabase: {{ .ConfirmationURL }} ou {{ .Token }}
+-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Seu acesso ao Nossa Maternidade</title>
+    <!--[if mso]>
+    <style type="text/css">
+        table {border-collapse:collapse;border-spacing:0;margin:0;}
+        div, td {padding:0;}
+        div {margin:0 !important;}
+    </style>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #FAF9F6; line-height: 1.6;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #FAF9F6;">
+        <tr>
+            <td style="padding: 40px 20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #9F84A6 0%, #B89FC9 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #FFFFFF; font-size: 28px; font-weight: 600; letter-spacing: -0.5px;">
+                                ✨ Acesso Rápido
+                            </h1>
+                            <p style="margin: 12px 0 0; color: #FFFFFF; font-size: 16px; opacity: 0.95;">
+                                Seu link mágico está aqui!
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Conteúdo -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="margin: 0 0 20px; color: #2C2C2C; font-size: 17px; line-height: 1.7;">
+                                Olá! 💜
+                            </p>
+                            <p style="margin: 0 0 20px; color: #2C2C2C; font-size: 17px; line-height: 1.7;">
+                                Recebemos seu pedido para entrar no <strong>Nossa Maternidade</strong> sem senha.
+                            </p>
+                            <p style="margin: 0 0 30px; color: #2C2C2C; font-size: 17px; line-height: 1.7;">
+                                Clique no botão abaixo para fazer login automaticamente:
+                            </p>
+
+                            <!-- Botão -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="text-align: center; padding: 10px 0 30px;">
+                                        <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 16px 32px; background-color: #9F84A6; color: #FFFFFF; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 16px; letter-spacing: 0.3px; box-shadow: 0 2px 8px rgba(159, 132, 166, 0.3);">
+                                            Entrar agora 🔐
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Link alternativo -->
+                            <p style="margin: 0 0 10px; color: #6B6560; font-size: 15px; text-align: center;">
+                                Ou copie e cole este link:
+                            </p>
+                            <p style="margin: 0 0 30px; color: #6B6560; font-size: 13px; word-break: break-all; text-align: center; padding: 0 10px;">
+                                {{ .ConfirmationURL }}
+                            </p>
+
+                            <!-- Aviso de segurança -->
+                            <div style="background-color: #FFF0E8; border-left: 4px solid #E07A5F; padding: 20px; border-radius: 8px; margin: 30px 0;">
+                                <p style="margin: 0; color: #2C2C2C; font-size: 15px; line-height: 1.6;">
+                                    <strong style="color: #E07A5F;">🔒 Segurança:</strong> Este link funciona apenas uma vez e expira em 1 hora. Não compartilhe com ninguém.
+                                </p>
+                            </div>
+
+                            <p style="margin: 30px 0 0; color: #6B6560; font-size: 15px; line-height: 1.6;">
+                                Bom encontro com seu bem-estar! 💚<br>
+                                <strong style="color: #9F84A6;">Equipe Nossa Maternidade</strong>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #FAF9F6; padding: 30px; text-align: center; border-top: 1px solid #E5E5E5;">
+                            <p style="margin: 0 0 10px; color: #A8A8A8; font-size: 13px;">
+                                Se você não solicitou este link, pode ignorar este email com segurança.
+                            </p>
+                            <p style="margin: 0; color: #A8A8A8; font-size: 13px;">
+                                © 2025 Nossa Maternidade. Todos os direitos reservados.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -23,14 +23,17 @@ export function MultiAIChat() {
     setIsLoading(true)
 
     try {
-      let endpoint = "/api/multi-ai/chat"
+      let endpoint = "/api/multi-ai/smart-chat"
       let body: any = { messages: newMessages }
 
-      if (mode === "empathetic") {
-        body.useEmpatheticMode = true
-      } else if (mode === "research") {
+      // O smart-chat detecta automaticamente o tipo de pergunta
+      // Mas ainda mantemos o modo research como endpoint separado
+      if (mode === "research") {
         endpoint = "/api/multi-ai/research"
         body = { query: input }
+      } else {
+        // Smart-chat faz roteamento automático baseado no conteúdo
+        body.useEmpatheticMode = mode === "empathetic"
       }
 
       const response = await fetch(endpoint, {

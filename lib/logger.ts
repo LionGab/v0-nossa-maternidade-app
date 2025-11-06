@@ -12,9 +12,51 @@ interface LogContext {
 class Logger {
   private isDevelopment = process.env.NODE_ENV === "development"
 
+  /**
+   * Serializa um objeto de forma segura, evitando referências circulares
+   * e objetos não serializáveis
+   */
+  private safeStringify(obj: any): string {
+    const seen = new WeakSet()
+    return JSON.stringify(
+      obj,
+      (key, value) => {
+        // Ignorar funções e símbolos
+        if (typeof value === "function" || typeof value === "symbol") {
+          return "[Function]"
+        }
+        // Detectar referências circulares
+        if (typeof value === "object" && value !== null) {
+          if (seen.has(value)) {
+            return "[Circular]"
+          }
+          seen.add(value)
+        }
+        // Se for um Error, serializar apenas propriedades importantes
+        if (value instanceof Error) {
+          return {
+            name: value.name,
+            message: value.message,
+            stack: value.stack,
+          }
+        }
+        return value
+      },
+      2
+    )
+  }
+
   private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
     const timestamp = new Date().toISOString()
-    const contextStr = context ? ` | ${JSON.stringify(context)}` : ""
+    let contextStr = ""
+    if (context) {
+      try {
+        contextStr = ` | ${this.safeStringify(context)}`
+      } catch (error) {
+        // Se ainda assim falhar, usar apenas a mensagem
+        contextStr = ` | [Context serialization failed]`
+      }
+    }
     return `[${timestamp}] [${level.toUpperCase()}] ${message}${contextStr}`
   }
 

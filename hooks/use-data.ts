@@ -1,6 +1,7 @@
 import useSWR from "swr"
 import { createClient } from "@/lib/supabase/client"
 import type { GamificationStats } from "@/lib/gamification/gamification-manager"
+import { swrGlobalConfig, swrStaleConfig } from "@/lib/swr-config"
 
 // Fetchers para SWR
 const fetcher = async (url: string) => {
@@ -25,9 +26,8 @@ export function useGamification(revalidateOnFocus = true) {
     "/api/gamification/stats",
     fetcher,
     {
-      revalidateOnFocus,
-      revalidateOnReconnect: true,
-      dedupingInterval: 2000, // Deduplicar requisições dentro de 2 segundos
+      ...swrGlobalConfig,
+      revalidateOnFocus: revalidateOnFocus, // Permitir override se necessário
     },
   )
 
@@ -62,8 +62,7 @@ export function useProfile() {
       return profile
     },
     {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
+      ...swrStaleConfig, // Perfil raramente muda, usar cache longo
     },
   )
 
@@ -94,8 +93,7 @@ export function useCommunityPosts(limit = 20) {
       return posts
     },
     {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
+      ...swrStaleConfig, // Perfil raramente muda, usar cache longo
     },
   )
 
@@ -132,8 +130,7 @@ export function useDiaryEntries(limit = 10) {
       return entries
     },
     {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
+      ...swrStaleConfig, // Perfil raramente muda, usar cache longo
     },
   )
 
@@ -170,8 +167,7 @@ export function useSentimentAnalysis(limit = 5) {
       return analyses
     },
     {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
+      ...swrStaleConfig, // Perfil raramente muda, usar cache longo
     },
   )
 

@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Fast type-check (only check types, no emit)
+echo "🔍 Running type-check..."
+npm run type-check || {
+  echo "❌ Type-check failed. Please fix errors before committing."
+  exit 1
+}
+
+# Lint staged files only
+echo "🔍 Running lint-staged..."
+npx lint-staged || {
+  echo "❌ Lint-staged failed. Please fix errors before committing."
+  exit 1
+}
+
+echo "✅ Pre-commit checks passed!"

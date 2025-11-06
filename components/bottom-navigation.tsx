@@ -38,11 +38,11 @@ export function BottomNavigation() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t border-border md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border/50 md:hidden elevation-lg"
       aria-label="Navegação principal"
     >
-      {/* Safe area para notches (iPhone X+) */}
-      <div className="pb-safe">
+      {/* Safe area para notches (iPhone X+) - WCAG 2.1 AA */}
+      <div className="safe-area-bottom">
         <div className="flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
             const Icon = item.icon
@@ -54,14 +54,18 @@ export function BottomNavigation() {
                 href={item.href}
                 className={cn(
                   "flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg transition-all touch-feedback min-h-[44px] min-w-[44px] flex-1",
+                  "hover:bg-primary/5 active:scale-95",
                   isActive
-                    ? "text-primary bg-primary/10"
-                    : "text-muted-foreground active:text-primary active:bg-primary/5"
+                    ? "text-primary bg-primary/15 font-semibold"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
                 aria-label={item.label}
                 aria-current={isActive ? "page" : undefined}
               >
-                <Icon className={cn("h-5 w-5 transition-all", isActive && "fill-primary/20 scale-110")} />
+                <Icon className={cn(
+                  "h-5 w-5 transition-all",
+                  isActive && "fill-primary/20 scale-110 drop-shadow-sm"
+                )} />
                 <span className="text-xs font-medium">{item.label}</span>
               </Link>
             )

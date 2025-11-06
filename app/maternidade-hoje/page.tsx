@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/page-header"
+import { BottomNavigation } from "@/components/bottom-navigation"
 import { Newspaper, TrendingUp, Heart, BookOpen, Baby, Sparkles } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { clientLogger } from "@/lib/logger-client"
@@ -63,18 +65,13 @@ export default function MaternidadeHojePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-6">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-3">
-            <Newspaper className="h-12 w-12 text-primary" />
-            <h1 className="text-4xl font-serif font-bold text-foreground">Maternidade Hoje</h1>
-          </div>
-          <p className="text-lg text-warm max-w-2xl mx-auto">
-            Notícias, tendências e informações atualizadas sobre maternidade, gestação e criação de filhos
-          </p>
-        </div>
+    <div className="min-h-screen gradient-warm pb-20 md:pb-6">
+      <PageHeader
+        title="Maternidade Hoje"
+        description="Notícias, tendências e informações atualizadas sobre maternidade"
+        icon={<Newspaper className="h-5 w-5" />}
+      />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-8">
 
         {/* Error Display */}
         {error && (
@@ -145,6 +142,7 @@ export default function MaternidadeHojePage() {
           </div>
         )}
       </div>
+      <BottomNavigation />
     </div>
   )
 }

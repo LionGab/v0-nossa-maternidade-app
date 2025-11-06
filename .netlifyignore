@@ -1,0 +1,18 @@
+# Arquivos de documentação que podem conter informações sensíveis
+CHECKLIST_CREDENCIAIS.md
+CREDENCIAIS_MCP_ATUALIZADAS.md
+SECRETS_*.md
+*CREDENCIAIS*.md
+
+# Arquivos de log
+*.log
+logs/
+
+# Arquivos de teste
+test-results/
+coverage/
+playwright-report/
+
+# Arquivos temporários
+.tmp/
+*.tmp

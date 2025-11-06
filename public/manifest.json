@@ -4,8 +4,8 @@
   "description": "Aplicativo de suporte emocional e prático para mães - com IA, gamificação e comunidade",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#FF69B4",
+  "background_color": "#FEFBFB",
+  "theme_color": "#C87A5F",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [

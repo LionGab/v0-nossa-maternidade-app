@@ -1,0 +1,452 @@
+{
+    "$schema": "./scripts/workflow-schema.json",
+    "version": "1.0.0",
+    "description": "Workflows de automação para Claude Code + Cursor",
+    "workflows": [
+        {
+            "name": "new-component",
+            "description": "Cria um componente React completo com testes e documentação",
+            "steps": [
+                {
+                    "name": "Gerar componente",
+                    "type": "claude",
+                    "action": "component-generator",
+                    "input": "Crie um componente React chamado {{name}} com TypeScript. Props: {{props}}. Use shadcn/ui e siga os padrões do projeto.",
+                    "required": true
+                },
+                {
+                    "name": "Criar arquivo do componente",
+                    "type": "file",
+                    "path": "components/{{name}}.tsx",
+                    "content": "// Componente gerado automaticamente\n// TODO: Implementar lógica do componente\n",
+                    "operation": "create"
+                },
+                {
+                    "name": "Gerar testes",
+                    "type": "claude",
+                    "action": "test-generator",
+                    "input": "Gere testes unitários para o componente {{name}}",
+                    "required": false
+                },
+                {
+                    "name": "Criar arquivo de testes",
+                    "type": "file",
+                    "path": "__tests__/components/{{name}}.test.tsx",
+                    "content": "// Testes gerados automaticamente\n// TODO: Implementar testes\n",
+                    "operation": "create"
+                },
+                {
+                    "name": "Gerar documentação",
+                    "type": "claude",
+                    "action": "document",
+                    "input": "Documente o componente {{name}}",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "new-api",
+            "description": "Cria uma API route completa com validação e testes",
+            "steps": [
+                {
+                    "name": "Gerar API route",
+                    "type": "claude",
+                    "action": "component-generator",
+                    "input": "Crie uma API route Next.js para {{name}} com método {{method}}. Use Zod para validação e Supabase para autenticação.",
+                    "required": true
+                },
+                {
+                    "name": "Criar arquivo da API",
+                    "type": "file",
+                    "path": "app/api/{{name}}/route.ts",
+                    "content": "// API route gerada automaticamente\n// TODO: Implementar lógica da API\n",
+                    "operation": "create"
+                },
+                {
+                    "name": "Gerar schema de validação",
+                    "type": "file",
+                    "path": "lib/validations/{{name}}.ts",
+                    "content": "// Schema de validação gerado automaticamente\nimport { z } from 'zod';\n\nexport const {{name}}Schema = z.object({\n  // TODO: Definir schema\n});\n",
+                    "operation": "create"
+                },
+                {
+                    "name": "Gerar testes",
+                    "type": "claude",
+                    "action": "test-generator",
+                    "input": "Gere testes para a API {{name}}",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "quick-fix",
+            "description": "Correção rápida de bugs em um arquivo",
+            "steps": [
+                {
+                    "name": "Analisar código",
+                    "type": "claude",
+                    "action": "analyze",
+                    "input": "{{file}}",
+                    "required": true
+                },
+                {
+                    "name": "Detectar bugs",
+                    "type": "claude",
+                    "action": "bug-detector",
+                    "input": "{{file}}",
+                    "required": true
+                },
+                {
+                    "name": "Refatorar código",
+                    "type": "claude",
+                    "action": "refactor",
+                    "input": "{{file}}",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "refactor-and-optimize",
+            "description": "Refatora e otimiza um arquivo completo",
+            "steps": [
+                {
+                    "name": "Analisar código atual",
+                    "type": "claude",
+                    "action": "analyze",
+                    "input": "{{file}}",
+                    "required": true
+                },
+                {
+                    "name": "Refatorar código",
+                    "type": "claude",
+                    "action": "refactor",
+                    "input": "{{file}}",
+                    "required": true
+                },
+                {
+                    "name": "Otimizar performance",
+                    "type": "claude",
+                    "action": "optimize",
+                    "input": "{{file}}",
+                    "required": true
+                },
+                {
+                    "name": "Gerar testes",
+                    "type": "claude",
+                    "action": "test-generator",
+                    "input": "{{file}}",
+                    "required": false
+                },
+                {
+                    "name": "Atualizar documentação",
+                    "type": "claude",
+                    "action": "document",
+                    "input": "{{file}}",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "full-audit",
+            "description": "Auditoria completa de código com múltiplos agentes",
+            "steps": [
+                {
+                    "name": "Análise completa",
+                    "type": "api",
+                    "url": "/api/code-agents",
+                    "body": {
+                        "tasks": [
+                            {
+                                "agentType": "analyzer",
+                                "input": "{{file}}"
+                            },
+                            {
+                                "agentType": "bug-detector",
+                                "input": "{{file}}"
+                            },
+                            {
+                                "agentType": "validator",
+                                "input": "{{file}}"
+                            }
+                        ],
+                        "mode": "parallel"
+                    },
+                    "required": true
+                },
+                {
+                    "name": "Gerar relatório",
+                    "type": "file",
+                    "path": "reports/audit-{{timestamp}}.md",
+                    "content": "# Relatório de Auditoria\n\n{{report}}\n",
+                    "operation": "create"
+                }
+            ]
+        },
+        {
+            "name": "setup-new-feature",
+            "description": "Setup completo para nova feature",
+            "steps": [
+                {
+                    "name": "Criar estrutura de pastas",
+                    "type": "script",
+                    "script": "mkdir -p app/{{feature}} components/{{feature}} lib/{{feature}}",
+                    "required": true
+                },
+                {
+                    "name": "Gerar página principal",
+                    "type": "file",
+                    "path": "app/{{feature}}/page.tsx",
+                    "content": "export default function {{Feature}}Page() {\n  return (\n    <div>\n      <h1>{{Feature}}</h1>\n    </div>\n  );\n}\n",
+                    "operation": "create"
+                },
+                {
+                    "name": "Gerar componente base",
+                    "type": "file",
+                    "path": "components/{{feature}}/{{feature}}-container.tsx",
+                    "content": "export function {{Feature}}Container() {\n  return <div>{{Feature}} Container</div>;\n}\n",
+                    "operation": "create"
+                },
+                {
+                    "name": "Gerar utilitários",
+                    "type": "file",
+                    "path": "lib/{{feature}}/utils.ts",
+                    "content": "// Utilitários para {{feature}}\n",
+                    "operation": "create"
+                }
+            ]
+        },
+        {
+            "name": "supabase-query",
+            "description": "Consulta dados do Supabase usando MCP",
+            "steps": [
+                {
+                    "name": "Executar query",
+                    "type": "mcp",
+                    "server": "supabase",
+                    "action": "query",
+                    "query": "{{query}}",
+                    "required": true
+                },
+                {
+                    "name": "Salvar resultado",
+                    "type": "file",
+                    "path": "reports/supabase-query-{{timestamp}}.json",
+                    "content": "{{result}}",
+                    "operation": "create"
+                }
+            ]
+        },
+        {
+            "name": "supabase-check-schema",
+            "description": "Verifica schema do banco Supabase",
+            "steps": [
+                {
+                    "name": "Listar tabelas",
+                    "type": "mcp",
+                    "server": "supabase",
+                    "action": "list_tables",
+                    "required": true
+                },
+                {
+                    "name": "Verificar colunas",
+                    "type": "mcp",
+                    "server": "supabase",
+                    "action": "describe_table",
+                    "table": "{{table}}",
+                    "required": false
+                },
+                {
+                    "name": "Gerar relatório",
+                    "type": "file",
+                    "path": "reports/schema-{{timestamp}}.md",
+                    "content": "# Schema do Banco\n\n{{schema}}\n",
+                    "operation": "create"
+                }
+            ]
+        },
+        {
+            "name": "supabase-create-migration",
+            "description": "Cria migration SQL para Supabase",
+            "steps": [
+                {
+                    "name": "Gerar SQL",
+                    "type": "claude",
+                    "action": "component-generator",
+                    "input": "Gere SQL para Supabase: {{description}}. Tabelas existentes: {{tables}}. Use ALTER TABLE ou CREATE TABLE conforme necessário.",
+                    "required": true
+                },
+                {
+                    "name": "Criar arquivo migration",
+                    "type": "file",
+                    "path": "supabase/migrations/{{timestamp}}_{{name}}.sql",
+                    "content": "-- Migration gerada automaticamente\n-- {{description}}\n\n{{sql}}\n",
+                    "operation": "create"
+                },
+                {
+                    "name": "Validar SQL",
+                    "type": "claude",
+                    "action": "validator",
+                    "input": "Valide este SQL para Supabase: {{sql}}",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "supabase-api-with-crud",
+            "description": "Cria API route completa com CRUD Supabase",
+            "steps": [
+                {
+                    "name": "Gerar API route",
+                    "type": "claude",
+                    "action": "component-generator",
+                    "input": "Crie uma API route Next.js para {{resource}} com CRUD completo usando Supabase. Tabela: {{table}}. Use createServerClient de lib/supabase/server.ts. Validação Zod obrigatória.",
+                    "required": true
+                },
+                {
+                    "name": "Criar arquivo da API",
+                    "type": "file",
+                    "path": "app/api/{{resource}}/route.ts",
+                    "content": "// API route gerada automaticamente com CRUD Supabase\nimport { createServerClient } from '@/lib/supabase/server';\nimport { NextRequest, NextResponse } from 'next/server';\nimport { withRateLimit } from '@/lib/rate-limit';\nimport { logger } from '@/lib/logger';\nimport { {{resource}}Schema } from '@/lib/validations/{{resource}}';\n\n// TODO: Implementar handlers\n",
+                    "operation": "create"
+                },
+                {
+                    "name": "Gerar schema de validação",
+                    "type": "file",
+                    "path": "lib/validations/{{resource}}.ts",
+                    "content": "import { z } from 'zod';\n\nexport const {{resource}}Schema = z.object({\n  // TODO: Definir schema baseado na tabela {{table}}\n});\n",
+                    "operation": "create"
+                },
+                {
+                    "name": "Gerar testes",
+                    "type": "claude",
+                    "action": "test-generator",
+                    "input": "Gere testes para API CRUD {{resource}} com Supabase",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "supabase-backup-table",
+            "description": "Backup de tabela Supabase",
+            "steps": [
+                {
+                    "name": "Exportar dados",
+                    "type": "mcp",
+                    "server": "supabase",
+                    "action": "query",
+                    "query": "SELECT * FROM {{table}}",
+                    "required": true
+                },
+                {
+                    "name": "Salvar backup",
+                    "type": "file",
+                    "path": "backups/{{table}}-{{timestamp}}.json",
+                    "content": "{{data}}",
+                    "operation": "create"
+                },
+                {
+                    "name": "Verificar integridade",
+                    "type": "claude",
+                    "action": "validator",
+                    "input": "Verifique integridade dos dados do backup de {{table}}",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "supabase-analyze-query",
+            "description": "Analisa e otimiza query Supabase",
+            "steps": [
+                {
+                    "name": "Analisar query",
+                    "type": "claude",
+                    "action": "analyzer",
+                    "input": "Analise esta query SQL para Supabase: {{query}}. Identifique problemas de performance, índices faltantes, e otimizações possíveis.",
+                    "required": true
+                },
+                {
+                    "name": "Otimizar query",
+                    "type": "claude",
+                    "action": "optimizer",
+                    "input": "Otimize esta query Supabase: {{query}}. Use EXPLAIN ANALYZE e sugira índices.",
+                    "required": true
+                },
+                {
+                    "name": "Gerar índices sugeridos",
+                    "type": "file",
+                    "path": "supabase/migrations/{{timestamp}}_optimize_{{table}}.sql",
+                    "content": "-- Índices sugeridos para otimização\n{{indexes}}\n",
+                    "operation": "create"
+                }
+            ]
+        },
+        {
+            "name": "test-all-parallel",
+            "description": "Executa todos os testes em paralelo usando agentes independentes",
+            "steps": [
+                {
+                    "name": "Executar orquestrador de testes",
+                    "type": "script",
+                    "script": "node scripts/test-orchestrator.mjs run",
+                    "required": true
+                },
+                {
+                    "name": "Gerar relatório consolidado",
+                    "type": "file",
+                    "path": "test-results/report-{{timestamp}}.md",
+                    "content": "# Relatório de Testes Paralelos\n\n{{report}}\n",
+                    "operation": "create"
+                }
+            ]
+        },
+        {
+            "name": "test-priority-high",
+            "description": "Executa apenas testes de alta prioridade em paralelo",
+            "steps": [
+                {
+                    "name": "Executar testes de alta prioridade",
+                    "type": "script",
+                    "script": "node scripts/test-orchestrator.mjs run --priority high",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "test-pwa-mobile",
+            "description": "Executa testes específicos de PWA e Mobile-First",
+            "steps": [
+                {
+                    "name": "Executar testes PWA e Mobile",
+                    "type": "script",
+                    "script": "node scripts/test-orchestrator.mjs run --filter pwa",
+                    "required": true
+                },
+                {
+                    "name": "Executar testes Mobile-First",
+                    "type": "script",
+                    "script": "node scripts/test-orchestrator.mjs run --filter mobile-first",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "test-performance",
+            "description": "Executa testes de performance e Core Web Vitals",
+            "steps": [
+                {
+                    "name": "Executar testes de performance",
+                    "type": "script",
+                    "script": "node scripts/test-orchestrator.mjs agent performance",
+                    "required": true
+                },
+                {
+                    "name": "Gerar relatório de performance",
+                    "type": "file",
+                    "path": "test-results/performance-{{timestamp}}.md",
+                    "content": "# Relatório de Performance\n\n{{report}}\n",
+                    "operation": "create"
+                }
+            ]
+        }
+    ]
+}

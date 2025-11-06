@@ -1,0 +1,39 @@
+{
+  "claudeCode": {
+    "autoCompact": {
+      "enabled": true,
+      "minTokens": 60000,
+      "maxTokens": 70000,
+      "targetTokens": 65000
+    },
+    "analysis": {
+      "mode": "brutal",
+      "assertiveness": "extreme",
+      "tolerance": "zero",
+      "focus": [
+        "code-quality",
+        "architecture",
+        "security",
+        "performance",
+        "best-practices"
+      ]
+    },
+    "context": {
+      "maxContextWindow": 200000,
+      "compressionRatio": 0.325,
+      "preserveStructure": true,
+      "preserveComments": true
+    },
+    "output": {
+      "format": "markdown",
+      "includeCodeExamples": true,
+      "prioritizeByImpact": true,
+      "severityLevels": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ]
+    }
+  }
+}

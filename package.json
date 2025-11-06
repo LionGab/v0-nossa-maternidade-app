@@ -5,15 +5,54 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "lint": "echo 'Linting skipped - ESLint 9 configuration needs migration. Build validates TypeScript types.'",
     "start": "next start",
+    "quality": "node scripts/quality-check.mjs",
+    "quality:fast": "node scripts/quality-check.mjs --fast",
+    "quality:all": "node scripts/quality-check.mjs --all",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "validate": "npm run type-check && npm run lint && npm run test",
+    "validate:e2e": "npm run validate && npm run test:e2e",
+    "validate:env": "node scripts/validate-env.mjs",
+    "test:api-keys": "node scripts/test-api-keys.mjs",
+    "create:env": "powershell -ExecutionPolicy Bypass -File scripts/create-env-local.ps1",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "optimize:images": "node scripts/optimize-images.mjs"
+    "test:all": "node scripts/test-orchestrator.mjs run",
+    "test:all:parallel": "node scripts/test-orchestrator.mjs run",
+    "test:all:sequential": "node scripts/test-orchestrator.mjs sequential",
+    "test:priority": "node scripts/test-orchestrator.mjs run --priority high",
+    "test:pwa": "node scripts/test-orchestrator.mjs run --filter pwa",
+    "test:mobile": "node scripts/test-orchestrator.mjs run --filter mobile-first",
+    "test:performance": "node scripts/test-orchestrator.mjs agent performance",
+    "test:list": "node scripts/test-orchestrator.mjs list",
+    "test:before-commit": "node scripts/test-before-commit.mjs",
+    "test:complete": "playwright test e2e/complete-app-test.spec.ts",
+    "optimize:images": "node scripts/optimize-images.mjs",
+    "orchestrate": "node scripts/claude-cursor.mjs",
+    "orchestrate:status": "powershell -ExecutionPolicy Bypass -File scripts/orchestrator.ps1 status",
+    "orchestrate:workflows": "powershell -ExecutionPolicy Bypass -File scripts/orchestrator.ps1 workflows",
+    "orchestrate:validate": "node scripts/orchestrator.mjs validate",
+    "setup:workflows": "node scripts/orchestrator.mjs validate",
+    "overnight": "powershell -ExecutionPolicy Bypass -File scripts/overnight-automation.ps1",
+    "overnight:dry-run": "powershell -ExecutionPolicy Bypass -File scripts/overnight-automation.ps1 -DryRun",
+    "overnight:v2": "powershell -ExecutionPolicy Bypass -File scripts/overnight-automation-v2.ps1",
+    "overnight:v2:dry-run": "powershell -ExecutionPolicy Bypass -File scripts/overnight-automation-v2.ps1 -DryRun",
+    "overnight:v2:validate": "powershell -ExecutionPolicy Bypass -File scripts/validate-tools.ps1",
+    "overnight:brutal": "powershell -ExecutionPolicy Bypass -File scripts/overnight-brutal-mode.ps1",
+    "overnight:brutal:dry-run": "powershell -ExecutionPolicy Bypass -File scripts/overnight-brutal-mode.ps1 -DryRun",
+    "claude:brutal": "powershell -ExecutionPolicy Bypass -File scripts/claude-code-brutal-analyzer.ps1",
+    "install:gh-cli": "powershell -ExecutionPolicy Bypass -File scripts/install-github-cli.ps1",
+    "prepare": "husky install || echo 'Husky não instalado - execute: npm install'",
+    "postinstall": "node scripts/setup-husky.mjs || echo 'Setup Husky falhou - execute: npm install'",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "netlify dev:exec drizzle-kit migrate",
+    "db:studio": "netlify dev:exec drizzle-kit studio"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "latest",
@@ -21,6 +60,7 @@
     "@anthropic-ai/sdk": "^0.68.0",
     "@google/generative-ai": "latest",
     "@hookform/resolvers": "^3.10.0",
+    "@netlify/neon": "^0.1.0",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",
@@ -64,6 +104,7 @@
     "cmdk": "1.0.4",
     "date-fns": "4.1.0",
     "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.7",
     "embla-carousel-react": "8.5.1",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
@@ -98,9 +139,14 @@
     "@vitejs/plugin-react": "^5.1.0",
     "@vitest/coverage-v8": "^3.1.9",
     "@vitest/ui": "^3.1.9",
+    "drizzle-kit": "^0.31.6",
     "eslint": "^9.17.0",
     "eslint-config-next": "^16.0.1",
+    "husky": "^9.0.11",
     "jsdom": "^25.0.1",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.6.2",
+    "supabase": "^2.54.11",
     "vitest": "^3.1.9"
   },
   "description": "Esta aplicação está **100% configurada, testada e documentada** para deploy imediato em produção.",
@@ -118,5 +164,14 @@
   "bugs": {
     "url": "https://github.com/LionGab/v0-nossa-maternidade-app/issues"
   },
-  "homepage": "https://github.com/LionGab/v0-nossa-maternidade-app#readme"
+  "homepage": "https://github.com/LionGab/v0-nossa-maternidade-app#readme",
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
 }

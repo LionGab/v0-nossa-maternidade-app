@@ -1,31 +1,40 @@
-import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-});
 
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals'),
+  js.configs.recommended,
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/.next/**',
+      '**/out/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/.turbo/**',
+      '**/coverage/**',
+      '**/*.config.js',
+      '**/*.config.mjs',
+      '**/*.config.ts',
+      '**/playwright-report/**',
+      '**/test-results/**',
+      // Expo/React Native files (não necessário para Next.js)
+      'metro.config.js',
+      'app.json',
+      'eas.json',
+      'babel.config.js',
+      '**/ios/**',
+      '**/android/**',
+      '**/.expo/**',
+    ],
+  },
   {
     rules: {
+      // Code quality rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-        },
-      ],
+      'no-debugger': 'error',
+      'no-unused-vars': 'off', // Use TypeScript version instead
     },
   },
 ];
 
 export default eslintConfig;
+

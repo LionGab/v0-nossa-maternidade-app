@@ -1,0 +1,45 @@
+name: Sentry Critical Alerts
+
+on:
+  schedule:
+    # Verifica erros críticos a cada 15 min
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check-critical-errors:
+    name: Check Critical Errors
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check Sentry for critical errors
+        run: |
+          node scripts/check-sentry-errors.js
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+
+      - name: Create GitHub Issue if critical
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '🚨 Critical Error Detected in Production';
+            const body = `Critical errors detected in Sentry. Check: https://sentry.io/organizations/${{ secrets.SENTRY_ORG }}/projects/${{ secrets.SENTRY_PROJECT }}/`;
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['critical', 'sentry', 'production']
+            });

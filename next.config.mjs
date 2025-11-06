@@ -1,9 +1,11 @@
 // Configuração do Next.js com suporte opcional para Sentry
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Turbopack config (empty to silence the warning)
+  turbopack: {},
   // Otimizações de performance
   experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    optimizePackageImports: ["lucide-react", "@radix-ui/react-icons"],
   },
   // TypeScript
   typescript: {
@@ -11,16 +13,21 @@ const nextConfig = {
   },
   // Otimizações para mobile e PWA
   images: {
-    formats: ['image/webp'],
+    formats: ["image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/**",
+      },
+    ],
   },
   // Configurações de compilação
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
-  // Excluir arquivos de teste - apenas arquivos de página
-  pageExtensions: ['page.tsx', 'page.ts', 'tsx', 'ts', 'jsx', 'js'],
 }
 
 // Sentry é configurado via arquivos separados (sentry.client.config.ts, sentry.server.config.ts)

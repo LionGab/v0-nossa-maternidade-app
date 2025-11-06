@@ -5,28 +5,23 @@
   "workbench.editor.enablePreviewFromCodeNavigation": false,
   "workbench.editor.closeOnFileDelete": true,
   "workbench.editor.closeEmptyGroups": true,
-
   // Automação de formatação
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
   "editor.formatOnType": true,
   "editor.autoIndent": "full",
-
   // Automação de imports
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit"
   },
-
   // Automação de quebras de linha
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
   "files.trimFinalNewlines": true,
-
   // Automação de salvamento
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000,
-
   // Outras automações
   "editor.suggestSelection": "first",
   "editor.tabCompletion": "on",
@@ -37,18 +32,15 @@
     "comments": "on",
     "strings": "on"
   },
-
   // TypeScript
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.suggest.autoImports": true,
   "typescript.preferences.importModuleSpecifier": "relative",
-
   // Next.js
   "emmet.includeLanguages": {
     "typescript": "html",
     "typescriptreact": "html"
   },
-
   // Outras configurações úteis
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": true,

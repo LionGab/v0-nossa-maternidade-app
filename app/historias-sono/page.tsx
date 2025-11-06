@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
+import { PageHeader } from "@/components/page-header"
+import { BottomNavigation } from "@/components/bottom-navigation"
 import { clientLogger } from "@/lib/logger-client"
 import { Gauge, Heart, Moon, Pause, Play, RotateCcw, Star, Volume2 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
@@ -273,19 +275,13 @@ export default function HistoriasSonoPage() {
   }, [velocidade])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-background p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="space-y-3 text-center">
-          <div className="flex items-center justify-center gap-3">
-            <Moon className="h-10 w-10 text-yellow-300" />
-            <div>
-              <h1 className="text-4xl font-serif font-bold text-white">Histórias de Sono</h1>
-              <p className="text-lg text-purple-200 mt-1">Histórias acolhedoras para adormecer</p>
-            </div>
-          </div>
-        </div>
-
+    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-background pb-20 md:pb-6">
+      <PageHeader
+        title="Histórias de Sono"
+        description="Para adormecer tranquilo"
+        icon={<Moon className="h-5 w-5" />}
+      />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* Mensagem Acolhedora */}
         <Card className="p-6 bg-white/10 backdrop-blur-sm border-white/20 text-white">
           <div className="flex items-start gap-4">
@@ -519,6 +515,7 @@ export default function HistoriasSonoPage() {
           </div>
         </Card>
       </div>
+      <BottomNavigation />
     </div>
   )
 }

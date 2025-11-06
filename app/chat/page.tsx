@@ -1,21 +1,28 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { Card } from "@/components/ui/card"
+import { BottomNavigation } from "@/components/bottom-navigation"
+import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { PageHeader } from "@/components/page-header"
-import { BottomNavigation } from "@/components/bottom-navigation"
-import { Sparkles, Send, Loader2, Heart, Brain, Smile } from "lucide-react"
-import { Avatar } from "@/components/ui/avatar"
 import { clientLogger } from "@/lib/logger-client"
+import { Brain, Heart, Loader2, Send, Sparkles, Search, TrendingUp, BookOpen } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 type Message = {
   id: string
   role: "user" | "assistant"
   content: string
   timestamp: Date
+  provider?: string
+  queryType?: string
+  metadata?: {
+    reason?: string
+    responseTime?: number
+    tokens?: number
+    cost?: number
+    metricId?: string
+  }
 }
 
 const suggestedQuestions = [
@@ -63,8 +70,9 @@ export default function ChatPage() {
     setIsLoading(true)
 
     try {
-      // Preparar histórico de mensagens para a API
-      const conversationHistory = messages.map(m => ({
+      // Limitar histórico para as últimas 8 mensagens (4 interações) para respostas mais rápidas
+      const recentMessages = messages.slice(-8)
+      const conversationHistory = recentMessages.map(m => ({
         role: m.role,
         content: m.content
       }))
@@ -78,51 +86,39 @@ export default function ChatPage() {
         }
       ]
 
-      const response = await fetch("/api/multi-ai/chat", {
+      // AbortController para timeout de 20 segundos
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 20000)
+
+      const response = await fetch("/api/ai/smart-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: apiMessages,
-          useEmpatheticMode: false
+          preferredMode: "auto",
         }),
+        signal: controller.signal,
       })
 
+      clearTimeout(timeoutId)
+
       if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(errorText || "Erro ao enviar mensagem")
+        const errorData = await response.json().catch(() => ({ error: "Erro desconhecido" }))
+        throw new Error(errorData.error || "Erro ao enviar mensagem")
       }
 
-      // A API retorna um stream, não JSON
-      const reader = response.body?.getReader()
-      if (!reader) {
-        throw new Error("Resposta vazia do servidor")
-      }
+      // A API smart-chat retorna JSON
+      const data = await response.json()
 
-      const decoder = new TextDecoder()
-      let assistantMessageContent = ""
-      const messageId = (Date.now() + 1).toString()
-
-      // Iniciar streaming visual
-      setStreamingMessageId(messageId)
-      setStreamingMessage("")
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const chunk = decoder.decode(value, { stream: true })
-        assistantMessageContent += chunk
-
-        // Atualizar mensagem em tempo real para streaming visual
-        setStreamingMessage(assistantMessageContent)
-      }
-
-      // Finalizar: adicionar mensagem completa e limpar streaming
       const assistantMessage: Message = {
-        id: messageId,
+        id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: assistantMessageContent || "Desculpe, não consegui processar sua mensagem. Tente novamente.",
+        content: data.answer || "Desculpe, não consegui processar sua mensagem. Tente novamente.",
         timestamp: new Date(),
+        // Adicionar metadata do provider
+        provider: data.provider,
+        queryType: data.queryType,
+        metadata: data.metadata,
       }
 
       setStreamingMessage(null)
@@ -133,14 +129,19 @@ export default function ChatPage() {
       setStreamingMessage(null)
       setStreamingMessageId(null)
 
+      const isTimeout = error instanceof Error && (error.name === 'AbortError' || error.message.includes('timeout'))
+
       clientLogger.error("Chat: Erro ao enviar mensagem", error, {
         userId: "client-side",
         message: content.trim().substring(0, 50),
       })
+
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "Desculpe, tive um problema ao processar sua mensagem. Por favor, tente novamente em alguns instantes.",
+        content: isTimeout
+          ? "A resposta está demorando muito. Por favor, tente uma pergunta mais simples ou aguarde um momento."
+          : "Desculpe, tive um problema ao processar sua mensagem. Por favor, tente novamente.",
         timestamp: new Date(),
       }
       setMessages(prev => [...prev, errorMessage])
@@ -158,8 +159,27 @@ export default function ChatPage() {
     sendMessage(question)
   }
 
+  const handleFeedback = async (metricId: string, rating: 1 | 0) => {
+    try {
+      const response = await fetch("/api/ai/analytics/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          metricId,
+          rating: rating === 1 ? 5 : 1, // 5 = útil, 1 = não útil
+        }),
+      })
+
+      if (response.ok) {
+        clientLogger.info("Feedback enviado", { metricId, rating })
+      }
+    } catch (error) {
+      clientLogger.error("Erro ao enviar feedback", error)
+    }
+  }
+
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-0">
+    <div className="flex flex-col h-screen gradient-warm pb-20 md:pb-0">
       <PageHeader
         title="NathAI"
         description="Assistente Maternal com IA"
@@ -167,35 +187,70 @@ export default function ChatPage() {
       />
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 scrollbar-custom">
         <div className="max-w-4xl mx-auto space-y-4">
-          {messages.map((message) => (
+          {messages.map((message, index) => (
             <div
               key={message.id}
-              className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+              className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2`}
+              style={{ animationDelay: `${index * 50}ms` }}
             >
               {message.role === "assistant" && (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="h-5 w-5 text-white" />
+                <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center flex-shrink-0 elevation-sm">
+                  <Sparkles className="h-5 w-5 text-primary" />
                 </div>
               )}
 
               <div
-                className={`max-w-[75%] rounded-2xl p-4 ${
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
-                }`}
+                className={`max-w-[75%] rounded-2xl p-4 elevation-sm ${message.role === "user"
+                  ? "bg-primary text-primary-foreground"
+                  : "glass border border-border/50"
+                  }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                <p className={`text-xs mt-2 ${
-                  message.role === "user" ? "text-primary-foreground/70" : "text-muted-foreground"
-                }`}>
-                  {message.timestamp.toLocaleTimeString("pt-BR", {
-                    hour: "2-digit",
-                    minute: "2-digit"
-                  })}
-                </p>
+                {message.role === "assistant" && message.provider && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="outline" className="text-xs elevation-xs">
+                      {message.provider === "claude" && <Brain className="h-3 w-3 mr-1" />}
+                      {message.provider === "gpt4" && <Sparkles className="h-3 w-3 mr-1" />}
+                      {message.provider === "gemini" && <Search className="h-3 w-3 mr-1" />}
+                      {message.provider === "grok" && <TrendingUp className="h-3 w-3 mr-1" />}
+                      {message.provider === "perplexity" && <BookOpen className="h-3 w-3 mr-1" />}
+                      {message.provider === "claude" && "Claude"}
+                      {message.provider === "gpt4" && "GPT-4"}
+                      {message.provider === "gemini" && "Gemini"}
+                      {message.provider === "grok" && "Grok"}
+                      {message.provider === "perplexity" && "Perplexity"}
+                    </Badge>
+                  </div>
+                )}
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <p className={`text-xs opacity-70 ${message.role === "user" ? "text-primary-foreground/70" : "text-muted-foreground"
+                    }`}>
+                    {message.timestamp.toLocaleTimeString("pt-BR", {
+                      hour: "2-digit",
+                      minute: "2-digit"
+                    })}
+                  </p>
+                  {message.role === "assistant" && message.metadata?.metricId && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleFeedback(message.metadata!.metricId!, 1)}
+                        className="text-xs text-muted-foreground hover:text-primary transition-colors touch-feedback"
+                        title="Útil"
+                      >
+                        👍
+                      </button>
+                      <button
+                        onClick={() => handleFeedback(message.metadata!.metricId!, 0)}
+                        className="text-xs text-muted-foreground hover:text-destructive transition-colors touch-feedback"
+                        title="Não útil"
+                      >
+                        👎
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {message.role === "user" && (
@@ -210,17 +265,17 @@ export default function ChatPage() {
           {streamingMessage && streamingMessageId && (
             <div
               key={streamingMessageId}
-              className="flex gap-3 justify-start"
+              className="flex gap-3 justify-start animate-in fade-in slide-in-from-bottom-2 duration-300"
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
-                <Sparkles className="h-5 w-5 text-white" />
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-md">
+                <Sparkles className="h-5 w-5 text-white animate-pulse" />
               </div>
-              <div className="max-w-[75%] rounded-2xl p-4 bg-muted">
-                <p className="text-sm whitespace-pre-wrap">
+              <div className="max-w-[75%] rounded-2xl p-4 bg-muted/80 backdrop-blur-sm border border-border/50 shadow-sm">
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">
                   {streamingMessage}
-                  <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1">|</span>
+                  <span className="inline-block w-2 h-4 bg-primary/60 animate-pulse ml-1 rounded">|</span>
                 </p>
-                <p className="text-xs mt-2 text-muted-foreground">
+                <p className="text-xs mt-2 text-muted-foreground opacity-70">
                   {new Date().toLocaleTimeString("pt-BR", {
                     hour: "2-digit",
                     minute: "2-digit"
@@ -231,13 +286,13 @@ export default function ChatPage() {
           )}
 
           {isLoading && !streamingMessage && (
-            <div className="flex gap-3 justify-start">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
-                <Sparkles className="h-5 w-5 text-white" />
+            <div className="flex gap-3 justify-start animate-in fade-in slide-in-from-bottom-2">
+              <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center flex-shrink-0 elevation-sm">
+                <Sparkles className="h-5 w-5 text-primary animate-pulse" />
               </div>
-              <div className="bg-muted rounded-2xl p-4">
+              <div className="glass border border-border/50 rounded-2xl p-4 elevation-sm">
                 <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
                   <p className="text-sm text-muted-foreground">NathAI está pensando...</p>
                 </div>
               </div>
@@ -250,20 +305,23 @@ export default function ChatPage() {
 
       {/* Suggested Questions */}
       {messages.length <= 1 && !isLoading && (
-        <div className="border-t bg-background/50 p-4">
+        <div className="border-t glass p-4 elevation-md">
           <div className="max-w-4xl mx-auto">
-            <p className="text-sm text-muted-foreground mb-3">Sugestões de perguntas:</p>
+            <p className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              Sugestões de perguntas:
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {suggestedQuestions.map((question, index) => (
                 <Button
                   key={index}
                   variant="outline"
                   onClick={() => handleSuggestedQuestion(question)}
-                  className="justify-start text-left h-auto py-3 px-4 bg-transparent"
+                  className="justify-start text-left h-auto py-3 px-4 border-2 border-transparent hover:border-primary/30 touch-feedback group"
                   disabled={isLoading}
                 >
-                  <Brain className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span className="text-sm">{question}</span>
+                  <Brain className="h-4 w-4 mr-2 flex-shrink-0 text-primary group-hover:scale-110 transition-transform" />
+                  <span className="text-sm group-hover:text-primary transition-colors">{question}</span>
                 </Button>
               ))}
             </div>
@@ -272,21 +330,27 @@ export default function ChatPage() {
       )}
 
       {/* Input Area */}
-      <div className="border-t bg-background p-4 sticky bottom-0">
+      <div className="border-t glass p-4 sticky bottom-0 elevation-lg safe-area-bottom">
         <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
           <div className="flex gap-2">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Digite sua mensagem..."
+              placeholder="Digite sua mensagem... (foco em maternidade 💕)"
               disabled={isLoading}
-              className="flex-1 h-12"
+              className="flex-1 h-12 rounded-xl border-2 focus:border-primary/50 transition-colors"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey && input.trim() && !isLoading) {
+                  e.preventDefault()
+                  handleSubmit(e)
+                }
+              }}
             />
             <Button
               type="submit"
               disabled={!input.trim() || isLoading}
               size="lg"
-              className="px-6"
+              className="px-6 rounded-xl elevation-md hover-lift"
             >
               {isLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -296,7 +360,7 @@ export default function ChatPage() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2 text-center">
-            A NathAI é uma assistente com IA. Sempre consulte profissionais de saúde para questões médicas.
+            💕 A NathAI é especializada em maternidade. Sempre consulte profissionais de saúde para questões médicas.
           </p>
         </form>
       </div>

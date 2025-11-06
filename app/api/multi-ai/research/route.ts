@@ -1,9 +1,10 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
-import { withRateLimit, OPTIONS, RATE_LIMITS } from "@/lib/api-utils"
+import { OPTIONS, RATE_LIMITS, withRateLimit } from "@/lib/api-utils"
+import { getApiKey, hasApiKey } from "@/lib/env"
 import { logger } from "@/lib/logger"
+import { createClient } from "@/lib/supabase/server"
+import { type NextRequest, NextResponse } from "next/server"
 
-export { OPTIONS } // CORS preflight
+export { OPTIONS }; // CORS preflight
 
 async function handleResearch(req: NextRequest) {
   const startTime = Date.now()
@@ -23,12 +24,22 @@ async function handleResearch(req: NextRequest) {
       return NextResponse.json({ error: "Query is required" }, { status: 400 })
     }
 
+    if (!hasApiKey('perplexity')) {
+      return NextResponse.json(
+        {
+          error: "Research não disponível",
+          message: "Configure PERPLEXITY_API_KEY para habilitar esta funcionalidade."
+        },
+        { status: 503 }
+      )
+    }
+
     // Usar Perplexity para pesquisa de informações médicas atualizadas
     const response = await fetch("https://api.perplexity.ai/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        Authorization: `Bearer ${getApiKey('perplexity')}`,
       },
       body: JSON.stringify({
         model: "llama-3.1-sonar-large-128k-online",

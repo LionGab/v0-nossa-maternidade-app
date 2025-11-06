@@ -172,8 +172,8 @@ export default function PerfilBebePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 flex items-center justify-center">
-        <div className="text-center space-y-4">
+      <div className="min-h-screen gradient-warm flex items-center justify-center">
+        <div className="text-center space-y-4 animate-in fade-in">
           <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
           <p className="text-lg text-muted-foreground">Carregando perfil...</p>
         </div>
@@ -194,7 +194,7 @@ export default function PerfilBebePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 pb-20 md:pb-6">
+    <div className="min-h-screen gradient-warm pb-20 md:pb-6">
       <PageHeader
         title="Perfil do Bebê"
         description="Acompanhe o crescimento e desenvolvimento"
@@ -365,8 +365,10 @@ export default function PerfilBebePage() {
               className="w-full"
               onClick={() => {
                 // TODO: Implementar modal de agendamento
-                alert("Em breve: agendar consulta diretamente pelo app!")
+                // Temporariamente desabilitado para evitar frustração
               }}
+              disabled
+              title="Em breve: agendar consulta diretamente pelo app!"
             >
               Agendar Nova Consulta
             </Button>

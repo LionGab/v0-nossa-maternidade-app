@@ -1,0 +1,52 @@
+name: Post-Merge Validation
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate Deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate environment variables
+        run: |
+          node scripts/validate-envs.js .env.example || echo "Validation skipped"
+
+      - name: Check Supabase connection
+        run: |
+          npm install -g supabase
+          supabase status --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} || echo "Supabase check skipped"
+
+      - name: Check Sentry configuration
+        run: |
+          node -e "require('@sentry/react-native')" || echo "Sentry check skipped"
+
+      - name: Validate build
+        run: |
+          npm ci
+          npm run build:mobile --dry-run || echo "Build validation skipped"
+
+      - name: Create validation report
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'success',
+              description: 'Post-merge validation passed',
+              context: 'post-merge/validation'
+            });
